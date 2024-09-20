@@ -1,12 +1,9 @@
 import React from 'react';
 import { IoHomeOutline } from "react-icons/io5";
 import { MdOutlineExplore } from "react-icons/md";
-import { MdExplore } from "react-icons/md";
-import { IoHome } from "react-icons/io5";
 import { BiCategory } from "react-icons/bi";
-import { BiSolidCategory } from "react-icons/bi";
 import { FaUser } from "react-icons/fa6";
-import { FaRegUser } from "react-icons/fa6";
+
 import Link from 'next/link';
 
 const mobileBar = () => {
