@@ -1,6 +1,6 @@
 "use client";
 
-import Image from 'next/image';
+
 
 import React, { useState } from 'react';
 
@@ -24,7 +24,7 @@ const ProductDetails = () => {
     <div>
       <div className="flex">
         <div>
-          <Image
+          <img
             className="h-[30vw]"
             src="https://sway.club/wp-content/uploads/2024/04/7-scaled.jpg"
             alt="product"
@@ -76,7 +76,7 @@ const ProductDetails = () => {
           {info === 0 && (
             <div className="flex flex-col">
               <div className="flex w-full gap-14 justify-between">
-                <Image
+                <img
                 loading='lazy'
                   src="https://sway.club/wp-content/uploads/2024/04/Peace-Back-1-600x600.jpeg"
                   className="w-[25vw]"
