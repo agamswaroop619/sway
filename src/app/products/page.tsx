@@ -3,66 +3,66 @@ import Link from 'next/link';
 
 const productsPage = () => {
 
-  const data=[
-    {
-        id: 1,
+//   const data=[
+//     {
+//         id: 1,
        
-        title: "Brainfood | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 2,
-        title: "Break Rules | Oversized-T-shirt | Sway Clothing",
+//         title: "Brainfood | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 2,
+//         title: "Break Rules | Oversized-T-shirt | Sway Clothing",
        
-    },
-    {
-        id: 3,
-        title: "Come & Go | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 4,
-        title: "Cupid | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 5,
-        title: "Endure | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 6,
-        title: "Humanity | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 7,
-        title: "It's Hard to be Simple | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 8,
-        title: "Make Your Move | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 9,
-        title: "Mentality | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 10,
-        title: "Rock | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 11,
-        title: "Songs | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 12,
-        title: "Take The Road High | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 13,
-        title: "Unleash Greatness | Oversized-T-shirt | Sway Clothing"
-    },
-    {
-        id: 14,
-        title: "Watching | Oversized-T-shirt | Sway Clothing"
-    }
-]
+//     },
+//     {
+//         id: 3,
+//         title: "Come & Go | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 4,
+//         title: "Cupid | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 5,
+//         title: "Endure | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 6,
+//         title: "Humanity | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 7,
+//         title: "It's Hard to be Simple | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 8,
+//         title: "Make Your Move | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 9,
+//         title: "Mentality | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 10,
+//         title: "Rock | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 11,
+//         title: "Songs | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 12,
+//         title: "Take The Road High | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 13,
+//         title: "Unleash Greatness | Oversized-T-shirt | Sway Clothing"
+//     },
+//     {
+//         id: 14,
+//         title: "Watching | Oversized-T-shirt | Sway Clothing"
+//     }
+// ]
 
     return (
         <div className="flex">
@@ -95,7 +95,7 @@ const productsPage = () => {
     
           {/* Products */}
           <div className='flex flex-wrap justify-between w-[75vw]'>
-          {
+          {/* {
             data.map( (item) => {
               return (
                 <Link key={item.id} href="/products/1" className='w-[30%]  flex flex-col items-center border-b my-2 p-2'>
@@ -119,7 +119,7 @@ const productsPage = () => {
                   </Link>
               )
             })
-          }
+          } */}
         </div>
         </div>
       );
