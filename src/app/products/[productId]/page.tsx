@@ -3,6 +3,7 @@
 
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 const ProductDetails = () => {
   const [num, setNum] = useState(1);
@@ -24,8 +25,9 @@ const ProductDetails = () => {
     <div className='my=8 p-8'>
       <div className="flex justify-between">
         <div className='w-[50%] p-4'>
-          <img
-            className="w-[80%]"
+          <Image
+            className=""
+            width={250} height={300}
             src="https://sway.club/wp-content/uploads/2024/04/7-scaled.jpg"
             alt="product"
           />
