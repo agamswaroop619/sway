@@ -1,8 +1,9 @@
 
-// import Image from 'next/image';
+
 import Link from "next/link";
 // import SliderBanner from "./components/SliderBanner";
 // import CardSlider from "./components/CardSlider";
+import Image from 'next/image';
 
 export default function Home() {
 
@@ -112,10 +113,13 @@ export default function Home() {
   return (
     <>
      <div className="flex justify-center relative">
-      <img
+      <Image
       alt="bg image"
       src="https://sway.club/wp-content/uploads/2024/04/600fc4707364098a5b909bc17c54ad52.jpg"
-      className='w-full'
+      height={500}
+ width={1200}
+ objectFit="cover"
+ priority
       />
        <div>
         <h3 className="absolute bottom-24 text-center left-40 text-5xl font-normal text-white ">
