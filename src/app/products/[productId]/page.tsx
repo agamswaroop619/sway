@@ -78,8 +78,9 @@ const ProductDetails = () => {
           {info === 0 && (
             <div className="flex flex-col">
               <div className="flex w-full gap-14 justify-between">
-                <img
+                <Image
                 loading='lazy'
+                width={300} height={200}
                   src="https://sway.club/wp-content/uploads/2024/04/Peace-Back-1-600x600.jpeg"
                   className="w-[25vw]"
                   alt="image"

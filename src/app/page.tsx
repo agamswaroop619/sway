@@ -1,10 +1,10 @@
 
 
-import Link from "next/link";
+// import Link from "next/link";
 // import SliderBanner from "./components/SliderBanner";
 // import CardSlider from "./components/CardSlider";
 import Image from 'next/image';
-import { Interface } from "readline";
+// import { Interface } from "readline";
 
 
 
@@ -174,8 +174,10 @@ export default function Home() {
 
       <div className="my-20 w-full flex flex-col ">
         <h2 className="text-3xl my-3">Follow Us On @Sway.society</h2>
-        <img
+        <Image
           className="w-full"
+          alt='image'
+          width={1300} height={1000}
           src="https://sway.club/wp-content/uploads/2024/04/sway-website-post-1536x922.jpg"
         />
       </div>
