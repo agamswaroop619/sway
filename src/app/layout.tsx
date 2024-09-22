@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import navbar from "./components/navbar";
+import Navbar from "./components/Navbar";
 import React from "react";
 import mobileBar from "./components/mobileBar";
 
@@ -15,6 +15,7 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -32,7 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
        <div className="relative h-[100vh] overflow-x-hidden">
-       {React.createElement(navbar)}
+       {React.createElement(Navbar)}
         {children}
         <div className=" bottom-0 sticky">{React.createElement(mobileBar)}
           </div>

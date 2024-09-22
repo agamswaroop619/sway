@@ -1,12 +1,4 @@
-
-// import Image from 'next/image';
-import Link from "next/link";
-// import SliderBanner from "./components/SliderBanner";
-// import CardSlider from "./components/CardSlider";
-
-export default function Home() {
-
-  const data = [
+export  const data = [
     {
       id: 1,
      
@@ -107,64 +99,3 @@ export default function Home() {
       ]
   }
   ]
- 
-
-  return (
-    <>
-     <div className="flex justify-center relative">
-      <img
-      alt="bg image"
-      src="https://sway.club/wp-content/uploads/2024/04/600fc4707364098a5b909bc17c54ad52.jpg"
-      className='w-full'
-      />
-       <div>
-        <h3 className="absolute bottom-24 text-center left-40 text-5xl font-normal text-white ">
-          Slay with sway
-        </h3>
-       </div>
-        <button className="absolute bottom-12 text-center left-40 bg-slate-500 p-2 rounded-full">
-          New In
-        </button>
-     </div>
-
-     {/* <SliderBanner /> */}
-     {/* <CardSlider /> */}
-
-     <div className='flex w-full justify-between '>
-          {
-            data.map( (item) => {
-              return (
-                <Link key={item.id} href="/products/1"  className='w-[30%]  flex flex-col items-center border-b my-2 p-2'>
-                <div className="relative group">
-              <img
-                src={item.images[0].url}
-                alt="image1"
-                className="w-[100%] h-[100%] object-cover rounded-lg transition-opacity duration-700 ease-in-out opacity-100 group-hover:opacity-0"
-              />
-              <img
-                src={item.images[1].url}
-                alt="image2"
-                className="w-full h-full object-cover rounded-lg transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100 absolute top-0 left-0"
-              />
-            </div>
-                 <div className='w-full p-4 text-center'>
-                 <h3 className=" mb-2 ">{item.title}</h3>
-                 <p>₹499</p>
-                 </div>
-
-                  </Link>
-              )
-            })
-          }
-          </div>
-
-      <div className="my-20 w-full flex flex-col ">
-        <h2 className="text-3xl my-3">Follow Us On @Sway.society</h2>
-        <img
-          className="w-full"
-          src="https://sway.club/wp-content/uploads/2024/04/sway-website-post-1536x922.jpg"
-        />
-      </div>
-    </>
-  );
-}
