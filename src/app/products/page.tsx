@@ -121,6 +121,7 @@ const productsPage = () => {
             })
           }
         </div>
+        
         </div>
       );
 }

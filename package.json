@@ -11,6 +11,7 @@
   "dependencies": {
     "@ant-design/react-slick": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.0",
+    "carousel": "^0.0.3",
     "firebase": "^10.13.2",
     "next": "14.2.13",
     "react": "^18",
