@@ -1,14 +1,44 @@
-import React from 'react';
+'use client'
+import { useParams } from 'next/navigation'
+import React, { useState, useEffect } from 'react';
+import { data } from '@/app/data';
 import Link from 'next/link';
-import {data} from "../data"
 
-const productsPage = () => {
+const page = () => {
 
+  const params = useParams();
+  const query = params.results;
+  const input= String(query);
 
-    return (
-        <div className="flex">
-          {/* Sidebar */}
-          <div className="w-1/4 p-4">
+  const [info, setInfo] = useState<any[]>([]);
+  // if status is true -> products not found
+  const [status, setStatus] = useState(false);
+
+  useEffect(() => {
+   
+      const searchResults = data.filter(item => item.title.toUpperCase() == input.toUpperCase() );
+      
+      // Update the state with search results
+      setInfo(searchResults);
+      console.log("info : ",info);
+      console.log("results: ", searchResults);
+
+     
+      if (searchResults.length < 1) {
+          setStatus(true);
+      }
+  }, [input]); // Depend on 'input' instead of 'params' for a more accurate dependency
+
+  useEffect(() => {
+    console.log("info updated: ", info);
+  }, [info]);
+  
+
+  if( info.length > 0)
+  return (
+    <div className='flex justify-between w-full'>
+      
+      <div className="w-1/4 p-4">
             <input type="text" placeholder="Search products" className="p-2 rounded-full w-full mb-4" />
     
             <div className="mb-4">
@@ -33,11 +63,10 @@ const productsPage = () => {
               </ul>
             </div>
           </div>
-    
-          {/* Products */}
-          <div className='flex flex-wrap justify-between w-[75vw]'>
-          {
-            data.map( (item) => {
+
+        <div className='flex flex-wrap justify-between w-[75vw]'>
+           {
+            info.map((item) => {
               return (
                 <Link key={item.id} href={`/products/${item.id}`} className='w-[30%]  flex flex-col items-center border-b my-2 p-2'>
                 <div className="relative group">
@@ -53,18 +82,27 @@ const productsPage = () => {
               />
             </div>
                  <div className='w-full p-4 text-center'>
-                 <h3 className=" mb-2 ">{item.title} | Oversized-T-shirt | Sway Clothing</h3>
+                 <h3 className=" mb-2 ">{item.title}  | Oversized-T-shirt | Sway Clothing</h3>
                  <p>₹499</p>
                  </div>
 
                   </Link>
               )
-            })
-          }
+           })}
         </div>
-        
-        </div>
-      );
+
+    </div>
+  )
+  else if( status === true)
+    return(
+      <div className='flex w-full h-screen justify-center items-center text-2xl'>
+        Products not found ...
+      </div>
+    )
+  else
+  (
+    <div className='flex w-full h-screen justify-center items-center text-2xl '>Loading...</div>
+  )
 }
 
-export default productsPage
+export default page

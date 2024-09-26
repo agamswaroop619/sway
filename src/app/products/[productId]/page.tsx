@@ -1,12 +1,21 @@
-"use client";
-
-
-
+'use client'
+ 
+import { useParams } from 'next/navigation'
 import React, { useState } from 'react';
+import { data } from '@/app/data';
 
 const ProductDetails = () => {
   const [num, setNum] = useState(1);
   const [info, setInfo] = useState(0);
+
+  const params= useParams();
+  
+  
+  const id = params.productId;
+  const numberId = Number(id);
+   const itemdata= data.filter( (item) => item.id === numberId )
+
+
 
   const incHandler = () => {
     setNum(num + 1);
@@ -21,29 +30,48 @@ const ProductDetails = () => {
   };
 
   return (
-    <div className='my=8 p-8'>
-      <div className="flex justify-between">
-        <div className='w-[50%] p-4'>
+    <div className='my-2 lg:p-8 md:p-4 xl:p-8 2xl:p-8'>
+
+      <div className="flex sm:flex-col xs:flex-col md:flex-row xl:flex-row lg:flex-row 2xl:flex-row justify-between">
+
+        <div className='md:w-[50%] lg:w-[50%] xl:w-[50%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 '>
           <img
-            className="w-[80%]"
-            src="https://sway.club/wp-content/uploads/2024/04/7-scaled.jpg"
+            className="w-[60%] sm:w-[100%] xs:w-[100%]"
+            src={itemdata[0].images[0].url}
             alt="product"
           />
         </div>
 
         {/* info */}
-        <div className='w-[50%] p-4 pr-8 tracking-wider'>
-          <h3 className='text-2xl my-4'>Brainfood | Oversized-T-shirt | Sway Clothing</h3>
-          <h3 className='text-2xl text-gray-500 my-4'>₹699.00</h3>
 
-          <div className='flex w-full gap-10'>
+        <div className='md:w-[50%] lg:w-[50%] xl:w-[50%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 pr-8 tracking-wider'>
+          <h3 className='text-2xl my-4'>{itemdata[0].title} | Oversized-T-shirt | Sway Clothing</h3>
+          <h3 className='text-2xl text-gray-500 my-4'>₹{itemdata[0].price}.00</h3>
+
+          <h3>Size</h3>
+          <div className='flex w-full justify-between my-2'>
+            <button className='border py-1 px-2 rounded-md'>Small</button>
+            <button className='border py-1 px-2 rounded-md'>Medium</button>
+            <button className='border py-1 px-2 rounded-md'>Large</button>
+            <button className='border py-1 px-2 rounded-md'>XL</button>
+            <button className='border py-1 px-2 rounded-md'>XXL</button>
+          </div>
+
+          <div className='flex w-full gap-10 '>
+
             <div className='bg-gray-600 rounded-l-full rounded-r-full py-2 my-3'>
-              <button className=' px-4 text-xl border-r-2'  onClick={decHandler}> - </button>
-              <span className=' px-4 text-lg  '>{num}</span>
-              <button className='border-l-2 px-4 text-xl ' onClick={incHandler}> + </button>
+              <button 
+              className=' px-4 text-xl  md:px-6 lg:px-7 xl:px-8  border-r-2 disabled:opacity-55'  
+              disabled= { num < 2}
+              onClick={decHandler}> - </button>
+              <span className=' px-4 text-lg  md:px-6 lg:px-7 xl:px-8  '>{num}</span>
+              <button 
+              className='border-l-2 px-4 text-xl md:px-6 lg:px-7 xl:px-8  disabled:opacity-55 '
+              disabled= { num > 4} 
+              onClick={incHandler}> + </button>
             </div>
 
-            <button className="w-[150px] border-white  border bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#009b49] before:to-[rgb(105,184,141)] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]"> Add to cart </button>
+            <button className="px-2 border-white md:px-6 lg:px-7 xl:px-8 border bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#009b49] before:to-[rgb(105,184,141)] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]"> Add to cart </button>
           </div>
 
           <p>Category: Streetwear</p>

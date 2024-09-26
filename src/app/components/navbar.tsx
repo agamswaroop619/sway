@@ -7,13 +7,38 @@ import { IoIosSearch } from "react-icons/io";
 import Link from "next/link";
 import { LuMenu } from "react-icons/lu";
 import { RxCross1 } from "react-icons/rx";
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const Navbar = () => {
 
   const [sidebar, setSidebar]= useState(true);
+  const [search, setSearch] = useState("");
+
+  const router = useRouter();
+
+  // Ensure scrolling starts at the top of the page
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [router]);
 
   const clickHandler = () => {
     setSidebar(!sidebar)
+  }
+
+  const keyHandler = (e:any) => {
+    
+   if ( e.key === "Enter" ){
+
+    console.log(search);
+    // router.push({
+    //   pathname: '/search',
+    //   query: { result: 'shirts' },
+    // });
+    router.push(`/search-results/${search}`);
+    setSearch("");
+   }
+
   }
 
   const data= [
@@ -72,10 +97,22 @@ const Navbar = () => {
       </ul>
     </nav>
 
-    
+    <label className="flex items-center border border-black peer-focus:bg-white bg-gray-300 lg:w-[20vw]">
+  <IoIosSearch className="text-3xl px-1"  />
+  <input
+    type="text"
+    className="peer focus:outline-none bg-transparent border-none"
+    placeholder="Search"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    onKeyPress={ keyHandler}
+  />
+</label>
 
-    <div className="text-2xl flex items-center md:w-[40vw] xs:w-[60vw] sm:w-[60vw] lg:w-[25vw] justify-evenly">
-      <Link href="" ><IoIosSearch  /></Link>
+
+
+    <div className="text-2xl flex items-center md:w-[30vw] xs:w-[40vw] sm:w-[40vw] lg:w-[18vw] justify-evenly">
+      
       <Link href="/wishlist"><IoMdHeartEmpty /></Link>
       <Link href="/cart"><MdOutlineShoppingCart /></Link>
       <Link href="/profile"><FaRegUser/> </Link>
