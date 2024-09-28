@@ -1,12 +1,9 @@
 'use client'
-import Link from 'next/link';
-import {data} from "../data"
-import { useRouter } from 'next/router';
+// import Link from 'next/link';
+// import {data} from "../data"
 
 const SearchPage = () => {
 
-    const router = useRouter();
-    const { result } = router.query; // Access the 'result' query param
 
     return (
         <div className="flex">
@@ -41,7 +38,7 @@ const SearchPage = () => {
           {/* Results */}
          <div>
          <h1>Search Results</h1>
-         <p>Showing results for: {result}</p>
+         <p>Showing results for: </p>
          </div>
         
         </div>

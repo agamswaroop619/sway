@@ -14,10 +14,37 @@ function CardSlider() {
     speed: 500,
     slidesToShow: 4,
     slidesToScroll: 2,
+    initialSlide: 0,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 4,
+          slidesToScroll: 3,
+          infinite: true,
+          dots: false
+        }
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+          initialSlide: 0
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1
+        }
+      }
+    ]
   };
 
   return (
-    <div className="w-[90vw] mx-10">
+    <div className="w-[100vw] px-10">
      
     <Slider {...settings}>
      {
@@ -46,7 +73,6 @@ function CardSlider() {
           })
      }
     </Slider>
-  card slider
       </div>
   );
 }

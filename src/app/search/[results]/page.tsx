@@ -4,19 +4,37 @@ import React, { useState, useEffect } from 'react';
 import { data } from '@/app/data';
 import Link from 'next/link';
 
-const page = () => {
+interface Image {
+  url: string;
+  imgId: number;
+}
+
+interface Item {
+  id: number;
+  title: string;
+  images: Image[];
+  price: number;
+  description: string;
+  category: string;
+  quantity: number;
+  descImg: string;
+  color: string;
+  review: number;
+}
+
+const SearchPage = () => {
 
   const params = useParams();
   const query = params.results;
   const input= String(query);
 
-  const [info, setInfo] = useState<any[]>([]);
+  const [info, setInfo] = useState<Item[]>([]);
   // if status is true -> products not found
   const [status, setStatus] = useState(false);
 
   useEffect(() => {
    
-      const searchResults = data.filter(item => item.title.toUpperCase() == input.toUpperCase() );
+      const searchResults = data.filter( (item) : item is Item => item.title.toUpperCase() == input.toUpperCase() );
       
       // Update the state with search results
       setInfo(searchResults);
@@ -105,4 +123,4 @@ const page = () => {
   )
 }
 
-export default page
+export default SearchPage
