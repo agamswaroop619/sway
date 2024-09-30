@@ -1,8 +1,8 @@
 'use client'
 import React, { useState, useEffect } from "react";
-import { IoMdHeartEmpty } from "react-icons/io";
-import { MdOutlineShoppingCart } from "react-icons/md";
-import { FaRegUser } from "react-icons/fa";
+import { CiHeart } from "react-icons/ci";
+import { CiShoppingCart } from "react-icons/ci";
+import { CiUser } from "react-icons/ci";
 import { IoIosSearch } from "react-icons/io";
 import Link from "next/link";
 import { LuMenu } from "react-icons/lu";
@@ -82,13 +82,13 @@ const Navbar = () => {
             />
           </label>
 
-          <div className="flex items-center md:w-[30vw] xs:w-[40vw] sm:w-[40vw] lg:w-[18vw] justify-evenly">
-            <Link href="/wishlist"><IoMdHeartEmpty /></Link>
+          <div className="flex text-2xl items-center md:w-[30vw] xs:w-[40vw] sm:w-[40vw] lg:w-[18vw] justify-evenly">
+            <Link href="/wishlist"><CiHeart /></Link>
             <Link href="/cart" className="flex">
-              <MdOutlineShoppingCart />  <sup>{not}</sup>
+              <CiShoppingCart />  <sup className="text-sm">{not}</sup>
               {/* Display the count of cart items */}
             </Link>
-            <Link href="/profile"><FaRegUser /></Link>
+            <Link href="/profile"><CiUser /></Link>
           </div>
         </header>
       ) : (

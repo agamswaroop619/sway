@@ -3,6 +3,8 @@ import { useParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react';
 import { data } from '@/app/data';
 import Link from 'next/link';
+import FloatingSidebar from '@/app/components/FloatingSiderbar';
+import { CiFilter } from 'react-icons/ci';
 
 interface Image {
   url: string;
@@ -22,11 +24,13 @@ interface Item {
   review: number;
 }
 
-const SearchPage = () => {
+const SearchPage: React.FC = () => {
 
   const params = useParams();
   const query = params.results;
   const input= String(query);
+
+  const [floatSiderbar, setFloatSiderbar]= useState<boolean>(false);
 
   const [info, setInfo] = useState<Item[]>([]);
   // if status is true -> products not found
@@ -54,9 +58,20 @@ const SearchPage = () => {
 
   if( info.length > 0)
   return (
-    <div className='flex justify-between w-full'>
-      
-      <div className="w-1/4 p-4">
+    <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
+          {/* Floating sidebar */}
+          <div className='p-6  hidden sm:block xs:block md:hidden lg:hidden xl:hidden'>
+            <CiFilter className='text-white border text-3xl p-1' onClick={ () => setFloatSiderbar(!floatSiderbar) } />
+          </div>
+
+          {floatSiderbar && (
+        <div className='absolute left-0 z-10'>
+          <FloatingSidebar floatSiderbar={floatSiderbar} setFloatSiderbar={setFloatSiderbar}  />
+        </div>
+      )}
+
+          {/* Sidebar */}
+          <div className="w-1/4 p-4 hidden md:block lg:block xl:block">
             <input type="text" placeholder="Search products" className="p-2 rounded-full w-full mb-4" />
     
             <div className="mb-4">
@@ -81,12 +96,13 @@ const SearchPage = () => {
               </ul>
             </div>
           </div>
-
-        <div className='flex flex-wrap justify-between w-[75vw]'>
-           {
-            info.map((item) => {
+    
+          {/* Products */}
+          <div className='flex flex-wrap justify-between  sm:w-[95vw] xs:w-[95vw] sm:justify-center xs:justify-center'>
+          {
+            info.map( (item) => {
               return (
-                <Link key={item.id} href={`/products/${item.id}`} className='w-[30%]  flex flex-col items-center border-b my-2 p-2'>
+                <Link key={item.id} href={`/products/${item.id}`} className='w-[30%] sm:w-[48%] xs:w-[48%] lg:w-[30%] md:w-[30%] xl:w-[30%] flex flex-col items-center border-b my-2 p-2'>
                 <div className="relative group">
               <img
                 src={item.images[0].url}
@@ -100,16 +116,17 @@ const SearchPage = () => {
               />
             </div>
                  <div className='w-full p-4 text-center'>
-                 <h3 className=" mb-2 ">{item.title}  | Oversized-T-shirt | Sway Clothing</h3>
+                 <h3 className=" mb-2 ">{item.title} | Oversized-T-shirt | Sway Clothing</h3>
                  <p>₹499</p>
                  </div>
 
                   </Link>
               )
-           })}
+            })
+          }
         </div>
-
-    </div>
+        
+        </div>
   )
   else if( status === true)
     return(

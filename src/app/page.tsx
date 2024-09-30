@@ -1,6 +1,7 @@
 
 // import Image from 'next/image';
 // import Link from "next/link";
+
 import SliderBanner from "./components/SliderBanner";
 import CardSlider from "./components/CardSlider";
 import Footer from "./components/Footer";

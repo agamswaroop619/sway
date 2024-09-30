@@ -7,7 +7,7 @@ import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { RootState } from '@/lib/store';  // Import the RootState type
 import { addToCart } from '@/lib/features/carts/cartSlice';
 import { useRouter } from 'next/navigation';
-
+import { addToCartWishlist } from '@/lib/features/wishlist/wishlist';
 
 const selectCartItems = (state: RootState) => state.cart.items;
 
@@ -35,6 +35,7 @@ const ProductDetails = () => {
   const [info, setInfo] = useState(0);
   const [itemdata, setItemdata] = useState<Item | null>(null);  // Start as null
   const [itemInCart, setItemInCart] = useState(false);
+  const [itemInWishlist, setItemInWishlist]= useState(false);
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -43,6 +44,7 @@ const ProductDetails = () => {
   const itemsFromStore = useAppSelector(selectCartItems);
   const cartItems = itemsFromStore;
 
+
   const addHandler = (product: Item) => {
    const itemId= product.id;
    const qnt= num;
@@ -50,13 +52,7 @@ const ProductDetails = () => {
    const title= product.title;
    const image= product.images[0].url;
 
-   const cartItem= {
-    itemId,
-     qnt,
-   price,
-  title,
-    image
-   }
+   const cartItem= { itemId, qnt, price, title, image }
 
    dispatch(addToCart( cartItem))
    setItemInCart(true)
@@ -81,6 +77,19 @@ const ProductDetails = () => {
   const clickHandler = (value: number) => {
     setInfo(value);
   };
+
+  const addToWishlistHandler = ( product:Item ) => {
+    const itemId= product.id;
+   const qnt= num;
+   const price= product.price;
+   const title= product.title;
+   const image= product.images[0].url;
+
+   const cartItem= { itemId, qnt, price, title, image }
+
+   dispatch(addToCartWishlist( cartItem))
+   setItemInWishlist(true)
+  }
 
   const itemExists = (id: number) => {
     console.log("cart items:", cartItems);
@@ -143,26 +152,27 @@ const ProductDetails = () => {
             <button className='border py-1 px-2 rounded-md'>XXL</button>
           </div>
 
-          <div className='flex w-full gap-10 '>
-            <div className='bg-gray-600 rounded-l-full rounded-r-full py-2 my-3'>
+          <div className='flex md:flex-row lg:flex-row xl:flex-row w-full gap-5 sm:flex-col xs:flex-col '>
+            <div className='bg-gray-600 justify-center w-[250px] flex items-center h-[50px]  rounded-l-full rounded-r-full py-2 my-3'>
               <button
-                className=' px-4 text-xl  md:px-6 lg:px-7 xl:px-8  border-r-2 disabled:opacity-55'
+                className=' px-4 text-xl  grow  md:px-4 lg:px-4 xl:px-4  border-r-2 disabled:opacity-55'
                 disabled={num < 2}
                 onClick={decHandler}
               > - </button>
-              <span className=' px-4 text-lg  md:px-6 lg:px-7 xl:px-8  '>{num}</span>
+              <span className=' grow text-center  '>{num}</span>
               <button
-                className='border-l-2 px-4 text-xl md:px-6 lg:px-7 xl:px-8  disabled:opacity-55 '
+                className='border-l-2 px-4 grow text-xl md:px-6 lg:px-7 xl:px-8  disabled:opacity-55 '
                 disabled={num > 4}
                 onClick={incHandler}
               > + </button>
             </div>
 
-            {
+          <div className='flex gap-5 sm:mb-4 xs:mb-4'>
+          {
               !itemInCart && (
                 <button
                   onClick={() => addHandler(itemdata)}
-                  className="px-2 border-white md:px-6 lg:px-7 xl:px-8 border bg-black 
+                  className="px-2 border-white md:px-4 lg:px-4 xl:px-4 border bg-black 
                   h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer 
                   relative overflow-hidden transition-all duration-500 ease-in-out shadow-md 
                   hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full 
@@ -177,7 +187,7 @@ const ProductDetails = () => {
               itemInCart && (
                 <button
                   onClick={cartItemHandler}
-                  className="px-2 border-white md:px-6 lg:px-7 xl:px-8 border bg-black 
+                  className="px-2 border-white md:px-4 lg:px-4 xl:px-4 border bg-black 
                   h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer 
                   relative overflow-hidden transition-all duration-500 ease-in-out shadow-md 
                   hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full 
@@ -187,6 +197,35 @@ const ProductDetails = () => {
                     text-[#fff]"> View Cart </button>
               )
             }
+
+            {
+              !itemInWishlist && <button
+              onClick={() => addToWishlistHandler(itemdata)}
+              className="px-2 border-white md:px-4 lg:px-4 xl:px-4 border bg-black 
+              h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer 
+              relative overflow-hidden transition-all duration-500 ease-in-out shadow-md 
+              hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full 
+              before:w-full before:h-full before:bg-gradient-to-r before:from-[#009b49]
+               before:to-[rgb(105,184,141)] before:transition-all before:duration-500 
+               before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0
+                text-[#fff]"> Add to Wishlist </button>
+            }
+
+            {
+              itemInWishlist && 
+              <button
+                  onClick={() => addToWishlistHandler(itemdata)}
+                  className="px-2 border-white md:px-4 lg:px-4 xl:px-4 border bg-black 
+                  h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer 
+                  relative overflow-hidden transition-all duration-500 ease-in-out shadow-md 
+                  hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full 
+                  before:w-full before:h-full before:bg-gradient-to-r before:from-[#009b49]
+                   before:to-[rgb(105,184,141)] before:transition-all before:duration-500 
+                   before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0
+                    text-[#fff]"> Wishlisted </button>
+            }
+          </div>
+
           </div>
 
           <p>Category: Streetwear</p>
@@ -231,8 +270,8 @@ const ProductDetails = () => {
 
               <div>
                 Description:
-                <br />1.) Weight: 200 GSM
-                <br />2.) Composition: Mid-Weight Cotton
+                <br />1. Weight: 200 GSM
+                <br />2. Composition: Mid-Weight Cotton
                 <br />
                 MADE IN INDIA
               </div>

@@ -40,8 +40,8 @@ const CartPage = () => {
   return (
     <div>
       {cartItems.length > 0 ? (
-      <div className="px-10 flex justify-between w-full items-start">
-        <div className="px-5 w-7/12">
+      <div className="px-10 sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row flex justify-between w-full items-start">
+        <div className="px-5 md:w-7/12 lg:w-7/12 xl:w-7/12 sm:w-full xs:w-full">
           {cartItems.map((item: Products) => (
             <div key={item.itemId} className="h-60 my-2 flex border  w-full hover:cursor-pointer">
               <img src={item.image} className="h-full" alt={item.title} onClick={() => router.push(`/products/${item.itemId}`)} />
@@ -50,7 +50,7 @@ const CartPage = () => {
                 <p className="font-semibold">{item.title}</p>
                 <span className=" text-2xl pb-1" onClick={() => handleRemoveItem(item.itemId)} > <MdOutlineClear/> </span>
                  </div>
-                <p className="text-gray-600 py-1">This striking black shirt features the bold phrase Break Rules emblazoned across the back, making a powerful statement about individuality and defiance. Crafted from high-quality fabric + `...` </p>
+                <p className="text-gray-600 py-1">This striking black shirt features the bold phrase Break Rules  + `...` </p>
                
                 <p>₹{Math.ceil(item.price)}</p>
                 
@@ -59,7 +59,7 @@ const CartPage = () => {
           ))}
         </div>
 
-        <div className="border my-2 px-5 w-4/12 pb-4">
+        <div className="border my-2 px-5 md:w-4/12 lg:w-4/12 xl:w-4/12 sm:w-full xs:w-full pb-4">
           <p className="text-gray-600 font-semibold"> PRICE DETAILS ({cartItems.length} Items) </p>
 
           <div className="border-b-2 pb-2">

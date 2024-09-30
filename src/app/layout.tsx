@@ -33,16 +33,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="relative h-[100vh] overflow-x-hidden">
-          <StoreProvider >
-          {React.createElement(Navbar)}
-          {children}
-          <div className=" bottom-0 sticky">
-            {React.createElement(mobileBar)}
-          </div>
-          <Toaster/>
-          </StoreProvider>
-        </div>
+        <div className="flex flex-col min-h-[100vh] h-screen overflow-x-hidden relative">
+  <StoreProvider>
+    {React.createElement(Navbar)}
+
+    {/* Main content should grow and take available space */}
+    <div className="flex-grow">
+      {children}
+    </div>
+
+    {/* Sticky mobile bar at the bottom */}
+    <div className="sticky bottom-0">
+      {React.createElement(mobileBar)}
+    </div>
+
+    <Toaster />
+  </StoreProvider>
+</div>
+
       </body>
     </html>
   );

@@ -1,16 +1,20 @@
 'use client'
-// import Link from 'next/link';
-// import {data} from "../data"
+import { MdOutlineClear } from "react-icons/md";
 
-const SearchPage = () => {
+// types.ts
+ interface FloatingSidebarProps {
+    floatSiderbar: boolean;
+    setFloatSiderbar: React.Dispatch<React.SetStateAction<boolean>>;
+  }
+  
 
-
-    return (
-        <div className="flex">
-
-          {/* Sidebar */}
-          <div className="w-1/4 p-4">
+const FloatingSidebar: React.FC<FloatingSidebarProps> = ({ floatSiderbar, setFloatSiderbar }) => {
+  return (
+    <div className="z-10 w-[40vw] h-screen max-w-[500px] bg-black text-white">
+            <div className="flex  px-5 items-center">
             <input type="text" placeholder="Search products" className="p-2 rounded-full w-full mb-4" />
+            <MdOutlineClear className="text-3xl" onClick={() => setFloatSiderbar(!floatSiderbar)} />
+            </div>
     
             <div className="mb-4">
               <h3 className="font-bold mb-2">Filter by price</h3>
@@ -34,15 +38,9 @@ const SearchPage = () => {
               </ul>
             </div>
           </div>
-    
-          {/* Results */}
-         <div>
-         <h1>Search Results</h1>
-         <p>Showing results for: </p>
-         </div>
-        
-        </div>
-      );
+
+
+  )
 }
 
-export default SearchPage
+export default FloatingSidebar

@@ -1,14 +1,29 @@
-import React from 'react';
+'use client'
+import { useState} from 'react';
 import Link from 'next/link';
-import {data} from "../data"
+import {data} from "../data";
+import { CiFilter } from "react-icons/ci";
+import FloatingSidebar from '../components/FloatingSiderbar';
 
-const productsPage = () => {
+const ProductsPage : React.FC = () => {
+  const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false);
 
 
     return (
-        <div className="flex">
+        <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
+          {/* Floating sidebar */}
+          <div className='p-6  hidden sm:block xs:block md:hidden lg:hidden xl:hidden'>
+            <CiFilter className='text-white border text-3xl p-1' onClick={ () => setFloatSiderbar(!floatSiderbar) } />
+          </div>
+
+          {floatSiderbar && (
+        <div className='absolute left-0 z-10'>
+          <FloatingSidebar floatSiderbar={floatSiderbar} setFloatSiderbar={setFloatSiderbar}  />
+        </div>
+      )}
+
           {/* Sidebar */}
-          <div className="w-1/4 p-4">
+          <div className="w-1/4 p-4 hidden md:block lg:block xl:block">
             <input type="text" placeholder="Search products" className="p-2 rounded-full w-full mb-4" />
     
             <div className="mb-4">
@@ -35,11 +50,11 @@ const productsPage = () => {
           </div>
     
           {/* Products */}
-          <div className='flex flex-wrap justify-between w-[75vw]'>
+          <div className='flex flex-wrap justify-between  sm:w-[95vw] xs:w-[95vw] sm:justify-center xs:justify-center'>
           {
             data.map( (item) => {
               return (
-                <Link key={item.id} href={`/products/${item.id}`} className='w-[30%]  flex flex-col items-center border-b my-2 p-2'>
+                <Link key={item.id} href={`/products/${item.id}`} className='w-[30%] sm:w-[48%] xs:w-[48%] lg:w-[30%] md:w-[30%] xl:w-[30%] flex flex-col items-center border-b my-2 p-2'>
                 <div className="relative group">
               <img
                 src={item.images[0].url}
@@ -67,4 +82,4 @@ const productsPage = () => {
       );
 }
 
-export default productsPage
+export default ProductsPage
