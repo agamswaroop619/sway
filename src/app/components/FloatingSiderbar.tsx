@@ -10,7 +10,7 @@ import { MdOutlineClear } from "react-icons/md";
 
 const FloatingSidebar: React.FC<FloatingSidebarProps> = ({ floatSiderbar, setFloatSiderbar }) => {
   return (
-    <div className="z-10 w-[40vw] h-screen max-w-[500px] bg-black text-white">
+    <div className="z-10 w-[80vw] h-screen max-w-[500px] bg-black text-white">
             <div className="flex  px-5 items-center">
             <input type="text" placeholder="Search products" className="p-2 rounded-full w-full mb-4" />
             <MdOutlineClear className="text-3xl" onClick={() => setFloatSiderbar(!floatSiderbar)} />

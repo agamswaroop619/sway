@@ -1,18 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { MdOutlineClear } from "react-icons/md";
+import { MdOutlineDeleteForever } from "react-icons/md";
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
-import { RootState } from '@/lib/store';  // Import the RootState type
-import { removeFromCart } from '@/lib/features/carts/cartSlice';
+import { removeFromCart , selectCartItems, updateQnt } from '@/lib/features/carts/cartSlice';
 import { Products} from "@/lib/features/carts/cartSlice";
-
-const selectCartItems = (state: RootState) => state.cart.items;
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState<Products[]>([]);  // Initialize with empty array
+
 
   const dispatch = useAppDispatch();
 
@@ -35,63 +33,109 @@ const CartPage = () => {
     dispatch(removeFromCart(id));
   };
 
+  const incHandler = ( itemId: number, quantity: number) => {
+      const num= quantity+1;
+      dispatch( updateQnt({ itemId: itemId, quantity: num }))
+  };
+
+  const decHandler = ( itemId: number, quantity: number) => {
+    const num= quantity-1;
+    dispatch( updateQnt({ itemId: itemId, quantity: num }))
+};
+
   const total = cartItems.reduce((acc, item) => acc + item.price * item.qnt, 0);;
 
   return (
     <div>
       {cartItems.length > 0 ? (
-      <div className="px-10 sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row flex justify-between w-full items-start">
-        <div className="px-5 md:w-7/12 lg:w-7/12 xl:w-7/12 sm:w-full xs:w-full">
+      <div className="lg:px-10 sm:p-4 xs:p-3 md:p-6 xl:p-8 sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row flex justify-between w-full items-start">
+        <div className=" md:w-7/12 lg:w-7/12 xl:w-7/12 sm:w-full xs:w-full">
+        <div className='flex justify-between pb-2 text-[#7E7E7E]'>
+          <span>Products</span>
+          <span>Total</span>
+        </div>
           {cartItems.map((item: Products) => (
-            <div key={item.itemId} className="h-60 my-2 flex border  w-full hover:cursor-pointer">
-              <img src={item.image} className="h-full" alt={item.title} onClick={() => router.push(`/products/${item.itemId}`)} />
+            <div key={item.itemId} className=" mb-2 flex border-t  w-full hover:cursor-pointer">
+              <img src={item.image} className="h-32 pt-6" alt={item.title} onClick={() => router.push(`/products/${item.itemId}`)} />
               <div className="p-4 w-full">
-                <div className="flex w-full py-1 justify-between">
-                <p className="font-semibold">{item.title}</p>
-                <span className=" text-2xl pb-1" onClick={() => handleRemoveItem(item.itemId)} > <MdOutlineClear/> </span>
+                <div className="flex-row  w-full py-1 justify-between">
+                <p className=" text-xl">{item.title} | Oversized-T-shirt | Sway Clothing</p>
+                <span>₹{Math.ceil(item.price)}</span>
                  </div>
-                <p className="text-gray-600 py-1">This striking black shirt features the bold phrase Break Rules  + `...` </p>
-               
-                <p>₹{Math.ceil(item.price)}</p>
+                
+               <p>5 Left in Stock</p>
+               <p className='border p-2 my-1 w-32'>SAVE ₹300.00 </p>
+               <p>Size : Medium</p>
+
+                <div className=' justify-center border  w-[150px] flex items-center h-[50px]  rounded-lg py-2 my-3'>
+              <button
+                className=' px-4 text-xl  w-[33%]  text-center border-r-2 disabled:opacity-55'
+                disabled={item.qnt < 2}
+                onClick={() => decHandler( item.itemId, item.qnt )}
+              > - </button>
+              <span className=' w-[33%] grow text-center  '>{item.qnt}</span>
+              <button
+                className='border-l-2 text-center w-[34%]  disabled:opacity-55 '
+                
+                onClick={() => incHandler(item.itemId, item.qnt)}
+              > + </button>
+            </div>
+
+            <span className=" flex items-center gap-1 pb-1 underline" onClick={() => handleRemoveItem(item.itemId)} > <MdOutlineDeleteForever /> Remove from Cart </span>
                 
               </div>
+              <span className='pt-6'>₹{item.price*item.qnt}</span>
             </div>
           ))}
         </div>
 
-        <div className="border my-2 px-5 md:w-4/12 lg:w-4/12 xl:w-4/12 sm:w-full xs:w-full pb-4">
-          <p className="text-gray-600 font-semibold"> PRICE DETAILS ({cartItems.length} Items) </p>
+        <div className=" px-5  md:w-4/12 lg:w-4/12 xl:w-4/12 sm:w-full xs:w-full pb-4">
+          <p className="text-[#7E7E7E] "> CART TOTAL  </p>
 
-          <div className="border-b-2 pb-2">
+          <div className="p-2 border-t border-b my-2">
+          Apply Coupon
+          {
+            <div className="my-1">
+              <input
+                type="text"
+                id="coupon"
+                name="coupon"
+                className="bg-transparent p-2 border focus:outline-none"
+                placeholder="Enter Coupon Code"
+              />
+
+              <button className="p-2 ml-4 border">Apply</button>
+            </div>
+          }
+        </div>
+
+          <div className="border-b-2 py-2">
             <div className="flex justify-between">
-              <p> Total Price </p>
+              <p> Subtotal </p>
               <p> ₹{Math.floor(total)} </p>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex py-2 justify-between">
               <p> Discount on MRP </p>
               <p className="text-green-500">{0}</p>
             </div>
-            <div className="flex justify-between">
-              <p> Delivery Charges </p>
-              <p className="text-green-500">
-                <span className="line-through text-gray-500">
-                  ₹80
-                </span> FREE
-              </p>
+            <div className="flex py-2 justify-between">
+             <div>
+              <p> Shipping </p>
+              <p className='text-sm text-gray-500'>Free Shipping</p>
+             </div>
+             <span className="text-green-500">FREE</span>
             </div>
           </div>
 
-          <div className="flex justify-between font-semibold">
+          <div className="flex py-3 justify-between font-semibold">
             <p>Total Amount</p>
             <p>₹{Math.floor(total )}</p>
           </div>
 
-          <Link href="#" > <button className="relative w-full my-2 px-6 py-3 overflow-hidden font-medium transition-all bg-button-bg rounded-md group">
-            <span className="absolute bottom-0 left-0 w-full h-full transition-all duration-500 ease-in-out delay-200 -translate-x-full bg-button-bg-dark rounded-md group-hover:translate-x-0"></span>
-            <span className="relative w-full text-left text-white transition-colors duration-200 ease-in-out group-hover:text-white">
-              Place order
-            </span>
+          <Link href="/checkout" > <button className="w-full text-center p-2 rounded-md bg-green-600 my-2 ">
+             Checkout 
+          
           </button>
           </Link>
         </div>
@@ -102,11 +146,11 @@ const CartPage = () => {
       :
 
       (
-        <div className='flex w-full h-screen justify-center items-center'> 
-          <h1 className="text-3xl font-bold text-white">Your Cart is
+        <div className='flex flex-col w-full h-screen justify-center items-center'> 
+          <h1 className="text-3xl my-2 font-bold text-white">Your Cart is
             Empty</h1>
 
-          <Link href="/products" >Add items</Link>
+          <Link href="/products" className='border p-2 rounded-md' >Add items</Link>
 
         </div>
       )

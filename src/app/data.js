@@ -29,6 +29,10 @@ export const data = [
         url: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1726997276/brain%20food/20240414_225825_-_Copy_uulqan.jpg",
         imgId: 6,
       },
+      {
+        url: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1726997269/brain%20food/images_12_Black_eaytqh.jpg",
+        imgId: 7,
+      }
     ],
     price: 499.0,
     description:  "This oversized t-shirt is made from a soft and comfortable material. It features a",
@@ -103,7 +107,7 @@ export const data = [
         imgId: 6,
       },
     ],
-    price: 499.0,
+    price: 399.0,
     description: "",
     quantity: 1000,
     category: "T-Shirts",
@@ -145,14 +149,14 @@ export const data = [
         imgId: 7,
       },
     ],
-    price: 499.0,
+    price: 349.0,
     description: "",
     quantity: 1000,
     category: "T-Shirts",
     descImg:
       "https://res.cloudinary.com/dbkiysdeh/image/upload/v1726997552/endure/H2_Front-1_atrmps.jpg",
     color: "Black",
-    review: 4,
+    review: 3,
   },
   {
     id: 6,
@@ -236,7 +240,7 @@ export const data = [
       "https://res.cloudinary.com/dbkiysdeh/image/upload/v1726997742/It%27s%20hard%20to%20be%20simple/H1_BACK-1_eyk5xg.png",
     quantity: 1000,
     color: "Black",
-    review: 4,
+    review: 3.5,
   },
   {
     id: 8,
@@ -269,7 +273,7 @@ export const data = [
     category: "",
     descImg: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1726997828/make%20your%20move/1709540358295_esydag.png",
     color: "Black",
-    review: 4,
+    review: 4.4,
   },
   {
     id: 9,
@@ -304,7 +308,7 @@ export const data = [
     descImg:
       "https://res.cloudinary.com/dbkiysdeh/image/upload/v1726997915/Mentality/Visit_Soulscreamx_s_Ko-fi_Shop_ng3vfj.jpg",
     color: "Black",
-    review: 4,
+    review: 3.9,
   },
   {
     id: 10,
@@ -337,13 +341,13 @@ export const data = [
     ],
     description:
       "Rock is a statement piece. Wear it with confidence and let your personality",
-    price: 499.0,
+    price: 799.0,
     quantity: 1000,
     category: "",
     descImg:
       "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074380/rock/1709289305877_trajqg.png",
     color: "Black",
-    review: 4,
+    review: 4.1,
   },
   {
     id: 11,
@@ -375,13 +379,13 @@ export const data = [
       },
     ],
     description: "",
-    price: 499.0,
+    price: 549.0,
     quantity: 1000,
     category: "",
     descImg:
       "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074481/songs/1709289308311_r7jgbk.png",
     color: "Black",
-    review: 4,
+    review: 4.2,
   },
   {
     id: 12,
@@ -418,7 +422,7 @@ export const data = [
     descImg:
       "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take%20The%20Road%20High/Take_The_High_Road_jm1cy3.jpg",
     color: "Black",
-    review: 4,
+    review: 3.5,
   },
   {
     id: 13,
@@ -450,7 +454,7 @@ export const data = [
       },
     ],
     quantity: 1000,
-    price: 499.0,
+    price: 999.0,
     category: "",
     descImg:
       "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074644/unleash%20greatness/Take_The_High_Road_bsjxmv.jpg",
@@ -486,7 +490,7 @@ export const data = [
       },
     ],
     quantity: 1000,
-    price: 499.0,
+    price: 799.0,
     category: "",
     descImg:
       "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727075293/watching/Streetwear_Design_for_brand_rfirf1.jpg",
@@ -527,10 +531,10 @@ export const data = [
       },
     ],
     quantity: 1000,
-    price: 499.0,
+    price: 699.0,
     description: "",
     category: "",
-    descIMg:
+    descImg:
       "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074762/weeper/_CRY_FOR_THE_WEEPER__Urban_Brutalist_Streetwear_Design_Black_s8rvik.jpg",
     color: "Black",
     review: 4,

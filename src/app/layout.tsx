@@ -33,7 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex flex-col min-h-[100vh] h-screen overflow-x-hidden relative">
+        <div className="flex flex-col min-h-[100vh] h-screen overflow-x-hidden  select-none relative">
   <StoreProvider>
     {React.createElement(Navbar)}
 

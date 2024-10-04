@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { MdOutlineClear } from "react-icons/md";
+import { MdOutlineDeleteForever,  MdOutlineShoppingBag } from "react-icons/md";
+
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
@@ -38,38 +39,43 @@ const WishlistPage = () => {
 
 
   return (
-    <div>
+    <div className='lg:px-10 sm:p-4 xs:p-3 md:p-6 xl:p-8 flex justify-center w-full'>
       {wishlistItems.length > 0 ? (
-      <div className="px-10 sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row flex justify-between w-full items-start">
-        <div className="px-5 md:w-7/12 lg:w-7/12 xl:w-7/12 sm:w-full xs:w-full">
-          {wishlistItems.map((item: Products) => (
-            <div key={item.itemId} className="h-60 my-2 flex border  w-full hover:cursor-pointer">
-              <img src={item.image} className="h-full" alt={item.title} onClick={() => router.push(`/products/${item.itemId}`)} />
-              <div className="p-4 w-full">
-                <div className="flex w-full py-1 justify-between">
-                <p className="font-semibold">{item.title}</p>
-                <span className=" text-2xl pb-1" onClick={() => handleRemoveItem(item.itemId)} > <MdOutlineClear/> </span>
-                 </div>
-                <p className="text-gray-600 py-1">This striking black shirt features the bold phrase Break Rules  + `...` </p>
-               
-                <p>₹{Math.ceil(item.price)}</p>
-                
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className=" md:w-[70vw] lg:w-[60vw] ">
 
-      </div>
+        {wishlistItems.map((item: Products) => (
+          <div key={item.itemId} className=" my-2 flex border  w-full hover:cursor-pointer">
+            <img src={item.image} className="xs:w-32 h-36 lg:h-44 xl:44 sm:36 lg:40 lg:w-44 xl:w-48" alt={item.title} onClick={() => router.push(`/products/${item.itemId}`)} />
+            <div className="p-4 w-full">
+              <div className="flex-row  w-full py-1 justify-between">
+              <p className="font-semibold text-xl">{item.title}</p>
+              <span>₹{Math.ceil(item.price)}</span>
+               </div>
+              
+             <p>5 Left in Stock</p>
+             <p className='border p-2 my-1 w-32'>SAVE ₹300.00 </p>
+             <p>Size : Medium</p>
+
+            
+
+          <span className=" flex items-center gap-1 pb-1 underline" onClick={ () => handleRemoveItem(item.itemId)}  > <MdOutlineDeleteForever/>  Remove from Wishlistt </span>
+          <span className=" flex items-center gap-1 pb-1 underline"> <MdOutlineShoppingBag /> Add to Cart</span>
+              
+            </div>
+          </div>
+        ))}
+ 
+    </div>
       ) 
 
       :
 
       (
-        <div className='flex w-full h-screen justify-center items-center'> 
-          <h1 className="text-3xl font-bold text-white">Your Cart is
+        <div className='flex flex-col w-full h-screen justify-center items-center'> 
+          <h1 className="text-3xl my-2 font-bold text-white">Your Cart is
             Empty</h1>
 
-          <Link href="/products" >Add items</Link>
+          <Link href="/products" className='border p-2 rounded-md' >Add items</Link>
 
         </div>
       )

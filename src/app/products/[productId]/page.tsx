@@ -16,7 +16,7 @@ interface Image {
   imgId: number;
 }
 
-interface Item {
+export interface Item {
   id: number;
   title: string;
   images: Image[];
@@ -36,6 +36,7 @@ const ProductDetails = () => {
   const [itemdata, setItemdata] = useState<Item | null>(null);  // Start as null
   const [itemInCart, setItemInCart] = useState(false);
   const [itemInWishlist, setItemInWishlist]= useState(false);
+  const [imgSrc, setImgSrc ] = useState<string | undefined>("");
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -119,10 +120,15 @@ const ProductDetails = () => {
     // Call itemExists and update the state based on its result
   const { exists, quantity } = itemExists(numberId);
   setItemInCart(exists);
-  setNum(quantity); // Update quantity based on result
-     
+  setNum(quantity); // Update quantity based on result 
 
   }, [numberId]);
+
+  useEffect( () => {
+
+    setImgSrc( itemdata?.images[0].url)
+
+  }, [itemdata])
 
   // Ensure `itemdata` exists before rendering
   if (!itemdata) return <div>Loading...</div>;
@@ -130,13 +136,29 @@ const ProductDetails = () => {
   return (
     <div className='my-2 lg:p-8 md:p-4 xl:p-8 2xl:p-8'>
       <div className="flex sm:flex-col xs:flex-col md:flex-row xl:flex-row lg:flex-row 2xl:flex-row justify-between">
-        <div className='md:w-[50%] lg:w-[50%] xl:w-[50%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 '>
+
+      <div className='flex sm:w-[100vw] xs:w-[100vw] sm:px-4 xs:px-4 md:flex-row lg:flex-row xl:flex-row sm:justify-center xs:justify-center w-[45vw] sm:flex-col-reverse xs:flex-col-reverse'>
+        <div className='flex lg:flex-col gap-4 overflo'>
+          {
+            itemdata.images.map( card => {
+              return (
+                <div key={card.imgId} className=" w-20 mt-4 ">
+                  <img src={card.url} alt="product image" className="xs:w-20 sm:w-20" onClick={() => setImgSrc(card.url)}/>
+                   </div>
+              )
+            })
+          }
+        </div>
+
+        <div className='md:w-[95%] overflow-hidden lg:w-[95%] xl:w-[95%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 '>
           <img
-            className="w-[60%] sm:w-[100%] xs:w-[100%]"
-            src={itemdata.images[0].url}
+            className="w-[100%] "
+            src={imgSrc}
             alt="product"
+            
           />
         </div>
+      </div>
 
         {/* info */}
         <div className='md:w-[50%] lg:w-[50%] xl:w-[50%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 pr-8 tracking-wider'>
@@ -155,14 +177,14 @@ const ProductDetails = () => {
           <div className='flex md:flex-row lg:flex-row xl:flex-row w-full gap-5 sm:flex-col xs:flex-col '>
             <div className='bg-gray-600 justify-center w-[250px] flex items-center h-[50px]  rounded-l-full rounded-r-full py-2 my-3'>
               <button
-                className=' px-4 text-xl  grow  md:px-4 lg:px-4 xl:px-4  border-r-2 disabled:opacity-55'
+                className=' px-4 text-xl  w-[33%]  text-center border-r-2 disabled:opacity-55'
                 disabled={num < 2}
                 onClick={decHandler}
               > - </button>
-              <span className=' grow text-center  '>{num}</span>
+              <span className=' w-[33%] grow text-center  '>{num}</span>
               <button
-                className='border-l-2 px-4 grow text-xl md:px-6 lg:px-7 xl:px-8  disabled:opacity-55 '
-                disabled={num > 4}
+                className='border-l-2 text-center w-[33%]  disabled:opacity-55 '
+                
                 onClick={incHandler}
               > + </button>
             </div>
@@ -232,7 +254,7 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      <div className="m-10 p-10">
+      <div className="lg:m-10 w-[90vw] lg:p-10">
         <div className="flex justify-around p-8">
           <span
             className="text-xl cursor-pointer"
@@ -254,18 +276,32 @@ const ProductDetails = () => {
           </span>
         </div>
 
-        <div className="p-14 w-full ">
+        <div className=" w-full">
           {info === 0 && (
-            <div className="flex flex-col">
-              <div className="flex w-full gap-14 justify-between">
+            <div className="flex flex-col w-full">
+              <div className="flex  md:flex-row lg:flex-row xl:flex-row sm:flex-col xs:flex-col  gap-14 justify-between">
                 <img
                   loading='lazy'
                   src={itemdata.descImg}
-                  className="w-[25vw]"
+                  className="w-[25vw]  sm:w-full xs:w-full "
                   alt="description image"
                 />
 
-                <p>{itemdata.description}</p>
+                <p className='p-10 sm:p-4 xs:p-4'>Boost Your Brainpower with Brainfood
+Are you looking for a way to enhance your mental clarity and focus? Look no further than Brainfood! Our specially formulated product is designed to provide your brain with the nutrients it needs to function at its best.
+
+What is Brainfood?
+Brainfood is a unique blend of natural ingredients that have been scientifically proven to support brain health. Our formula includes vitamins, minerals, and antioxidants that nourish your brain and promote optimal cognitive function.
+
+Why Choose Brainfood?
+There are many reasons to choose Brainfood as your go-to brain-boosting supplement. Firstly, our product is made with high-quality ingredients that are carefully selected for their effectiveness. We prioritize quality and purity to ensure you are getting the best possible product.
+
+Secondly, Brainfood is easy to incorporate into your daily routine. Simply take the recommended dosage with a meal and let the nutrients go to work. No need to worry about complicated regimens or inconvenient schedules.
+
+Lastly, Brainfood is backed by science. Our formula is based on extensive research and studies that demonstrate the positive impact of our ingredients on brain health. You can trust that Brainfood is a reliable and effective choice for enhancing your cognitive abilities.
+
+Experience the Benefits of Brainfood
+With Brainfood, you can experience improved focus, enhanced memory, and increased mental clarity. Say goodbye to brain fog and hello to a sharper mind. Invest in your brain health today and unlock your full cognitive potential with Brainfood.</p>
               </div>
 
               <div>
