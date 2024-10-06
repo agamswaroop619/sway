@@ -34,6 +34,15 @@ function CardSlider() {
           initialSlide: 0,
         },
       },
+      {
+        breakpoint: 300,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          infinite: true,
+          initialSlide: 0,
+        },
+      },
     ],
   };
 
@@ -60,7 +69,7 @@ function CardSlider() {
                 />
               </div>
               <div className="w-full p-4 text-center">
-                <h3 className=" mb-2 ">{item.title}</h3>
+                <h3 className=" mb-2 ">{item.title.length }</h3>
                 <p>₹{item.price}</p>
               </div>
             </Link>

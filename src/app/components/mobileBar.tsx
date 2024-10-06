@@ -8,7 +8,7 @@ import Link from "next/link";
 const mobileBar = () => {
   return (
     <div className="hidden md:hidden lg:hidden xl:hidden 2xl:hidden xs:block sm:block">
-      <div className="flex justify-around pb-2 pt-4 bg-white text-black w-[100vw]">
+      <div className="flex justify-around pb-2 pt-4 text-white bg-black w-[100vw]">
         <Link href="/" className="flex justify-center flex-col items-center">
           <IoHomeOutline className="mb-1" />
           <span>Home</span>

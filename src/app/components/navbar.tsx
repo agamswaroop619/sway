@@ -47,7 +47,7 @@ const Navbar = () => {
 
   return (
     <div>
-      <header className="flex bg-[#3fe607] xs:px-2 text-black w-full py-4 mb-2 justify-around items-center">
+      <header className="flex bg-[#3fe607]  text-black w-full py-4 mb-2 justify-between items-center">
         <Link href="/" className="w-2/12">
           <h2 className="text-2xl">Sway</h2>
         </Link>
@@ -68,7 +68,7 @@ const Navbar = () => {
 
         
 
-        <div className="flex text-2xl  items-center md:w-[38vw] xs:w-[55vw] sm:w-[55vw] lg:w-[25vw] justify-between">
+        <div className="flex text-2xl  items-center md:w-[20vw] xs:w-[40vw] sm:w-[40vw] lg:w-[13vw] justify-between">
 
     
         <label  className={`flex items-center ${
@@ -81,7 +81,7 @@ const Navbar = () => {
        showSearch && (
         <input
         type="text"
-        className="p-2 h-7 text-[17px] focus:outline-none bg-transparent border-none w-[100%]"
+        className=" h-7 text-[17px] focus:outline-none bg-transparent border-none w-[100%]"
         placeholder="Search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
