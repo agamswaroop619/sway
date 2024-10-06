@@ -3,14 +3,21 @@
 import Link from "next/link";
 import { useAppSelector } from '@/lib/hooks';
 import { RootState } from '@/lib/store';
-
+import { useRouter } from "next/navigation";
 
 const userLoginInfo = (state: RootState) => state.user.isLoggedIn;
 const userProfile = (state: RootState) => state.user.userProfile;
 
 const Page = () => {
+
+  const router = useRouter();
+
   const isLoggedIn = useAppSelector(userLoginInfo);
   const userProfileData = useAppSelector(userProfile);
+
+  if( !isLoggedIn ) {
+    router.push('/login');
+  }
   
   return (
     <div className='m-10'>

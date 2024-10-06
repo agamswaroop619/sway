@@ -19,7 +19,7 @@ const mobileBar = () => {
           className="flex justify-center flex-col items-center"
         >
           <MdOutlineExplore className="mb-1" />
-          <span>Products</span>
+          <span>Collections</span>
         </Link>
 
         <Link

@@ -13,10 +13,10 @@ const RegisterPage = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword]= useState("");
     const [error, setError] = useState< string | null>("");
     const [success, setSuccess] = useState< string | null>("");
     const [ confirmation, setConfirmation ] = useState(false);
+    const [ phone, setPhone] = useState('');
 
 
     const handleRegister = async ( event: FormEvent) => {
@@ -24,7 +24,7 @@ const RegisterPage = () => {
         setError(null);
         setSuccess(null);
 
-        if( email === "" || name === "" || password === "" || confirmPassword === "" ){
+        if( email === "" || name === "" || password === "" || phone === "" ){
             setError("Please fill all the required fields");
             return;
         }
@@ -35,11 +35,6 @@ const RegisterPage = () => {
                 return;
             }
 
-        }
-
-        if( password !== confirmPassword) {
-            setError("Passwords does not match. ");
-            return;
         }
 
         try{
@@ -54,6 +49,7 @@ const RegisterPage = () => {
                 JSON.stringify({
                     name,
                     email,
+                    phone,
                 })
             );
 
@@ -64,7 +60,7 @@ const RegisterPage = () => {
             setName("");
             setEmail("");
             setPassword("");
-            setConfirmPassword("");
+           setPhone('');
         
     } catch( error) {
         if( error instanceof Error){
@@ -79,9 +75,11 @@ const RegisterPage = () => {
   return (
     <>
     { !confirmation && 
-    <div className="w-full h-screen bg-gray-400 flex justify-center ">
+    <div className="w-full h-screen bg-gray-300 flex justify-center ">
         
         <form className="p-2 bg-white text-black flex flex-col mt-5 h-[80vh]  w-80">
+
+            <h2 className="text-xl text-center">Sign up</h2>
             
             <label className="" htmlFor="name"> Name<sup className="text-red-600 text-md">*</sup> </label>
                 <input 
@@ -95,16 +93,18 @@ const RegisterPage = () => {
                 id="email" type="text" className="border-2  px-2 py-1  focus:outline-none my-1" 
                 placeholder="abc@xyz.com" required/>
 
+<label htmlFor="Phone">Mobile<sup className="text-red-600 text-md">*</sup></label>
+            <input
+            value={phone} onChange={(e) => setPhone(e.target.value)}
+             className="border-2 px-2 py-1   focus:outline-none my-1" type="tel" id="phone" 
+             placeholder="01234 56789" required/>
+
             <label htmlFor="password" >Password<sup className="text-red-600 text-md">*</sup></label>
             <input value={password} onChange={(e) => setPassword(e.target.value)} 
             className="border-2 px-2 py-1  focus:outline-none my-1" type="password" id="password"
             placeholder="password" required />
 
-            <label htmlFor="confirm-password">Confirm Password<sup className="text-red-600 text-md">*</sup></label>
-            <input
-            value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-             className="border-2 px-2 py-1   focus:outline-none my-1" type="password" id="confirm-password" 
-             placeholder="Confirm password" required/>
+            
 
             <p className="text-red-500 h-6">{error}</p>
 
@@ -119,8 +119,17 @@ const RegisterPage = () => {
             </div>
 
             <div className="mb-2">
-                 <p className="text-center">Already have an account? <Link href="/login" 
-                    className="text-blue-600">Login</Link> </p>
+                 <p className="text-center">Already have an account
+                    <Link
+              className="group ml-1 text-blue-400 transition-all duration-100 ease-in-out"
+              href="/login"
+            >
+              <span
+                className="bg-left-bottom bg-gradient-to-r text-sm from-blue-400 to-blue-400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out"
+              >
+                Login
+              </span>
+            </Link> </p>
             </div>
 
         </form>

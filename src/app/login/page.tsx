@@ -43,7 +43,7 @@ const LoginPage = () => {
 
       if (user.emailVerified) {
         const registrationData = localStorage.getItem("registrationData");
-        const { name = "", email: storedEmail = "" } = registrationData ? JSON.parse(registrationData) : {};
+        const { name = "", email: storedEmail = "", phone = "" } = registrationData ? JSON.parse(registrationData) : {};
 
 // Optional check to log or compare storedEmail
 if (storedEmail && storedEmail !== user.email) {
@@ -59,7 +59,7 @@ if (storedEmail && storedEmail !== user.email) {
             name,
             email: user.email,
             address: "",
-            phone: "",
+            phone ,
           });
         }
 
@@ -92,7 +92,7 @@ if (storedEmail && storedEmail !== user.email) {
   };
 
   return (
-    <div className="w-full h-screen bg-gray-400 flex justify-center">
+    <div className="w-full h-screen bg-gray-300 flex justify-center">
       <form className="p-4 bg-white text-black flex flex-col mt-10 h-[65vh] w-80" onSubmit={handleLogin}>
         <h2 className="text-center text-xl">Login</h2>
 
@@ -118,20 +118,40 @@ if (storedEmail && storedEmail !== user.email) {
           required
         />
 
+
+      <Link href="#"  className="group text-blue-400 transition-all duration-100 ease-in-out"
+            
+            >
+              <span
+                className="bg-left-bottom bg-gradient-to-r text-sm from-blue-400 to-blue-400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out"
+              >
+                Forget your password?
+              </span>
+            </Link>
+
         {error && <p className="text-red-500 h-10">{error}</p>}
 
         <button
           type="submit"
-          className="w-full my-2 text-white bg-black text-center p-2 rounded-md"
+          className="w-full my-2 text-white bg-black text-center p-2 rounded-md "
         >
           Login
         </button>
 
-        <div className="bg-gray-500 h-[1px] w-full my-2"></div>
+        <div className="bg-gray-400 h-[2px] w-full border "></div>
 
-        <p className="text-center">
-          Don{`'`}t have an account?
-          <Link href="/register" className="text-blue-600">Create account</Link>
+        <p className="text-center my-1">
+          Don{`'`}t have an account
+          <Link
+              className="group ml-1 text-blue-400 transition-all duration-100 ease-in-out"
+              href="/register"
+            >
+              <span
+                className="bg-left-bottom bg-gradient-to-r text-sm from-blue-400 to-blue-400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out"
+              >
+                Create account
+              </span>
+            </Link>
         </p>
       </form>
     </div>
