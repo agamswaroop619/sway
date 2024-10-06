@@ -9,6 +9,33 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+		keyframes: {
+			glitch: {
+			  '0%': { textShadow: '2px 2px #ff00ff, -2px -2px #00ffff' },
+			  '20%': { textShadow: '2px 2px #ff00ff, -2px -2px #00ffff' },
+			  '40%': { textShadow: '-2px -2px #ff00ff, 2px 2px #00ffff' },
+			  '60%': { textShadow: '2px -2px #ff00ff, -2px 2px #00ffff' },
+			  '80%': { textShadow: '-2px 2px #ff00ff, 2px -2px #00ffff' },
+			  '100%': { textShadow: '2px 2px #ff00ff, -2px -2px #00ffff' },
+			},
+			glitchShift: {
+			  '0%': { transform: 'translate(0)' },
+			  '10%': { transform: 'translate(-2px, -2px)' },
+			  '20%': { transform: 'translate(2px, 2px)' },
+			  '30%': { transform: 'translate(-2px, 2px)' },
+			  '40%': { transform: 'translate(2px, -2px)' },
+			  '50%': { transform: 'translate(2px, 2px)' },
+			  '60%': { transform: 'translate(0)' },
+			  '70%': { transform: 'translate(-2px, -2px)' },
+			  '80%': { transform: 'translate(2px, 2px)' },
+			  '90%': { transform: 'translate(-2px, 2px)' },
+			  '100%': { transform: 'translate(0)' },
+			},
+		  },
+		  animation: {
+			glitch: 'glitch 1s infinite linear alternate-reverse',
+			glitchShift: 'glitchShift 1s infinite linear alternate-reverse',
+		  },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

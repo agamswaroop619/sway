@@ -11,8 +11,22 @@ export default function Home() {
           SLAY
         </h2>
         <div className="flex gap-[3%] lg:text-7xl xl:text-7xl md:text-5xl sm:text-3xl text-3xl">
-          <h2 className=" text-white">WITH</h2>
-          <h2 className=" text-white">SWAY</h2>
+          <h2 className="text-white">WITH</h2>
+          <h2 className="text-white animate-glitch relative">
+            SWAY
+            <span
+              className="absolute top-0 left-0 w-full h-full text-white opacity-50 animate-glitchShift"
+              style={{ clip: "rect(0, 900px, 0, 0)" }}
+            >
+              SWAY
+            </span>
+            <span
+              className="absolute top-0 left-0 w-full h-full text-green-600 opacity-50 animate-glitchShift"
+              style={{ clip: "rect(0, 900px, 0, 0)" }}
+            >
+              SWAY
+            </span>
+          </h2>
         </div>
 
         <div className="w-full py-4 flex justify-between">
