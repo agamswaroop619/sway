@@ -8,12 +8,10 @@ export default function Home() {
     <>
       <SliderBanner />
       <div className="mx-10 my-4">
-        <h2 className="lg:text-7xl xl:text-7xl md:text-5xl sm:text-3xl text-3xl text-green-600">
-          SLAY
-        </h2>
-        <div className="flex gap-[3%] lg:text-7xl xl:text-7xl md:text-5xl sm:text-3xl text-3xl">
-          <h2 className="text-white">WITH</h2>
-          <h2 className="text-white animate-glitch relative">
+        <div className="flex gap-4 align-text-center lg:text-7xl xl:text-7xl md:text-7xl sm:text-6xl text-6xl m-2">
+          <h1 className="text-green-600">SLAY</h1>
+          <h5 className="text-white">with</h5>
+          <h1 className="text-white animate-glitch relative">
             SWAY
             <span
               className="absolute top-0 left-0 w-full h-full text-white opacity-50 animate-glitchShift"
@@ -27,7 +25,7 @@ export default function Home() {
             >
               SWAY
             </span>
-          </h2>
+          </h1>
         </div>
       </div>
 

@@ -69,7 +69,7 @@ function CardSlider() {
                 />
               </div>
               <div className="w-full p-4 text-center">
-                <h3 className=" mb-2 ">{item.title.length }</h3>
+                <h3 className=" mb-2 ">{item.title}</h3>
                 <p>₹{item.price}</p>
               </div>
             </Link>
