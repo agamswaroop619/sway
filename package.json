@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/react-slick": "^1.1.2",
+    "@next/font": "^14.2.14",
     "@radix-ui/react-slot": "^1.1.0",
     "@reduxjs/toolkit": "^2.2.7",
     "carousel": "^0.0.3",

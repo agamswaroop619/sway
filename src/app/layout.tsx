@@ -1,22 +1,10 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "./components/navbar";
 import React from "react";
 import mobileBar from "./components/mobileBar";
 import StoreProvider from "./StoreProvider";
 import { Toaster } from "react-hot-toast";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
 
 export const metadata: Metadata = {
   title: "Sway Club",
@@ -30,27 +18,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <div className="flex flex-col min-h-[100vh] h-screen overflow-x-hidden  select-none relative">
-  <StoreProvider>
-    {React.createElement(Navbar)}
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@100..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="antialiased">
+        <div className="flex flex-col min-h-[100vh] h-screen overflow-x-hidden select-none relative">
+          <StoreProvider>
+            {React.createElement(Navbar)}
 
-    {/* Main content should grow and take available space */}
-    <div className="flex-grow">
-      {children}
-    </div>
+            {/* Main content should grow and take available space */}
+            <div className="flex-grow">{children}</div>
 
-    {/* Sticky mobile bar at the bottom */}
-    <div className="sticky bottom-0">
-      {React.createElement(mobileBar)}
-    </div>
+            {/* Sticky mobile bar at the bottom */}
+            <div className="sticky bottom-0">
+              {React.createElement(mobileBar)}
+            </div>
 
-    <Toaster />
-  </StoreProvider>
-</div>
-
+            <Toaster />
+          </StoreProvider>
+        </div>
       </body>
     </html>
   );
