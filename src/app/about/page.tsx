@@ -53,7 +53,7 @@ export default function About() {
                 Embracing the circular economy, we design with longevity in
                 mind. Our pieces are intended to be treasured for years,
                 encouraging a shift away from disposable fashion. When you
-                invest in our clothing, you're investing in a more sustainable
+                invest in our clothing, you are investing in a more sustainable
                 future.
               </p>
             </div>
@@ -74,8 +74,8 @@ export default function About() {
             <div className="mb-8">
               <h3 className="text-xl font-semibold mb-2">Transparency</h3>
               <p className="text-lg">
-                We value openness and transparency. We're on a journey to
-                continuously improve our practices, and we're committed to
+                We value openness and transparency. We are on a journey to
+                continuously improve our practices, and we are committed to
                 sharing our progress with you. From sourcing to production, we
                 want you to know the story behind each piece you wear. We update
                 all information every six months.
