@@ -2,7 +2,6 @@ import React from "react";
 import { IoHomeOutline } from "react-icons/io5";
 import { MdOutlineExplore } from "react-icons/md";
 import { BiCategory } from "react-icons/bi";
-import { FaUser } from "react-icons/fa6";
 
 import Link from "next/link";
 
