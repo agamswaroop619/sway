@@ -1,20 +1,18 @@
-'use client'
+"use client";
 import React, { useState, useEffect } from "react";
 import { CiHeart } from "react-icons/ci";
 import { CiShoppingCart } from "react-icons/ci";
 import { CiUser } from "react-icons/ci";
 import { IoIosSearch } from "react-icons/io";
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/lib/hooks';
-import { RootState } from '@/lib/store'; // Import the RootState type
-
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/lib/hooks";
+import { RootState } from "@/lib/store"; // Import the RootState type
 
 const selectCartItems = (state: RootState) => state.cart.items;
 const selectWishlistItems = (state: RootState) => state.wishlist.items;
 
 const Navbar = () => {
-
   const [search, setSearch] = useState("");
   const [not, setNot] = useState(0); // 'not' to store the count of cart items
   const [wish, setWish] = useState(0); // 'wish' to store
@@ -22,17 +20,15 @@ const Navbar = () => {
   const itemsFromStore = useAppSelector(selectCartItems);
   const itemsFromWish = useAppSelector(selectWishlistItems);
 
-  useEffect( () => {
-    setWish( itemsFromWish.length );
-  }, [itemsFromWish])
+  useEffect(() => {
+    setWish(itemsFromWish.length);
+  }, [itemsFromWish]);
 
   useEffect(() => {
     setNot(itemsFromStore.length); // Set the count based on the cart items length
   }, [itemsFromStore]); // This ensures it updates when `itemsFromStore` changes
 
   const router = useRouter();
-
-  
 
   const keyHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -42,55 +38,54 @@ const Navbar = () => {
     }
   };
 
- 
   return (
     <div>
-   
-        <header className="flex bg-[#3fe607] xs:px-2 text-black w-full py-4 mb-2 justify-around items-center">
-         
+      <header className="flex bg-[#3fe607] xs:px-2 text-black w-full py-4 mb-2 justify-around items-center">
+        <Link href="/" className="w-2/12">
+          <h2 className="text-2xl">Sway</h2>
+        </Link>
 
-          <Link href="/" className="w-2/12">
-            <h2 className="text-2xl">Sway</h2>
+        <nav className="hidden md:block lg:block">
+          <ul className="flex flex-wrap w-[40vw] justify-between text-xl">
+            <li>
+              <Link href="/">Home</Link>
+            </li>
+            <li>
+              <Link href="/products">Categories</Link>
+            </li>
+            <li>
+              <Link href="/about">About us</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <label className="flex items-center border border-black peer-focus:bg-white bg-gray-300 lg:w-[20vw] sm:w-[40vw] xs:w-[40vw]">
+          <IoIosSearch className="text-3xl px-1" />
+          <input
+            type="text"
+            className="peer focus:outline-none bg-transparent border-none"
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={keyHandler}
+          />
+        </label>
+
+        <div className="flex text-2xl items-center md:w-[30vw] xs:w-[40vw] sm:w-[40vw] lg:w-[18vw] justify-evenly">
+          <Link href="/wishlist" className="flex">
+            <CiHeart />
+            <sup className="text-sm"> {wish} </sup>
           </Link>
 
-          <nav className="hidden md:block lg:block">
-            <ul className="flex flex-wrap w-[40vw] justify-between text-xl">
-              <li><Link href="/">Home</Link></li>
-              <li><Link href="/products">Categories</Link></li>
-              <li><Link href="#">About us</Link></li>
-              <li><Link href="#">Track order</Link></li>
-            </ul>
-          </nav>
+          <Link href="/cart" className="flex">
+            <CiShoppingCart /> <sup className="text-sm">{not}</sup>
+          </Link>
 
-          <label className="flex items-center border border-black peer-focus:bg-white bg-gray-300 lg:w-[20vw] sm:w-[40vw] xs:w-[40vw]">
-            <IoIosSearch className="text-3xl px-1" />
-            <input
-              type="text"
-              className="peer focus:outline-none bg-transparent border-none"
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={keyHandler}
-            />
-          </label>
-
-          <div className="flex text-2xl items-center md:w-[30vw] xs:w-[40vw] sm:w-[40vw] lg:w-[18vw] justify-evenly">
-
-            <Link href="/wishlist" 
-                  className="flex">
-                            <CiHeart />    
-                            <sup className="text-sm"> { wish } </sup> 
-            </Link>
-
-            <Link href="/cart" className="flex">
-              <CiShoppingCart />  <sup className="text-sm">{not}</sup>
-             
-            </Link>
-
-            <Link href="/profile"><CiUser /></Link>
-          </div>
-        </header>
-      
+          <Link href="/profile">
+            <CiUser />
+          </Link>
+        </div>
+      </header>
     </div>
   );
 };
