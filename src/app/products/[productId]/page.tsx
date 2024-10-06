@@ -162,16 +162,38 @@ const ProductDetails = () => {
 
         {/* info */}
         <div className='md:w-[50%] lg:w-[50%] xl:w-[50%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 pr-8 tracking-wider'>
-          <h3 className='text-2xl my-4'>{itemdata.title} | Oversized-T-shirt | Sway Clothing</h3>
+          <h3 className='text-2xl mb-4'>{itemdata.title} | Oversized-T-shirt | Sway Clothing</h3>
           <h3 className='text-2xl text-gray-500 my-4'>₹{itemdata.price}.00</h3>
 
           <h3>Size</h3>
           <div className='flex w-full justify-between my-2'>
-            <button className='border py-1 px-2 rounded-md'>Small</button>
-            <button className='border py-1 px-2 rounded-md'>Medium</button>
-            <button className='border py-1 px-2 rounded-md'>Large</button>
-            <button className='border py-1 px-2 rounded-md'>XL</button>
-            <button className='border py-1 px-2 rounded-md'>XXL</button>
+
+           <div>
+           <input id='s' name="size" className="appearance-none" type="radio" /> 
+           <label htmlFor='s' className="ml-2  border p-2 rounded-md ">Small</label>
+           </div>
+
+           <div>
+           <input id='m' name="size" className="appearance-none" type="radio" /> 
+           <label htmlFor='m' className="ml-2  border p-2 rounded-md ">Medium</label>
+           </div>
+
+           <div>
+           <input id='l' name="size" className="appearance-none" type="radio" /> 
+           <label htmlFor='l' className="ml-2  border p-2 rounded-md ">Large</label>
+           </div>
+
+           <div>
+           <input id='xl' name="size" className="appearance-none" type="radio" /> 
+           <label htmlFor='xl' className="ml-2  border p-2 rounded-md ">XL</label>
+           </div>
+
+           <div>
+           <input id='xxl' name="size" className="appearance-none" type="radio" /> 
+           <label htmlFor='xxl' className="ml-2  border p-2 rounded-md ">XXL</label>
+           </div>
+
+           
           </div>
 
           <div className='flex md:flex-row lg:flex-row xl:flex-row w-full gap-5 sm:flex-col xs:flex-col '>

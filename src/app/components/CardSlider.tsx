@@ -50,7 +50,7 @@ function CardSlider() {
      {
          data.map( (item) => {
             return (
-              <Link key={item.id} href="/products/1" className='w-[22%]  flex flex-col items-center border-b my-2 p-2'>
+              <Link key={item.id} href={`/products/${item.id}`} className='w-[22%]  flex flex-col items-center border-b my-2 p-2'>
               <div className="relative group">
             <img
               src={item.images[0].url}
@@ -65,7 +65,7 @@ function CardSlider() {
           </div>
                <div className='w-full p-4 text-center'>
                <h3 className=" mb-2 ">{item.title}</h3>
-               <p>₹499</p>
+               <p>₹{item.price}</p>
                </div>
 
                 </Link>

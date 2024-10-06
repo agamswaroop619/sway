@@ -66,30 +66,31 @@ const Navbar = () => {
           </ul>
         </nav>
 
+        
 
-        <label
-  className={`flex items-center ${
-    showSearch ? 'bg-white w-[20vw]' : 'bg-transparent w-10'
-  } overflow-hidden transition-all duration-500 ease-in-out `}
->
-  <IoIosSearch className="text-3xl px-1 cursor-pointer" onClick={toggleSearchBar} />
-  {showSearch && (
-    <input
-      type="text"
-      className="peer focus:outline-none bg-transparent border-none w-full"
-      placeholder="Search"
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      onKeyDown={keyHandler}
-    />
-  )}
-</label>
+        <div className="flex text-2xl  items-center md:w-[45vw] xs:w-[40vw] sm:w-[40vw] lg:w-[25vw] justify-between">
 
-        {
-          !showSearch && 
+    
+        <label  className={`flex items-center ${
+        showSearch ? 'bg-white w-[20vw]' : 'bg-transparent w-10'
+        } overflow-hidden transition-all duration-500 ease-in-out `}>
 
-        <div className="flex text-2xl items-center md:w-[30vw] xs:w-[40vw] sm:w-[40vw] lg:w-[18vw] justify-evenly">
+        <IoIosSearch className="text-3xl px-1 cursor-pointer" onClick={toggleSearchBar} />
 
+      {  
+       showSearch && (
+        <input
+        type="text"
+        className="p-2 h-7 text-[17px] focus:outline-none bg-transparent border-none w-full"
+        placeholder="Search"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        onKeyDown={keyHandler}  />
+    )}
+    </label>
+
+      {
+        !showSearch && <div className="flex w-[70%] justify-between"> 
           <Link href="/wishlist" className="flex">
             <CiHeart />
             <sup className="text-sm"> {wish} </sup>
@@ -103,7 +104,10 @@ const Navbar = () => {
             <CiUser />
           </Link>
         </div>
-        }
+     
+      }
+      </div>
+
       </header>
     </div>
   );
