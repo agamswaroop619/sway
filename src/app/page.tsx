@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 export default function Home() {
   return (
     <>
+      <SliderBanner />
       <div className="mx-10 my-4">
         <h2 className="lg:text-7xl xl:text-7xl md:text-5xl sm:text-3xl text-3xl text-green-600">
           SLAY
@@ -28,7 +29,13 @@ export default function Home() {
             </span>
           </h2>
         </div>
+      </div>
 
+      <CardSlider />
+
+      {/* Zig-Zag Grid Section */}
+      <section>
+        <h3 className="pl-6 text-3xl font-bold">Art Gallery</h3>
         <div className="w-full py-4 flex justify-between">
           <img
             className="w-[22vw]"
@@ -88,15 +95,6 @@ export default function Home() {
             Your browser does not support the video tag.
           </video>
         </div>
-      </div>
-
-      <SliderBanner />
-
-      <CardSlider />
-
-      {/* Zig-Zag Grid Section */}
-      <section>
-        <h3 className="pl-6 text-3xl font-bold">Art Gallery</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 m-24 mt-0">
           <img
             className="w-full h-auto md:order-1"
