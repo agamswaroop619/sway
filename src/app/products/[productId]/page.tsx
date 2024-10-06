@@ -8,6 +8,7 @@ import { RootState } from '@/lib/store';  // Import the RootState type
 import { addToCart } from '@/lib/features/carts/cartSlice';
 import { useRouter } from 'next/navigation';
 import { addToCartWishlist } from '@/lib/features/wishlist/wishlist';
+import toast from 'react-hot-toast';
 
 const selectCartItems = (state: RootState) => state.cart.items;
 
@@ -37,6 +38,7 @@ const ProductDetails = () => {
   const [itemInCart, setItemInCart] = useState(false);
   const [itemInWishlist, setItemInWishlist]= useState(false);
   const [imgSrc, setImgSrc ] = useState<string | undefined>("");
+  const [ itemSize , setItemSize ] = useState("");
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -47,13 +49,20 @@ const ProductDetails = () => {
 
 
   const addHandler = (product: Item) => {
+
+    if( itemSize === "" ) {
+        toast.error("Plz select a size");
+        return;
+    }
+
    const itemId= product.id;
    const qnt= num;
    const price= product.price;
    const title= product.title;
    const image= product.images[0].url;
+   const size= itemSize;
 
-   const cartItem= { itemId, qnt, price, title, image }
+   const cartItem= { itemId, qnt, price, title, image, size }
 
    dispatch(addToCart( cartItem))
    setItemInCart(true)
@@ -80,13 +89,20 @@ const ProductDetails = () => {
   };
 
   const addToWishlistHandler = ( product:Item ) => {
+
+    if( itemSize === "" ) {
+      toast.error("Plz select a size");
+      return;
+  }
+
     const itemId= product.id;
    const qnt= num;
    const price= product.price;
    const title= product.title;
    const image= product.images[0].url;
+   const size= itemSize;
 
-   const cartItem= { itemId, qnt, price, title, image }
+   const cartItem= { itemId, qnt, price, title, image, size }
 
    dispatch(addToCartWishlist( cartItem))
    setItemInWishlist(true)
@@ -168,27 +184,27 @@ const ProductDetails = () => {
           <h3>Size</h3>
           <div className='flex w-full justify-between my-2'>
 
-           <div>
-           <input id='s' name="size" className="appearance-none" type="radio" /> 
-           <label htmlFor='s' className="ml-2  border p-2 rounded-md ">Small</label>
+           <div className={``} onClick={ () => setItemSize('Small')}>
+            <input id='s' name="size" className="appearance-none" type="radio" /> 
+            <label htmlFor='s' className="ml-2  border p-2 rounded-md ">Small</label>
            </div>
 
-           <div>
+           <div className='' onClick={ () => setItemSize('Medim')}>
            <input id='m' name="size" className="appearance-none" type="radio" /> 
            <label htmlFor='m' className="ml-2  border p-2 rounded-md ">Medium</label>
            </div>
 
-           <div>
+           <div className='' onClick={ () => setItemSize('Large')}>
            <input id='l' name="size" className="appearance-none" type="radio" /> 
            <label htmlFor='l' className="ml-2  border p-2 rounded-md ">Large</label>
            </div>
 
-           <div>
+           <div className='' onClick={ () => setItemSize('XL')}>
            <input id='xl' name="size" className="appearance-none" type="radio" /> 
            <label htmlFor='xl' className="ml-2  border p-2 rounded-md ">XL</label>
            </div>
 
-           <div>
+           <div className='' onClick={ () => setItemSize('XXL')}>
            <input id='xxl' name="size" className="appearance-none" type="radio" /> 
            <label htmlFor='xxl' className="ml-2  border p-2 rounded-md ">XXL</label>
            </div>

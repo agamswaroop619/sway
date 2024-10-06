@@ -56,7 +56,7 @@ function SliderBanner() {
               sliderBannerData.map((item) => {
                 return (
                   <div key={item.id}>
-                    <img src={item.image} alt={item.title} />
+                    <img src={item.image} alt={item.title} className="lg:h-[62vh] md:w-[45vh] sm:w-[35vh] xs:h-[33vh]"/>
                   </div>
                 )})
             }

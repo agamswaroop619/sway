@@ -30,7 +30,7 @@ const Navbar = () => {
     setShowSearch(!showSearch); // Toggle the search bar visibility
   };
 
-
+  
 
   useEffect( () => {
     
@@ -115,7 +115,7 @@ const Navbar = () => {
     </label>
 
       {
-        !showSearch && <div className="flex w-[70%] justify-between"> 
+        !showSearch && <div className="flex w-[70%] justify-between items-center"> 
           <Link href="/wishlist" className="flex hover:text-white transition-colors duration-300 ease">
             <CiHeart />
             <sup className="text-sm "> {wish} </sup>

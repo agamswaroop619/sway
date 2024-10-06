@@ -5,49 +5,58 @@ import { data } from '../data';
 import { CiFilter } from 'react-icons/ci';
 import { MdOutlineClear } from 'react-icons/md';
 import {  useRouter } from 'next/navigation';
+import { IoSearchOutline } from "react-icons/io5";
 
 const ProductsPage: React.FC = () => {
-
   const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false);
   const [filter, setFilter] = useState<string>('default');
-  const [ shopData , setShopdata ] = useState(data);
+  const [shopData, setShopdata] = useState(data);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 12; // Number of products to show per page
 
   const router = useRouter();
 
   useEffect(() => {
-    if( filter !== "default" ) { 
+    if (filter !== "default") {
+      router.push(`/products?orderby=${filter}`);
 
-      router.push(`/products?orderby=${filter}`)
-
-      if ( filter === "popular" ) {
-
-      } else if( filter === "latest" ) {
-
-      } else if ( filter === "rating" ) {
+      if (filter === "popular") {
+        // Implement popular sorting logic here
+      } else if (filter === "latest") {
+        // Implement latest sorting logic here
+      } else if (filter === "rating") {
         const filteredData = data.sort((a, b) => a.review - b.review);
         setShopdata(filteredData);
-      } else if ( filter === "low" ) {
+      } else if (filter === "low") {
         const filteredData = data.sort((a, b) => a.price - b.price);
         setShopdata(filteredData);
       } else {
         const filteredData = data.sort((a, b) => b.price - a.price);
         setShopdata(filteredData);
       }
-
+    } else {
+      router.push(`/products`);
+      setShopdata(data);
     }
-  else{
-    router.push(`/products`);
-    setShopdata(data)
+    setCurrentPage(1); // Reset to page 1 when the filter changes
+  }, [filter, router]);
 
-  }
-  } , [filter, router]);  // Add dependencies
+  // Calculate pagination
+  const totalItems = shopData.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = shopData.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
-      {/* Floating sidebar */}
-      <div className="p-6 border relative hidden sm:block xs:block md:hidden lg:hidden xl:hidden">
-        <CiFilter
-          className="text-white border text-3xl p-1"
+      
+
+
+      {/* Mobile view filter button */}
+      <div className="p-6 border w-full  relative hidden sm:block xs:block md:hidden lg:hidden xl:hidden">
+       <div className='flex w-full items-center mb-2 border-b justify-around'>
+       <CiFilter
+          className="text-white  border text-3xl p-1"
           onClick={() => setFloatSiderbar(!floatSiderbar)}
         />
         <select className="bg-black p-2 border focus:outline-none" onChange={(e) => setFilter(e.target.value)}>
@@ -58,6 +67,8 @@ const ProductsPage: React.FC = () => {
             <option value="low">Sort by Price: Low to high</option>
             <option value="high">Sort by Price: High to low</option>
           </select>
+       </div>
+
       </div>
 
       {floatSiderbar && (
@@ -95,11 +106,15 @@ const ProductsPage: React.FC = () => {
 
       {/* Sidebar */}
       <div className="w-1/4 p-4 hidden md:block lg:block xl:block">
-        <input
-          type="text"
-          placeholder="Search products"
-          className="p-2 rounded-full w-full mb-4"
-        />
+       
+       <div className='text-black mb-2 px-4 bg-white rounded-full flex border items-center'>
+          <input
+            type="text"
+            placeholder="Search products"
+            className="p-2 focus:outline-none  bg-transparent"
+          />
+          <IoSearchOutline className=' text-xl' />
+       </div>
 
         <div className="mb-4">
           <h3 className="font-bold mb-2">Filter by price</h3>
@@ -123,12 +138,15 @@ const ProductsPage: React.FC = () => {
           </ul>
         </div>
       </div>
-
+      
       {/* Products */}
-      <div className="flex flex-wrap justify-between sm:w-[95vw] xs:w-[95vw] sm:justify-center xs:justify-center">
-        <div className="h-10 flex justify-between items-center w-[100%] mx-8">
-          <span className='hidden lg:block md:block xl:block'>Displaying result</span>
-          <select className="bg-black p-2 hidden lg:block md:block xl:block border focus:outline-none" onChange={(e) => setFilter(e.target.value)}>
+      <div className="flex flex-wrap justify-between w-[100vw]">
+        <div className="h-14 py-4 flex justify-between items-center w-[100%] mx-8">
+          <span className="hidden lg:block md:block xl:block">Displaying result</span>
+          <select
+            className="bg-black p-2 hidden lg:block md:block xl:block border focus:outline-none"
+            onChange={(e) => setFilter(e.target.value)}
+          >
             <option value="default">Default sorting</option>
             <option value="popular">Sort by popularity</option>
             <option value="latest">Sort by latest</option>
@@ -138,37 +156,59 @@ const ProductsPage: React.FC = () => {
           </select>
         </div>
 
-        {shopData.length === 0 ? (
-          <p>No products found</p>
-        ) : (
-          shopData.map((item) => (
-            <Link
-              key={item.id}
-              href={`/products/${item.id}`}
-              className="w-[33%]  sm:w-[48%] xs:w-[48%] lg:w-[30%] md:w-[30%] xl:w-[30%] flex flex-col items-center m-2"
-            >
-              <div className="relative group">
-                <img
-                  src={item.images[0].url}
-                  alt="image1"
-                  className="w-[100%] h-[100%] object-cover  transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0"
-                />
-                <img
-                  src={item.images[1].url}
-                  alt="image2"
-                  className="w-full h-full object-cover rounded-lg transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100 absolute top-0 left-0"
-                />
-              </div>
-              <div className="w-full p-3 text-center">
-                <h3 className="mb-2">{item.title} | Oversized-T-shirt | Sway Clothing</h3>
-                <p>₹{item.price}</p>
-              </div>
-            </Link>
-          ))
-        )}
+        <div className="flex my-2 mx-4 flex-wrap justify-between w-full">
+          {currentItems.length === 0 ? (
+            <p>No products found</p>
+          ) : (
+            currentItems.map((item) => (
+              <Link
+                key={item.id}
+                href={`/products/${item.id}`}
+                className="w-[33%] sm:w-[47%] xs:w-[47%] lg:w-[30%] md:w-[30%] xl:w-[30%] flex flex-col items-center mb-4"
+              >
+                <div className="relative group">
+                  <img
+                    src={item.images[0].url}
+                    alt="image1"
+                    className="w-[100%] h-[100%] object-cover transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0"
+                  />
+                  <img
+                    src={item.images[1].url}
+                    alt="image2"
+                    className="w-full h-full object-cover rounded-lg transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100 absolute top-0 left-0"
+                  />
+                </div>
+                <div className="w-full p-3 text-center">
+                  <h3 className="mb-2">{item.title} | Oversized-T-shirt | Sway Clothing</h3>
+                  <p>₹{item.price}</p>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+
+        {/* Pagination controls */}
+        <div className="flex justify-center mt-4 w-full">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded mr-2 disabled:hidden"
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded ml-2 disabled:hidden"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
 export default ProductsPage;
+
