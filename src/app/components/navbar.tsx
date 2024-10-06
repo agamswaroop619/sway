@@ -68,11 +68,11 @@ const Navbar = () => {
 
         
 
-        <div className="flex text-2xl  items-center md:w-[45vw] xs:w-[40vw] sm:w-[40vw] lg:w-[25vw] justify-between">
+        <div className="flex text-2xl  items-center md:w-[38vw] xs:w-[55vw] sm:w-[55vw] lg:w-[25vw] justify-between">
 
     
         <label  className={`flex items-center ${
-        showSearch ? 'bg-white w-[20vw]' : 'bg-transparent w-10'
+        showSearch ? 'bg-white w-[100%]' : 'bg-transparent w-10'
         } overflow-hidden transition-all duration-500 ease-in-out `}>
 
         <IoIosSearch className="text-3xl px-1 cursor-pointer" onClick={toggleSearchBar} />
@@ -81,7 +81,7 @@ const Navbar = () => {
        showSearch && (
         <input
         type="text"
-        className="p-2 h-7 text-[17px] focus:outline-none bg-transparent border-none w-full"
+        className="p-2 h-7 text-[17px] focus:outline-none bg-transparent border-none w-[100%]"
         placeholder="Search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}

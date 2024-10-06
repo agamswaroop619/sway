@@ -2,17 +2,17 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-700 flex flex-col gap-y-4" >
+    <footer className="bg-gray-700 flex flex-col w-[100vw]  gap-y-4" >
       
-        <div className="flex flex-wrap p-6 w-full justify-around">
-          <div className="w-4/12 " >
+        <div className="flex md:flex-row lg:flex-row xl:flex-row xs:flex-col sm:flex-col p-6 w-full ">
+          <div className=" " >
             <h2 className="text-green-600  my-4 text-2xl ">Join our club </h2>
             <p className="mb-4">By Submittng your email, you agree to receive advertising emails from Sway. </p>
 
             <p className="my-14 ">© 2024 Sway. All Rights Reserved. </p>
           </div>
 
-          <div className="w-3/12 ">
+          <div className="">
             <h3 className="text-green-600 my-4 text-xl ">About Sway</h3>
             <ul className="flex flex-col gap-y-4">
               <li> <a href="#">Streetwear Collection</a> </li>
@@ -24,7 +24,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className="w-3/12 ">
+          <div className="">
           <h3 className="text-green-600 my-4 text-xl ">Help & Support</h3>
             <ul className="flex flex-col gap-y-4">
               <li> <a href="#">About us</a> </li>
