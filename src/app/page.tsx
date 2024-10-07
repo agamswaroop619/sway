@@ -7,8 +7,8 @@ export default function Home() {
   return (
     <>
       <SliderBanner />
-      <div className="mx-10 my-4">
-        <div className="flex gap-4 lg:justify-center sm:mx-20 md:justify-center xl:justify-center  w-[100vw]   lg:text-7xl xl:text-7xl md:text-5xl sm:text-4xl xs:text-4xl text-6xl m-2">
+      <div className=" my-4">
+        <div className="flex gap-4 justify-center w-[100vw]  lg:text-7xl xl:text-7xl md:text-5xl sm:text-4xl xs:text-4xl text-6xl">
           <h1 className="text-green-600">SLAY</h1>
           <h5 className="text-white">with</h5>
           <h1 className="text-white animate-glitch relative">
@@ -94,7 +94,7 @@ export default function Home() {
           </video>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 m-24 mt-0">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 m-24 mt-0">
           <img
             className="w-full h-auto md:order-1"
             src="https://res.cloudinary.com/dbkiysdeh/image/upload/v1727176090/collection1/IMG_6295_z8jev4.jpg"
@@ -115,7 +115,7 @@ export default function Home() {
             src="https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074378/rock/16_gsydvo.jpg"
             alt="product 4"
           />
-        </div>
+        </div> */}
       </section>
 
       <div className="my-20 w-full flex flex-col ">
