@@ -2,171 +2,175 @@
 
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { data } from '@/app/data';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { RootState } from '@/lib/store';  // Import the RootState type
 import { addToCart } from '@/lib/features/carts/cartSlice';
 import { useRouter } from 'next/navigation';
 import { addToCartWishlist } from '@/lib/features/wishlist/wishlist';
 import toast from 'react-hot-toast';
+import { Item } from '@/lib/features/items/items';
+import { itemsDataInCart } from '@/lib/features/items/items';
 
 const selectCartItems = (state: RootState) => state.cart.items;
 
-interface Image {
-  url: string;
-  imgId: number;
-}
-
-export interface Item {
-  id: number;
-  title: string;
-  images: Image[];
-  price: number;
-  description: string;
-  category: string;
-  quantity: number;
-  descImg: string;
-  color: string;
-  review: number;
-}
 
 const ProductDetails = () => {
 
+  const data = useAppSelector(itemsDataInCart); // Ensure `data` is used or handled properly
+  // You may want to log `data` if necessary for debugging:
+  console.log("data from itemsDataInCart:", data);
+  
   const [num, setNum] = useState(1);
   const [info, setInfo] = useState(0);
   const [itemdata, setItemdata] = useState<Item | null>(null);  // Start as null
   const [itemInCart, setItemInCart] = useState(false);
   const [itemInWishlist, setItemInWishlist]= useState(false);
   const [imgSrc, setImgSrc ] = useState<string | undefined>("");
-  const [ itemSize , setItemSize ] = useState("");
-
+  const [itemSize, setItemSize] = useState("");
+  
   const dispatch = useAppDispatch();
   const router = useRouter();
-
+  
   // Fetch cart items from Redux store
   const itemsFromStore = useAppSelector(selectCartItems);
   const cartItems = itemsFromStore;
-
-
+  
   const addHandler = (product: Item) => {
-
-    if( itemSize === "" ) {
-        toast.error("Plz select a size");
-        return;
+    if (itemSize === "") {
+      toast.error("Plz select a size");
+      return;
     }
-
-   const itemId= product.id;
-   const qnt= num;
-   const price= product.price;
-   const title= product.title;
-   const image= product.images[0].url;
-   const size= itemSize;
-
-   const cartItem= { itemId, qnt, price, title, image, size }
-
-   dispatch(addToCart( cartItem))
-   setItemInCart(true)
+  
+    const itemId = Number(product.id);
+    const qnt = num;
+    const price = product.price;
+    const title = product.title;
+    const image = product.images[0].url;
+    const size = itemSize;
+  
+    const cartItem = { itemId, qnt, price, title, image, size };
+  
+    dispatch(addToCart(cartItem));
+    setItemInCart(true);
   };
-
+  
   const cartItemHandler = () => {
-    router.push('/cart');
+    router.push("/cart");
   };
-
+  
   const params = useParams();
   const id = params.productId;
   const numberId = Number(id);
-
+  
   const incHandler = () => {
     setNum(num + 1);
   };
-
+  
   const decHandler = () => {
-    setNum(num - 1);
+    if (num > 1) setNum(num - 1); // Prevent decrementing below 1
   };
-
+  
   const clickHandler = (value: number) => {
     setInfo(value);
   };
-
-  const addToWishlistHandler = ( product:Item ) => {
-
-    if( itemSize === "" ) {
+  
+  const addToWishlistHandler = (product: Item) => {
+    if (itemSize === "") {
       toast.error("Plz select a size");
       return;
-  }
-
-    const itemId= product.id;
-   const qnt= num;
-   const price= product.price;
-   const title= product.title;
-   const image= product.images[0].url;
-   const size= itemSize;
-
-   const cartItem= { itemId, qnt, price, title, image, size }
-
-   dispatch(addToCartWishlist( cartItem))
-   setItemInWishlist(true)
-  }
-
+    }
+  
+    const itemId = Number(product.id);
+    const qnt = num;
+    const price = product.price;
+    const title = product.title;
+    const image = product.images[0].url;
+    const size = itemSize;
+  
+    const cartItem = { itemId, qnt, price, title, image, size };
+  
+    dispatch(addToCartWishlist(cartItem));
+    setItemInWishlist(true);
+  };
+  
   const itemExists = (id: number) => {
     console.log("cart items:", cartItems);
-    const res = cartItems.find((item) => item.itemId === id); // Ensure you're checking the correct 'id'
+    const res = cartItems.find((item) => item.itemId === id);
   
     console.log("res:", res);
-    
-    return res ? { exists: true, quantity: res.qnt } : { exists: false, quantity: 1 }; // Return quantity or default to 1
+  
+    return res ? { exists: true, quantity: res.qnt } : { exists: false, quantity: 1 };
   };
   
   // Ensure scrolling starts at the top of the page
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.scrollTo({
         top: 0,
         left: 0,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
-
-    // Find the product data by ID and ensure it's of the correct type
-    const productData = data.find((item): item is Item => item.id === numberId) || null;
-
-    // Set the state only if the productData is of the correct type
-    setItemdata(productData);
-
-    // Call itemExists and update the state based on its result
-  const { exists, quantity } = itemExists(numberId);
-  setItemInCart(exists);
-  setNum(quantity); // Update quantity based on result 
-
-  }, [numberId]);
-
-  useEffect( () => {
-
-    setImgSrc( itemdata?.images[0].url)
-
-  }, [itemdata])
+  
+    if (data && data.length > 0) {
+      const productData = data.find((item): item is Item => Number(item.id) === numberId) || null;
+  
+      setItemdata(productData);
+  
+      const { exists, quantity } = itemExists(numberId);
+      setItemInCart(exists);
+      setNum(quantity);
+    }
+  }, [numberId, data]); // Add `data` to dependencies
+  
+  useEffect(() => {
+    setImgSrc(itemdata?.images[0].url);
+  }, [itemdata]);
+  
+  
+  
+ 
 
   // Ensure `itemdata` exists before rendering
   if (!itemdata) return <div>Loading...</div>;
 
   return (
-    <div className='my-2 lg:p-8 md:p-4 xl:p-8 2xl:p-8'>
+    <div className='my-2 '>
       <div className="flex sm:flex-col xs:flex-col md:flex-row xl:flex-row lg:flex-row 2xl:flex-row justify-between">
 
-      <div className='flex sm:w-[100vw] xs:w-[100vw] sm:px-4 xs:px-4 md:flex-row lg:flex-row xl:flex-row sm:justify-center xs:justify-center w-[45vw] sm:flex-col-reverse xs:flex-col-reverse'>
-        <div className='flex lg:flex-col gap-4 overflo'>
+      <div className='flex  sm:w-[100vw] xs:w-[100vw] sm:px-4 xs:px-4 md:flex-row lg:flex-row xl:flex-row sm:justify-center xs:justify-center w-[45vw] sm:flex-col-reverse xs:flex-col-reverse'>
+
+            {/* for small screens */}
+        <div className='block lg:hidden md:hidden xl:hidden overflow-x-scroll no-scrollbar w-[100vw]'>
+        <div className='flex gap-4 h-28 w-[200vw]'>
           {
             itemdata.images.map( card => {
               return (
-                <div key={card.imgId} className=" w-20 mt-4 ">
+                <div key={card.imgId} className=" w-[20vw]  h-28">
                   <img src={card.url} alt="product image" className="xs:w-20 sm:w-20" onClick={() => setImgSrc(card.url)}/>
                    </div>
               )
             })
           }
         </div>
+        </div>
 
-        <div className='md:w-[95%] overflow-hidden lg:w-[95%] xl:w-[95%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 '>
+          {/* for large screeens */}
+        <div className='hidden lg:block md:block xl:block no-scrollbar overflow-y-scroll lg:h-[100vh] h-[27vh] w-28'>
+        <div className='flex h-[80vh] gap-y-4 flex-col '>
+          {
+            itemdata.images.map( card => {
+              return (
+                <div key={card.imgId} className=" w-20  ">
+                  <img src={card.url} alt="product image" className="xs:w-20 sm:w-20" onClick={() => setImgSrc(card.url)}/>
+                   </div>
+              )
+            })
+          }
+        </div>
+        </div>
+
+        <div className='md:w-[95%]  overflow-hidden lg:w-[95%] xl:w-[95%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 '>
           <img
             className="w-[100%] "
             src={imgSrc}
@@ -184,27 +188,32 @@ const ProductDetails = () => {
           <h3>Size</h3>
           <div className='flex w-full justify-between my-2'>
 
-           <div className={``} onClick={ () => setItemSize('Small')}>
+           <div className={`${itemSize === "s" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`}
+            onClick={ () => setItemSize('s')}>
             <input id='s' name="size" className="appearance-none" type="radio" /> 
             <label htmlFor='s' className="ml-2  border p-2 rounded-md ">Small</label>
            </div>
 
-           <div className='' onClick={ () => setItemSize('Medim')}>
+           <div className={`${itemSize === "m" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`}
+            onClick={ () => setItemSize('m')}>
            <input id='m' name="size" className="appearance-none" type="radio" /> 
            <label htmlFor='m' className="ml-2  border p-2 rounded-md ">Medium</label>
            </div>
 
-           <div className='' onClick={ () => setItemSize('Large')}>
+           <div className={`${itemSize === "l" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`} 
+           onClick={ () => setItemSize('l')}>
            <input id='l' name="size" className="appearance-none" type="radio" /> 
            <label htmlFor='l' className="ml-2  border p-2 rounded-md ">Large</label>
            </div>
 
-           <div className='' onClick={ () => setItemSize('XL')}>
+           <div className={`${itemSize === "XL" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`} 
+           onClick={ () => setItemSize('XL')}>
            <input id='xl' name="size" className="appearance-none" type="radio" /> 
            <label htmlFor='xl' className="ml-2  border p-2 rounded-md ">XL</label>
            </div>
 
-           <div className='' onClick={ () => setItemSize('XXL')}>
+           <div className={`${itemSize === "XXL" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`}
+            onClick={ () => setItemSize('XXL')}>
            <input id='xxl' name="size" className="appearance-none" type="radio" /> 
            <label htmlFor='xxl' className="ml-2  border p-2 rounded-md ">XXL</label>
            </div>
@@ -321,7 +330,7 @@ const ProductDetails = () => {
                 <img
                   loading='lazy'
                   src={itemdata.descImg}
-                  className="w-[25vw]  sm:w-full xs:w-full "
+                  className="w-[25vw] h-[35vh] lg:h-[65vh] md:w-[75vw]  xl:w-[65vw]  sm:w-full xs:w-full "
                   alt="description image"
                 />
 

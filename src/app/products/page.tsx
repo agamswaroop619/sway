@@ -1,51 +1,79 @@
 'use client'
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { data } from '../data';
 import { CiFilter } from 'react-icons/ci';
 import { MdOutlineClear } from 'react-icons/md';
 import {  useRouter } from 'next/navigation';
 import { IoSearchOutline } from "react-icons/io5";
+import { useAppSelector } from '@/lib/hooks';
+import { Item, itemsDataInCart } from '@/lib/features/items/items';
 
-const ProductsPage: React.FC = () => {
-  const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false);
-  const [filter, setFilter] = useState<string>('default');
-  const [shopData, setShopdata] = useState(data);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 12; // Number of products to show per page
+const ProductsPage= () => {
 
-  const router = useRouter();
+  const data = useAppSelector(itemsDataInCart);
 
-  useEffect(() => {
-    if (filter !== "default") {
-      router.push(`/products?orderby=${filter}`);
+const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false);
+const [filter, setFilter] = useState<string>('default');
+const [shopData, setShopData] = useState<Item[]>([]); // Updated to an empty array initially
+const [currentPage, setCurrentPage] = useState<number>(1);
+const itemsPerPage = 12; // Number of products to show per page
 
-      if (filter === "popular") {
-        // Implement popular sorting logic here
-      } else if (filter === "latest") {
-        // Implement latest sorting logic here
-      } else if (filter === "rating") {
-        const filteredData = data.sort((a, b) => a.review - b.review);
-        setShopdata(filteredData);
-      } else if (filter === "low") {
-        const filteredData = data.sort((a, b) => a.price - b.price);
-        setShopdata(filteredData);
-      } else {
-        const filteredData = data.sort((a, b) => b.price - a.price);
-        setShopdata(filteredData);
-      }
-    } else {
-      router.push(`/products`);
-      setShopdata(data);
+const router = useRouter();
+
+// Whenever the data changes, update shopData accordingly
+useEffect(() => {
+  if (data && data.length > 0) {
+    setShopData(data);
+  }
+}, [data]);
+
+// Filter and sort logic
+useEffect(() => {
+  if (filter !== "default" && data && data.length > 0) {
+    router.push(`/products?orderby=${filter}`);
+    let filteredData = [...data]; // Create a shallow copy to avoid mutating original data
+
+    if (filter === "popular") {
+      // Implement popular sorting logic here
+    } else if (filter === "latest") {
+      // Implement latest sorting logic here
+    } else if (filter === "rating") {
+      filteredData = filteredData.sort((a, b) => b.review - a.review); // Sort by rating
+    } else if (filter === "low") {
+      filteredData = filteredData.sort((a, b) => a.price - b.price); // Sort by low price
+    } else if (filter === "high") {
+      filteredData = filteredData.sort((a, b) => b.price - a.price); // Sort by high price
     }
-    setCurrentPage(1); // Reset to page 1 when the filter changes
-  }, [filter, router]);
 
+    setShopData(filteredData);
+  } else {
+    router.push(`/products`);
+    if( data && data.length > 0)
+    setShopData(data );
+  }
+  setCurrentPage(1); // Reset to page 1 when the filter changes
+}, [filter, data, router]);
+
+let totalPages: number = 0;
+let currentItems: Item[] = [];
+
+if (shopData && shopData.length > 0) {
   // Calculate pagination
   const totalItems = shopData.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = shopData.slice(startIndex, startIndex + itemsPerPage);
+  currentItems = shopData.slice(startIndex, startIndex + itemsPerPage);
+}
+
+// Handle page changes
+// const handlePageChange = (newPage: number) => {
+//   if (newPage >= 1 && newPage <= totalPages) {
+//     setCurrentPage(newPage);
+//     window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top when changing pages
+//   }
+// };
+
+
 
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
@@ -157,7 +185,7 @@ const ProductsPage: React.FC = () => {
         </div>
 
         <div className="flex my-2 mx-4 flex-wrap justify-between w-full">
-          {currentItems.length === 0 ? (
+          {  currentItems.length === 0 ? (
             <p>No products found</p>
           ) : (
             currentItems.map((item) => (

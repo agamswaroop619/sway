@@ -4,13 +4,13 @@ import { getFirestore } from "firebase/firestore";
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDPHa3zqk3Wp-7hby7tdj7vQS_63gDc23c",
-  authDomain: "otp-ver-30605.firebaseapp.com",
-  projectId: "otp-ver-30605",
-  storageBucket: "otp-ver-30605.appspot.com",
-  messagingSenderId: "947884737461",
-  appId: "1:947884737461:web:70598d9a5ce9aa17d88ffc",
-  measurementId: "G-JKJF0P4YW8"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase

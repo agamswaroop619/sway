@@ -1,37 +1,24 @@
 'use client'
 import { useParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react';
-import { data } from '@/app/data';
+import { useAppSelector } from '@/lib/hooks';
+import { itemsDataInCart } from '@/lib/features/items/items';
 import Link from 'next/link';
 import { CiFilter } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
 import { MdOutlineClear } from 'react-icons/md';
 import { IoSearchOutline } from 'react-icons/io5';
+import { Item } from '@/lib/features/items/items';
 
-interface Image {
-  url: string;
-  imgId: number;
-}
-
-interface Item {
-  id: number;
-  title: string;
-  images: Image[];
-  price: number;
-  description: string;
-  category: string;
-  quantity: number;
-  descImg: string;
-  color: string;
-  review: number;
-}
-
-const SearchPage: React.FC = () => {
+const SearchPage = () => {
 
   // search query
   const params = useParams();
   const query = params.results;
   const input= String(query);
+
+  
+  const data = useAppSelector(itemsDataInCart);
 
   // float side bar for mini screen
   const [floatSiderbar, setFloatSiderbar]= useState<boolean>(false);
@@ -52,6 +39,7 @@ const SearchPage: React.FC = () => {
 
     console.log("params : ",params);
 
+    if( data && data?.length> 0) {
       const searchResults = data.filter( (item) : item is Item => item.title.toUpperCase() == input.toUpperCase() );
      
       if (searchResults.length < 1) {
@@ -61,25 +49,32 @@ const SearchPage: React.FC = () => {
         setSearchData(searchResults);
 
       }
+    }
+      
   }, [input]); // Depend on 'input' instead of 'params' for a more accurate dependency
 
   useEffect(() => {
-    if (filter !== "default") {
-      router.push(`/search/${input}?orderby=${filter}`);
+    if (filter !== "default" && data && data.length > 0) {
+      router.push(`/products?orderby=${filter}`);
+      let filteredData = [...data]; // Create a shallow copy to avoid mutating original data
   
-      if (filter === "rating") {
-        const filteredData = [...info].sort((a, b) => a.review - b.review);
-        setSearchData(filteredData);
+      if (filter === "popular") {
+        // Implement popular sorting logic here
+      } else if (filter === "latest") {
+        // Implement latest sorting logic here
+      } else if (filter === "rating") {
+        filteredData = filteredData.sort((a, b) => b.review - a.review); // Sort by rating
       } else if (filter === "low") {
-        const filteredData = [...info].sort((a, b) => a.price - b.price);
-        setSearchData(filteredData);
-      } else {
-        const filteredData = [...info].sort((a, b) => b.price - a.price);
-        setSearchData(filteredData);
+        filteredData = filteredData.sort((a, b) => a.price - b.price); // Sort by low price
+      } else if (filter === "high") {
+        filteredData = filteredData.sort((a, b) => b.price - a.price); // Sort by high price
       }
+  
+      setSearchData(filteredData);
     } else {
-      router.push(`/search/${input}`);
-      setSearchData([...info]); // Copy the array to ensure React detects the state change
+      router.push(`/products`);
+      if( data && data.length > 0)
+      setSearchData(data );
     }
   }, [filter, router, info, input]);  // Added `info` and `input` as dependencies
   
