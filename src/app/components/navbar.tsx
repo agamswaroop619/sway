@@ -40,7 +40,10 @@ const Navbar = () => {
       setNav('products');
     } else if ( url === '/about' ) {
       setNav('about');
-    } else {
+    } else if ( url === '/contacts') {
+      setNav('contacts');
+    }
+     else {
       setNav('');
     }
 
@@ -87,6 +90,12 @@ const Navbar = () => {
               <Link href="/about" 
               className={`${ nav === "about" ?  "text-white" : ""}
               hover:text-white transition-colors duration-300 ease `}>About us</Link>
+            </li>
+
+            <li>
+              <Link href="/contacts" 
+              className={`${ nav === "contacts" ?  "text-white" : ""}
+              hover:text-white transition-colors duration-300 ease `}>Contact us</Link>
             </li>
           </ul>
         </nav>

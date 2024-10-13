@@ -2,10 +2,17 @@
 
 import { useAppSelector } from "@/lib/hooks";
 import { selectCartItems } from "@/lib/features/carts/cartSlice";
-
+import Script from "next/script";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { GoArrowLeft } from "react-icons/go";
+
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
 
 const CheckoutPage = () => {
   const [mounted, setMounted] = useState(false);
@@ -26,6 +33,52 @@ const CheckoutPage = () => {
   const [payment, setPayment] = useState("cash");
   const [shipping, setShipping] = useState("free");
 
+  const createOrder = async () => {
+    const res = await fetch("/api/create-order", {
+      method: "POST",
+      body: JSON.stringify({ amount: 999 * 100 }),
+    });
+    const data = await res.json();
+
+    
+
+    const paymentData = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      order_id: data.id,
+
+      prefill: {
+        name: `${firstName} ${lastName}`,
+        contact: "1234567890"
+      },
+
+      handler: async function (response: RazorpayResponse)  {
+        // verify payment
+        const res = await fetch("/api/verify-order", {
+          method: "POST",
+          body: JSON.stringify({
+            orderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+          },
+          
+        ),
+          
+        });
+        const data = await res.json();
+        console.log(data);
+        if (data.isOk) {
+          // do whatever page transition you want here as payment was successful
+          alert("Payment successful");
+        } else {
+          alert("Payment failed");
+        }
+      },
+    };
+
+    const payment = new (window as any).Razorpay(paymentData);
+    payment.open();
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -40,56 +93,62 @@ const CheckoutPage = () => {
     0
   );
 
-  const handleCheckout = async () => {
-    const orderDetails = {
-      order_id: Math.random().toString(10),  // Random order ID
-      order_date: new Date().toISOString(),
-      billing_customer_name: "Akash Kumar",
-      billing_address: address,
-      billing_city: city,
-      billing_pincode: 841438,
-      billing_state: 'Delhi',  // Change as per user input
-      billing_country: 'India',  // Change as per user input
-      billing_email: email,
-      billing_phone: phone,
-      shipping_is_billing: true,  // Assuming shipping address is the same
-      order_items: [
-        {
-          name: 'Product 1',
-          sku: 'PROD-001',
-          units: 1,
-          selling_price: 1000,  // Example price
-        },
-      ],
-      payment_method: 'Prepaid',
-      sub_total: 1000,  // Total price
-      length: 10,
-      breadth: 15,
-      height: 20,
-      weight: 1.5,  // Product dimensions and weight
-    };
+  // const handleCheckout = async () => {
+  //   const orderDetails = {
+  //     // order_id: Math.random().toString(10),  // Random order ID
+  //     // order_date: new Date().toISOString(),
+  //     // billing_customer_name: "Akash Kumar",
+  //     // billing_address: address,
+  //     // billing_city: city,
+  //     // billing_pincode: 841438,
+  //     // billing_state: 'Delhi',  // Change as per user input
+  //     // billing_country: 'India',  // Change as per user input
+  //     // billing_email: email,
+  //     // billing_phone: phone,
+  //     // shipping_is_billing: true,  // Assuming shipping address is the same
+  //     order_items: [
+  //       {
+  //         name: 'Product 1',
+  //         sku: 'PROD-001',
+  //         units: 1,
+  //         selling_price: 1000,  // Example price
+  //       },
+  //     ],
+  //     payment_method: 'Prepaid',
+  //     sub_total: 1000,  // Total price
+  //     length: 10,
+  //     breadth: 15,
+  //     height: 20,
+  //     weight: 1.5,  // Product dimensions and weight
+  //   };
 
-    try {
-      const response = await fetch( '/api/place-order' , {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ orderDetails }),
-      });
+  //   try {
+  //     const response = await fetch( '/api/place-order' , {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ orderDetails }),
+  //     });
 
-     console.log("data : ", response);
-      alert("successfully ordered");
+  //    console.log("data : ", response);
+  //     alert("successfully ordered");
       
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('Failed to place the order.');
-    }
-  };
+  //   } catch (error) {
+  //     console.error('Checkout error:', error);
+  //     alert('Failed to place the order.');
+  //   }
+  // };
 
 
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row mx-7 justify-between">
+
+<Script
+        type="text/javascript"
+        src="https://checkout.razorpay.com/v1/checkout.js"
+      />
+
       <div className="w-[56vw] xl:w-[56vw] lg:w-[56vw] md:w-[56vw] sm:w-[90vw] xs:w-[90vw]">
 
         <div className="w-full mt-10 mb-4">
@@ -294,7 +353,7 @@ const CheckoutPage = () => {
           </Link>
           <Link
             href="#"
-            onClick={ handleCheckout }
+            onClick={ createOrder }
             className="border flex justify-center items-center  px-28 "
           >
             Place Order

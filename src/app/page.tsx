@@ -1,17 +1,15 @@
-'use client'
-import React, { useState, useEffect} from "react";
+
+import React from "react";
 import SliderBanner from "./components/SliderBanner";
 import CardSlider from "./components/CardSlider";
 import Footer from "./components/Footer";
 import { firestore } from '@/app/firebase.config';
 import { Item } from '@/lib/features/items/items';
 import { collection, getDocs } from 'firebase/firestore';
-import { useAppDispatch } from "@/lib/hooks";
-import { setItemsData } from "@/lib/features/items/items";
 import { Timestamp } from "firebase/firestore";
 
 
-async function getData(): Promise<Item[] | null> {
+export async function getData(): Promise<Item[] | null> {
   try {
     const querySnapshot = await getDocs(collection(firestore, 'products'));
     
@@ -44,35 +42,6 @@ async function getData(): Promise<Item[] | null> {
 
 export default function Home() {
 
-  const [ data , setData ] = useState< Item[] | null>(null);
-
-
-  useEffect(() => {
-    getData()
-      .then((fetchedData) => {
-        if (fetchedData && fetchedData.length > 0) {
-          setData(fetchedData); // Set fetched data to state
-        } else {
-          setData([]); // Set empty array if no data is fetched
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-        setData([]); // Handle error case by setting empty array
-      });
-  }, []); // This effect runs once on component mount
-  
-  const dispatch = useAppDispatch();
-  
-  // Separate useEffect for logging and reacting to data changes
-  useEffect(() => {
-    if (data) {
-      console.log("Updated data:", data); // This will log updated `data`
-      // Optionally dispatch the data to Redux store if necessary
-       dispatch(setItemsData(data));
-    }
-  }, [data]); // This effect runs whenever `data` is updated
-  
 
   return (
     <>

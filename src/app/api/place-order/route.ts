@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios';
+// import axios from 'axios';
 
 // POST method for placing an order
-export async function POST(req: Request) {
+export async function POST() {
   //const { orderDetails } = await req.json();  // Extract order details from the request body
 
 
   try {
     // First, authenticate the admin and get the token
-    const authResponse = await axios.post('https://apiv2.shiprocket.in/v1/external/auth/login', {
-      email: process.env.SHIP_ROCKET_EMAIL,
-      password: process.env.SHIP_ROCKET_PASS_KEY,
-    });
+    // const authResponse = await axios.post('https://apiv2.shiprocket.in/v1/external/auth/login', {
+    //   email: process.env.SHIP_ROCKET_EMAIL,
+    //   password: process.env.SHIP_ROCKET_PASS_KEY,
+    // });
 
    // const token = authResponse.data.token;
 

@@ -9,77 +9,113 @@ import { useRouter } from 'next/navigation';
 import { MdOutlineClear } from 'react-icons/md';
 import { IoSearchOutline } from 'react-icons/io5';
 import { Item } from '@/lib/features/items/items';
+import { getData } from '@/app/page';
+import { setItemsData } from '@/lib/features/items/items';
+import { useDispatch } from 'react-redux';
 
 const SearchPage = () => {
 
-  // search query
   const params = useParams();
   const query = params.results;
-  const input= String(query);
-
+  const input = String(query).replace(/%20/g, ' ');
   
-  const data = useAppSelector(itemsDataInCart);
-
-  // float side bar for mini screen
-  const [floatSiderbar, setFloatSiderbar]= useState<boolean>(false);
-
-  // for filtering data 
-  const [filter, setFilter ] = useState("default");
-
-  // search results based on input
-  const [ searchData , setSearchData ] = useState<Item[]>([]);
-
+  // Call all hooks at the top level of the component
+  const dataFromCart = useAppSelector(itemsDataInCart); // Do this only once at the top level
+  const dispatch = useDispatch();
   const router = useRouter();
-
-  const [info, setInfo] = useState<Item[]>([]);
-  // if status is true -> products not found
-  const [status, setStatus] = useState(false);
-
-  useEffect(() => {
-
-    console.log("params : ",params);
-
-    if( data && data?.length> 0) {
-      const searchResults = data.filter( (item) : item is Item => item.title.toUpperCase() == input.toUpperCase() );
-     
-      if (searchResults.length < 1) {
-          setStatus(true);
-      } else{
-        setInfo(searchResults);
-        setSearchData(searchResults);
-
-      }
-    }
-      
-  }, [input]); // Depend on 'input' instead of 'params' for a more accurate dependency
-
-  useEffect(() => {
-    if (filter !== "default" && data && data.length > 0) {
-      router.push(`/products?orderby=${filter}`);
-      let filteredData = [...data]; // Create a shallow copy to avoid mutating original data
   
-      if (filter === "popular") {
-        // Implement popular sorting logic here
-      } else if (filter === "latest") {
-        // Implement latest sorting logic here
-      } else if (filter === "rating") {
-        filteredData = filteredData.sort((a, b) => b.review - a.review); // Sort by rating
-      } else if (filter === "low") {
-        filteredData = filteredData.sort((a, b) => a.price - b.price); // Sort by low price
-      } else if (filter === "high") {
-        filteredData = filteredData.sort((a, b) => b.price - a.price); // Sort by high price
-      }
+  const [data, setData] = useState<Item[] | null>(null); // State to store data
+  const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false); // For mini screen sidebar
+  const [filter, setFilter] = useState<string>(""); // For filtering data
+  const [searchData, setSearchData] = useState<Item[]>([]); // For storing search results
+  const [info, setInfo] = useState<Item[]>([]); // For filtered and search results
+  const [status, setStatus] = useState(false); // For "products not found" status
   
-      setSearchData(filteredData);
+  // Set initial data using useAppSelector
+  useEffect(() => {
+    if (dataFromCart && dataFromCart.length > 0) {
+      setData(dataFromCart);
     } else {
-      router.push(`/products`);
-      if( data && data.length > 0)
-      setSearchData(data );
+      setData(null); // Ensure data is set to null if there's no cart data
     }
-  }, [filter, router, info, input]);  // Added `info` and `input` as dependencies
+  }, [dataFromCart]);
   
-
-
+  // Handle data fetching if not available
+  useEffect(() => {
+    if (!data) {
+      getData()
+        .then((fetchedData) => {
+          if (fetchedData && fetchedData.length > 0) {
+            dispatch(setItemsData(fetchedData)); // Dispatch to Redux state
+            setData(fetchedData); // Update local state
+          } else {
+            dispatch(setItemsData([])); // Dispatch empty data in case of no results
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+          dispatch(setItemsData([])); // Handle error by dispatching empty array
+        });
+    }
+  }, [data, dispatch]);
+  
+  // Perform search based on the input
+  useEffect(() => {
+    if (data && data.length > 0) {
+ 
+ 
+      const searchResults = data.filter((item): item is Item => {
+          const normalizedInput = input.toLowerCase();
+          const normalizedTitle = item.title.toLowerCase();
+      
+          const categoryMatch = item.category.some(cat => cat.toLowerCase() === normalizedInput);
+      
+          return normalizedTitle === normalizedInput || categoryMatch;
+      });
+      
+  
+      if (searchResults.length < 1) {
+        setStatus(true); // No products found
+      } else {
+        setStatus(false); // Reset status if products are found
+        setInfo(searchResults); // Update filtered info
+        setSearchData(searchResults); // Update search data
+      }
+    }
+  }, [input, data]);
+  
+  // Handle sorting/filtering when filter changes
+  useEffect(() => {
+    if (filter !== "default" && filter !== "" && data && data.length > 0) {
+      router.push(`/search/${input}?orderby=${filter}`);
+      let filteredData = [...searchData]; // Create a shallow copy to avoid mutating the original array
+  
+      switch (filter) {
+        case "popular":
+          // Sorting logic for popular (implement if available)
+          break;
+        case "latest":
+          // Sorting logic for latest (implement if available)
+          break;
+        case "rating":
+          filteredData = filteredData.sort((a, b) => b.review - a.review); // Sort by review rating
+          break;
+        case "low":
+          filteredData = filteredData.sort((a, b) => a.price - b.price); // Sort by low price
+          break;
+        case "high":
+          filteredData = filteredData.sort((a, b) => b.price - a.price); // Sort by high price
+          break;
+        default:
+          break;
+      }
+  
+      setSearchData(filteredData); // Update searchData with sorted data
+    } else {
+      router.push(`/search/${input}`);
+    }
+  }, [filter, router, data, input]);
+  
   if( info.length > 0)
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">

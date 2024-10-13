@@ -10,15 +10,21 @@ import { addToCartWishlist } from '@/lib/features/wishlist/wishlist';
 import toast from 'react-hot-toast';
 import { Item } from '@/lib/features/items/items';
 import { itemsDataInCart } from '@/lib/features/items/items';
+import { setItemsData } from '@/lib/features/items/items';
+import { getData } from '@/app/page';
+import StarRating from '@/app/components/Rating';
+import Link from 'next/link';
+
+
 
 const selectCartItems = (state: RootState) => state.cart.items;
 
 
 const ProductDetails = () => {
 
-  const data = useAppSelector(itemsDataInCart); // Ensure `data` is used or handled properly
+  const [ data, setData ] = useState<Item[] | null>(null);
+  const dataFromCart= useAppSelector(itemsDataInCart) ; // Ensure `data` is used or handled properly
   // You may want to log `data` if necessary for debugging:
-  console.log("data from itemsDataInCart:", data);
   
   const [num, setNum] = useState(1);
   const [info, setInfo] = useState(0);
@@ -27,9 +33,39 @@ const ProductDetails = () => {
   const [itemInWishlist, setItemInWishlist]= useState(false);
   const [imgSrc, setImgSrc ] = useState<string | undefined>("");
   const [itemSize, setItemSize] = useState("");
+  const [ reviews, setReviews ] = useState(0);
+
   
   const dispatch = useAppDispatch();
   const router = useRouter();
+
+ // Set initial data using useAppSelector
+ useEffect(() => {
+  if (dataFromCart && dataFromCart.length > 0) {
+    setData(dataFromCart);
+  } else {
+    setData(null); // Ensure data is set to null if there's no cart data
+  }
+}, [dataFromCart]);
+
+// Handle data fetching if not available
+useEffect(() => {
+  if (!data) {
+    getData()
+      .then((fetchedData) => {
+        if (fetchedData && fetchedData.length > 0) {
+          dispatch(setItemsData(fetchedData)); // Dispatch to Redux state
+          setData(fetchedData); // Update local state
+        } else {
+          dispatch(setItemsData([])); // Dispatch empty data in case of no results
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+        dispatch(setItemsData([])); // Handle error by dispatching empty array
+      });
+  }
+}, [data, dispatch]);
   
   // Fetch cart items from Redux store
   const itemsFromStore = useAppSelector(selectCartItems);
@@ -116,6 +152,10 @@ const ProductDetails = () => {
       const productData = data.find((item): item is Item => Number(item.id) === numberId) || null;
   
       setItemdata(productData);
+
+      if( productData?.userReview && productData?.userReview?.length > 0 ) {
+        setReviews(productData.userReview.length);
+      }
   
       const { exists, quantity } = itemExists(numberId);
       setItemInCart(exists);
@@ -126,23 +166,19 @@ const ProductDetails = () => {
   useEffect(() => {
     setImgSrc(itemdata?.images[0].url);
   }, [itemdata]);
-  
-  
-  
- 
 
   // Ensure `itemdata` exists before rendering
   if (!itemdata) return <div>Loading...</div>;
 
   return (
-    <div className='my-2 '>
+    <div className='my-2 scroll-smooth'>
       <div className="flex sm:flex-col xs:flex-col md:flex-row xl:flex-row lg:flex-row 2xl:flex-row justify-between">
 
       <div className='flex  sm:w-[100vw] xs:w-[100vw] sm:px-4 xs:px-4 md:flex-row lg:flex-row xl:flex-row sm:justify-center xs:justify-center w-[45vw] sm:flex-col-reverse xs:flex-col-reverse'>
 
             {/* for small screens */}
         <div className='block lg:hidden md:hidden xl:hidden overflow-x-scroll no-scrollbar w-[100vw]'>
-        <div className='flex gap-4 h-28 w-[200vw]'>
+        <div className='flex gap-[6px] h-28 w-[200vw]'>
           {
             itemdata.images.map( card => {
               return (
@@ -156,7 +192,7 @@ const ProductDetails = () => {
         </div>
 
           {/* for large screeens */}
-        <div className='hidden lg:block md:block xl:block no-scrollbar overflow-y-scroll lg:h-[100vh] h-[27vh] w-28'>
+        <div className='hidden lg:block md:block xl:block no-scrollbar overflow-y-scroll md:h-[60vh] lg:h-[100vh] h-[27vh] w-28'>
         <div className='flex h-[80vh] gap-y-4 flex-col '>
           {
             itemdata.images.map( card => {
@@ -182,40 +218,59 @@ const ProductDetails = () => {
 
         {/* info */}
         <div className='md:w-[50%] lg:w-[50%] xl:w-[50%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 pr-8 tracking-wider'>
-          <h3 className='text-2xl mb-4'>{itemdata.title} | Oversized-T-shirt | Sway Clothing</h3>
-          <h3 className='text-2xl text-gray-500 my-4'>₹{itemdata.price}.00</h3>
+          <h3 className='text-2xl '>{itemdata.title} | Oversized-T-shirt | Sway Clothing</h3>
+          <h3 className='text-2xl text-gray-500 '>₹{itemdata.price}.00</h3>
 
-          <h3>Size</h3>
+          
+         <div className='flex gap-4'>
+         { 
+         itemdata.review > 0 && (
+          // Calculate the average rating from the user reviews
+        <StarRating   rating= {itemdata.review} /> )
+        }
+
+        {
+          itemdata.review > 0 && <Link href="#reviews" onClick={() => setInfo(2)}><span >  ({itemdata.userReview?.length} reviews ) </span></Link>
+
+        }
+         </div>
+
+          <div className='flex gap-2  mb-3'>  <h3>Size :</h3> {itemSize} </div>
           <div className='flex w-full justify-between my-2'>
 
-           <div className={`${itemSize === "s" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`}
-            onClick={ () => setItemSize('s')}>
+           <div 
+            onClick={ () => setItemSize('Small')}>
             <input id='s' name="size" className="appearance-none" type="radio" /> 
-            <label htmlFor='s' className="ml-2  border p-2 rounded-md ">Small</label>
+            <label htmlFor='s' className={`${itemSize === "Small" ? "bg-white text-black  transition-colors duration-500 ease" : ""} border p-2 rounded-md `} >Small</label>
            </div>
 
-           <div className={`${itemSize === "m" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`}
-            onClick={ () => setItemSize('m')}>
+           <div 
+            onClick={ () => setItemSize('Medium')}>
            <input id='m' name="size" className="appearance-none" type="radio" /> 
-           <label htmlFor='m' className="ml-2  border p-2 rounded-md ">Medium</label>
+           <label htmlFor='m' className={`${itemSize === "Medium" ? "bg-white text-black  transition-colors duration-500 ease" : ""}
+            ml-2 border p-2 rounded-md `}>Medium</label>
            </div>
 
-           <div className={`${itemSize === "l" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`} 
-           onClick={ () => setItemSize('l')}>
+           <div 
+            onClick={ () => setItemSize('Large')}>
            <input id='l' name="size" className="appearance-none" type="radio" /> 
-           <label htmlFor='l' className="ml-2  border p-2 rounded-md ">Large</label>
+           <label htmlFor='l' className={`${itemSize === "Large" ? "bg-white text-black  transition-colors duration-500 ease" : ""}
+            ml-2 border p-2 rounded-md `}>Large</label>
            </div>
 
-           <div className={`${itemSize === "XL" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`} 
-           onClick={ () => setItemSize('XL')}>
+           <div 
+            onClick={ () => setItemSize('XL')}>
            <input id='xl' name="size" className="appearance-none" type="radio" /> 
-           <label htmlFor='xl' className="ml-2  border p-2 rounded-md ">XL</label>
+           <label htmlFor='xl' className={`${itemSize === "XL" ? "bg-white text-black  transition-colors duration-500 ease" : ""}
+            ml-2 border p-2 rounded-md `}
+            >XL</label>
            </div>
 
-           <div className={`${itemSize === "XXL" ? "bg-white text-black  transition-colors duration-500 ease" : ""}`}
+           <div 
             onClick={ () => setItemSize('XXL')}>
            <input id='xxl' name="size" className="appearance-none" type="radio" /> 
-           <label htmlFor='xxl' className="ml-2  border p-2 rounded-md ">XXL</label>
+           <label htmlFor='xxl' className={`${itemSize === "XXL" ? "bg-white text-black  transition-colors duration-500 ease" : ""}
+            ml-2 border p-2 rounded-md `}>XXL</label>
            </div>
 
            
@@ -302,7 +357,7 @@ const ProductDetails = () => {
       </div>
 
       <div className="lg:m-10 w-[90vw] lg:p-10">
-        <div className="flex justify-around p-8">
+        <div className="flex sm:gap-y-2 xs:gap-y-2 lg:flex-row xl:flex-row md:flex-row sm:flex-col xs:flex-col justify-around p-8">
           <span
             className="text-xl cursor-pointer"
             onClick={() => clickHandler(0)}
@@ -315,17 +370,19 @@ const ProductDetails = () => {
           >
             Additional information
           </span>
+
           <span
-            className="text-xl cursor-pointer"
+            className="text-xl flex cursor-pointer"
             onClick={() => clickHandler(2)}
           >
-            Reviews
+            Reviews { reviews > 0 &&  <span className='mx-1'>  ({reviews}) </span> }
+
           </span>
         </div>
 
         <div className=" w-full">
           {info === 0 && (
-            <div className="flex flex-col w-full">
+            <div className="flex flex-col w-full" id='desc'>
               <div className="flex  md:flex-row lg:flex-row xl:flex-row sm:flex-col xs:flex-col  gap-14 justify-between">
                 <img
                   loading='lazy'
@@ -351,7 +408,7 @@ Experience the Benefits of Brainfood
 With Brainfood, you can experience improved focus, enhanced memory, and increased mental clarity. Say goodbye to brain fog and hello to a sharper mind. Invest in your brain health today and unlock your full cognitive potential with Brainfood.</p>
               </div>
 
-              <div>
+              <div className='p-4'>
                 Description:
                 <br />1. Weight: 200 GSM
                 <br />2. Composition: Mid-Weight Cotton
@@ -361,8 +418,13 @@ With Brainfood, you can experience improved focus, enhanced memory, and increase
             </div>
           )}
 
-          {info === 1 && <div>Additional information content</div>}
-          {info === 2 && <div>Reviews content</div>}
+          {info === 1 && <div id='additional'> Additional information content</div>}
+          {info === 2 && <div id='reviews'>
+
+           wriite a review
+
+          
+            </div>}
         </div>
       </div>
     </div>

@@ -18,6 +18,8 @@
     "carousel": "^0.0.3",
     "firebase": "^10.13.2",
     "next": "14.2.13",
+    "range-slider-input": "^2.4.4",
+    "razorpay": "^2.9.4",
     "react": "^18",
     "react-dom": "^18",
     "react-hot-toast": "^2.4.1",

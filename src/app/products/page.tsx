@@ -5,27 +5,50 @@ import { CiFilter } from 'react-icons/ci';
 import { MdOutlineClear } from 'react-icons/md';
 import {  useRouter } from 'next/navigation';
 import { IoSearchOutline } from "react-icons/io5";
-import { useAppSelector } from '@/lib/hooks';
+import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { Item, itemsDataInCart } from '@/lib/features/items/items';
+import { getData } from '../page'
+import { setItemsData } from '@/lib/features/items/items';
+import StarRating from '../components/Rating';
 
 const ProductsPage= () => {
 
-  const data = useAppSelector(itemsDataInCart);
-
-const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false);
-const [filter, setFilter] = useState<string>('default');
-const [shopData, setShopData] = useState<Item[]>([]); // Updated to an empty array initially
-const [currentPage, setCurrentPage] = useState<number>(1);
-const itemsPerPage = 12; // Number of products to show per page
-
-const router = useRouter();
-
-// Whenever the data changes, update shopData accordingly
-useEffect(() => {
-  if (data && data.length > 0) {
-    setShopData(data);
-  }
-}, [data]);
+  const dispatch = useAppDispatch();
+  const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false);
+  const [filter, setFilter] = useState<string>('default');
+  const [shopData, setShopData] = useState<Item[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 12; // Number of products to show per page
+  
+  const data = useAppSelector(itemsDataInCart) || []; // Provide a default empty array
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (data.length === 0) {
+      getData()
+        .then((fetchedData) => {
+          if (fetchedData && fetchedData.length > 0) {
+            dispatch(setItemsData(fetchedData)); // Properly dispatch to update the Redux state
+          } else {
+            dispatch(setItemsData([])); // Handle no fetched data case
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+          dispatch(setItemsData([])); // Handle error case by dispatching an empty array
+        });
+    } else {
+      setShopData(data); // If data exists, update shopData state
+    }
+  }, [data, dispatch]);
+  
+  // Whenever the data changes, update shopData accordingly
+  useEffect(() => {
+    if (data.length > 0) {
+      setShopData(data);
+    }
+  }, [data]);
+  
 
 // Filter and sort logic
 useEffect(() => {
@@ -209,6 +232,14 @@ if (shopData && shopData.length > 0) {
                 <div className="w-full p-3 text-center">
                   <h3 className="mb-2">{item.title} | Oversized-T-shirt | Sway Clothing</h3>
                   <p>₹{item.price}</p>
+                 
+                  <div className='w-full flex items-center justify-center '>
+                  { 
+          item.review > 0 && (
+          // Calculate the average rating from the user reviews
+          <StarRating   rating= {item.review} /> )}
+                  </div>
+
                 </div>
               </Link>
             ))
