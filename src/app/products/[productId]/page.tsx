@@ -11,11 +11,9 @@ import toast from 'react-hot-toast';
 import { Item } from '@/lib/features/items/items';
 import { itemsDataInCart } from '@/lib/features/items/items';
 import { setItemsData } from '@/lib/features/items/items';
-import { getData } from '@/app/page';
+import { getData } from '@/app/utils/getData';
 import StarRating from '@/app/components/Rating';
 import Link from 'next/link';
-
-
 
 const selectCartItems = (state: RootState) => state.cart.items;
 

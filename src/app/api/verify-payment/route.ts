@@ -5,7 +5,7 @@ const generatedSignature = (
   razorpayOrderId: string,
   razorpayPaymentId: string
 ) => {
-  const keySecret = process.env.RAZORPAY_SECRET_ID as string;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET as string;
 
   const sig = crypto
     .createHmac("sha256", keySecret)
@@ -14,21 +14,42 @@ const generatedSignature = (
   return sig;
 };
 
-export async function POST(request: NextRequest) {
-  const { orderId, razorpayPaymentId, razorpaySignature } =
-    await request.json();
+type PaymentVerificationRequest = {
+  orderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+};
 
-  const signature = generatedSignature(orderId, razorpayPaymentId);
-  if (signature !== razorpaySignature) {
+export async function POST(request: NextRequest) {
+  try {
+    const { orderId, razorpayPaymentId, razorpaySignature } =
+      (await request.json()) as PaymentVerificationRequest;
+
+    if (!orderId || !razorpayPaymentId || !razorpaySignature) {
+      return NextResponse.json(
+        { message: "Invalid request data", isOk: false },
+        { status: 400 }
+      );
+    }
+
+    const signature = generatedSignature(orderId, razorpayPaymentId);
+    if (signature !== razorpaySignature) {
+      return NextResponse.json(
+        { message: "Payment verification failed", isOk: false },
+        { status: 400 }
+      );
+    }
+
+    // Process successful payment here (e.g., update DB)
     return NextResponse.json(
-      { message: "payment verification failed", isOk: false },
-      { status: 400 }
+      { message: "Payment verified successfully", isOk: true },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error during payment verification:", error);
+    return NextResponse.json(
+      { message: "Server error during payment verification", isOk: false },
+      { status: 500 }
     );
   }
-
-  // Probably some database calls here to update order or add premium status to user
-  return NextResponse.json(
-    { message: "payment verified successfully", isOk: true },
-    { status: 200 }
-  );
 }

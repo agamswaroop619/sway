@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { MdOutlineClear } from 'react-icons/md';
 import { IoSearchOutline } from 'react-icons/io5';
 import { Item } from '@/lib/features/items/items';
-import { getData } from '@/app/page';
+import { getData } from '@/app/utils/getData';
 import { setItemsData } from '@/lib/features/items/items';
 import { useDispatch } from 'react-redux';
 

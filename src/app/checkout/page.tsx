@@ -6,6 +6,8 @@ import Script from "next/script";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { GoArrowLeft } from "react-icons/go";
+import toast from "react-hot-toast";
+
 
 interface RazorpayResponse {
   razorpay_order_id: string;
@@ -14,7 +16,9 @@ interface RazorpayResponse {
 }
 
 
+
 const CheckoutPage = () => {
+
   const [mounted, setMounted] = useState(false);
   const cartItems = useAppSelector(selectCartItems);
 
@@ -34,16 +38,18 @@ const CheckoutPage = () => {
   const [shipping, setShipping] = useState("free");
 
   const createOrder = async () => {
-    const res = await fetch("/api/create-order", {
-      method: "POST",
-      body: JSON.stringify({ amount: 999 * 100 }),
-    });
-    const data = await res.json();
 
-    
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        body: JSON.stringify({ amount: 999 * 100 }),
+      });
+      if (!res.ok) throw new Error("Failed to create order");
+  
+      const data = await res.json();
+   
 
     const paymentData = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      key: process.env.RAZORPAY_KEY_ID,
       order_id: data.id,
 
       prefill: {
@@ -51,33 +57,39 @@ const CheckoutPage = () => {
         contact: "1234567890"
       },
 
-      handler: async function (response: RazorpayResponse)  {
-        // verify payment
-        const res = await fetch("/api/verify-order", {
-          method: "POST",
-          body: JSON.stringify({
-            orderId: response.razorpay_order_id,
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpaySignature: response.razorpay_signature,
-          },
-          
-        ),
-          
-        });
-        const data = await res.json();
-        console.log(data);
-        if (data.isOk) {
-          // do whatever page transition you want here as payment was successful
-          alert("Payment successful");
-        } else {
-          alert("Payment failed");
+      handler: async function (response: RazorpayResponse) {
+        try {
+          const res = await fetch("/api/verify-payment", {
+            method: "POST",
+            body: JSON.stringify({
+              orderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+            }),
+          });
+          if (!res.ok) throw new Error("Payment verification failed");
+      
+          const data = await res.json();
+          if (data.isOk) {
+           // await handleCheckout();
+            toast.success("Payment was successful");
+          } else {
+            toast.error("Payment verification failed.");
+          }
+        } catch (error) {
+          toast.error("An error occurred while verifying payment.");
+          console.error(error);
         }
-      },
+      }
+      
     };
 
-    const payment = new (window as any).Razorpay(paymentData);
+    const payment = new window.Razorpay(paymentData);
+
     payment.open();
   };
+
+
 
   useEffect(() => {
     setMounted(true);
@@ -94,18 +106,21 @@ const CheckoutPage = () => {
   );
 
   // const handleCheckout = async () => {
+
   //   const orderDetails = {
-  //     // order_id: Math.random().toString(10),  // Random order ID
-  //     // order_date: new Date().toISOString(),
-  //     // billing_customer_name: "Akash Kumar",
-  //     // billing_address: address,
-  //     // billing_city: city,
-  //     // billing_pincode: 841438,
-  //     // billing_state: 'Delhi',  // Change as per user input
-  //     // billing_country: 'India',  // Change as per user input
-  //     // billing_email: email,
-  //     // billing_phone: phone,
-  //     // shipping_is_billing: true,  // Assuming shipping address is the same
+  //     order_id: Math.random().toString(10),  // Random order ID
+  //     order_date: new Date().toISOString(),
+
+  //     billing_customer_name: `${firstName} ${lastName}`,
+  //     billing_address: `${address}`,
+  //     billing_city: city,
+  //     billing_pincode: 841438,
+  //     billing_state: state,  // Change as per user input
+  //     billing_country: region,  // Change as per user input
+  //     billing_email: email,
+  //     billing_phone: phone,
+  //     shipping_is_billing: true,  // Assuming shipping address is the same
+
   //     order_items: [
   //       {
   //         name: 'Product 1',
@@ -114,8 +129,8 @@ const CheckoutPage = () => {
   //         selling_price: 1000,  // Example price
   //       },
   //     ],
-  //     payment_method: 'Prepaid',
-  //     sub_total: 1000,  // Total price
+  //     payment_method: 'COD',
+  //     sub_total: subtotal,  // Total price
   //     length: 10,
   //     breadth: 15,
   //     height: 20,
@@ -132,7 +147,7 @@ const CheckoutPage = () => {
   //     });
 
   //    console.log("data : ", response);
-  //     alert("successfully ordered");
+  //     toast.success("order placed successfully");
       
   //   } catch (error) {
   //     console.error('Checkout error:', error);

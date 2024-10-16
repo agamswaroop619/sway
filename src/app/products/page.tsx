@@ -7,7 +7,7 @@ import {  useRouter } from 'next/navigation';
 import { IoSearchOutline } from "react-icons/io5";
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { Item, itemsDataInCart } from '@/lib/features/items/items';
-import { getData } from '../page'
+import { getData } from '@/app/utils/getData';
 import { setItemsData } from '@/lib/features/items/items';
 import StarRating from '../components/Rating';
 

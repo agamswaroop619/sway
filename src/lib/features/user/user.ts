@@ -1,14 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
+import { Products } from '../carts/cartSlice';
 
 export interface User {
     name: string;
-    email: string | null ;
+    email: string ;
     address: string;
     userId: string;
     refreshToken: string;
     accessToken: string;
     phone: string,
+    orders: Products[],
 }
 
 export interface UserState {
