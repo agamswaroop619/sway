@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store"; // Import the RootState type
 import { usePathname } from "next/navigation";
+import { RiMenu2Fill } from "react-icons/ri";
+import SideNavBar from "./SideNavBar";
 
 const selectCartItems = (state: RootState) => state.cart.items;
 const selectWishlistItems = (state: RootState) => state.wishlist.items;
@@ -18,6 +20,8 @@ const Navbar = () => {
   const [not, setNot] = useState(0); // 'not' to store the count of cart items
   const [wish, setWish] = useState(0); // 'wish' to store
   const [ nav, setNav ] = useState('home');
+
+  const [ sideNav, setSideNav ] = useState(false);
 
   const url = usePathname();
 
@@ -69,7 +73,22 @@ const Navbar = () => {
 
   return (
     <div>
-      <header className="flex px-3 bg-[#3fe607]  text-black w-full py-4 mb-2 justify-between items-center">
+
+      {
+        sideNav && <div>
+          < SideNavBar  setSideNav={ setSideNav} />
+          </div>
+      }
+
+      <header className="flex  px-3 bg-[#3fe607]  text-black w-full py-4 mb-2 justify-between items-center">
+
+
+        <div className="block  md:hidden lg:hidden xl:hidden">
+        <RiMenu2Fill onClick={() => setSideNav(true) }  />
+        </div>
+
+       
+
         <Link href="/" className="w-2/12">
           <h2 className="text-2xl hover:text-white transition-colors duration-300 ease">Sway</h2>
         </Link>
@@ -143,6 +162,9 @@ const Navbar = () => {
       </div>
 
       </header>
+
+      
+
     </div>
   );
 };

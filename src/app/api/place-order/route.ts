@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 // import axios from 'axios';
 
 // POST method for placing an order
-export async function POST() {
-  //const { orderDetails } = await req.json();  // Extract order details from the request body
+export async function POST( req: NextRequest) {
+  const { orderDetails } = await req.json();  // Extract order details from the request body
 
+  console.log(" order details received : ", orderDetails);
+  console.log("body : ", orderDetails.body);
+  
 
   try {
     // First, authenticate the admin and get the token

@@ -16,6 +16,7 @@ interface Quantity {
 
 export interface Item {
   id: string;
+  docId: string,
   title: string;
   images: Image[];
   price: number;

@@ -33,6 +33,64 @@ const ProductDetails = () => {
   const [itemSize, setItemSize] = useState("");
   const [ reviews, setReviews ] = useState(0);
 
+  const itemReviews = [
+    {
+      userId: 12,
+      rating: 5,
+      review: "This product is amazing",
+    },
+    {
+      userId: 10,
+      rating: 4,
+      review: "This product is good",
+    },
+    {
+      userId: 3,
+      rating: 3,
+      review: "This product is okay",
+    },
+    {
+      userdId: 4,
+      rating: 2,
+      review: "This product is bad",
+    },
+    {
+      userId: 5,
+      rating: 1,
+      review: "Worst experiences"
+    },
+    {
+      userId: 6,
+      rating: 5,
+      review: "This product is amazing",
+    },
+    {
+      userId: 21,
+      rating: 4,
+      review: "This product is good",
+    },
+    {
+      userId: 20,
+      rating: 3,
+      review: "This product is okay",
+    },
+    {
+      userId: 90,
+      rating: 3,
+      review: "This product is amazing",
+    },
+    {
+      userId: 81,
+      rating: 2,
+      review: "This product is good",
+    },
+    {
+      userId: 71,
+      rating: 1,
+      review: "This product is bad",
+    }
+  ]
+
   
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -54,6 +112,7 @@ useEffect(() => {
         if (fetchedData && fetchedData.length > 0) {
           dispatch(setItemsData(fetchedData)); // Dispatch to Redux state
           setData(fetchedData); // Update local state
+          
         } else {
           dispatch(setItemsData([])); // Dispatch empty data in case of no results
         }
@@ -68,8 +127,15 @@ useEffect(() => {
   // Fetch cart items from Redux store
   const itemsFromStore = useAppSelector(selectCartItems);
   const cartItems = itemsFromStore;
+
+  useEffect( () => {
+    console.log("Item data : ", itemdata)
+  }, [itemdata])
   
   const addHandler = (product: Item) => {
+
+    toast.success(`item docId: ${product.docId}`)
+
     if (itemSize === "") {
       toast.error("Plz select a size");
       return;
@@ -81,8 +147,9 @@ useEffect(() => {
     const title = product.title;
     const image = product.images[0].url;
     const size = itemSize;
+    const docId = product.docId;
   
-    const cartItem = { itemId, qnt, price, title, image, size };
+    const cartItem = { itemId, qnt, price, title, image, size, docId };
   
     dispatch(addToCart(cartItem));
     setItemInCart(true);
@@ -97,8 +164,63 @@ useEffect(() => {
   const numberId = Number(id);
   
   const incHandler = () => {
-    setNum(num + 1);
+    if (!itemdata) return;
+  
+    if (itemSize === "") {
+      setNum(num + 1);
+    } else {
+      const small = itemdata?.quantity?.[0]?.small || 5;
+      const medium = itemdata?.quantity?.[1]?.medium || 5;
+      const large = itemdata?.quantity?.[2]?.large || 5;
+      const xl = itemdata?.quantity?.[3]?.xl || 4;
+      const xxl = itemdata?.quantity?.[4]?.xxl || 4;
+  
+      if (itemSize === "Small" ) {
+        if( num < small)
+        setNum(num + 1);
+        else
+        {
+          setNum(small);
+          toast.error(`Maximum product reached`);
+        }
+      } else if (itemSize === "Medium" ) {
+        if( num < medium)
+          setNum(num + 1);
+          else
+          {
+            setNum(medium);
+            toast.error(`Maximum product reached`);
+          }
+      } else if (itemSize === "Large" ) {
+        if( num < large)
+          setNum(num + 1);
+          else
+          {
+            setNum(large);
+            toast.error(`Maximum product reached`);
+          }
+      } else if (itemSize === "XL" ) {
+        if( num < xl)
+          setNum(num + 1);
+          else
+          {
+            setNum(xl);
+            toast.error(`Maximum product reached`);
+          }
+      } else if (itemSize === "XXL" ) {
+        if( num < xl)
+          setNum(num + 1);
+          else
+          {
+            setNum(xl);
+            toast.error(`Maximum product reached`);
+          }
+      } else {
+        toast.error(`Maximum product reached`);
+      }
+    }
   };
+  
   
   const decHandler = () => {
     if (num > 1) setNum(num - 1); // Prevent decrementing below 1
@@ -109,6 +231,9 @@ useEffect(() => {
   };
   
   const addToWishlistHandler = (product: Item) => {
+
+    toast.success(`item docId: ${product.docId}`)
+
     if (itemSize === "") {
       toast.error("Plz select a size");
       return;
@@ -120,8 +245,9 @@ useEffect(() => {
     const title = product.title;
     const image = product.images[0].url;
     const size = itemSize;
+    const docId = product.docId;
   
-    const cartItem = { itemId, qnt, price, title, image, size };
+    const cartItem = { itemId, qnt, price, title, image, size, docId};
   
     dispatch(addToCartWishlist(cartItem));
     setItemInWishlist(true);
@@ -175,8 +301,8 @@ useEffect(() => {
       <div className='flex  sm:w-[100vw] xs:w-[100vw] sm:px-4 xs:px-4 md:flex-row lg:flex-row xl:flex-row sm:justify-center xs:justify-center w-[45vw] sm:flex-col-reverse xs:flex-col-reverse'>
 
             {/* for small screens */}
-        <div className='block lg:hidden md:hidden xl:hidden overflow-x-scroll no-scrollbar w-[100vw]'>
-        <div className='flex gap-[6px] h-28 w-[200vw]'>
+        <div className='block lg:hidden md:hidden xl:hidden overflow-x-scroll no-scrollbar w-[100vw] xs:w-[100vw] sm:w-[120vw]'>
+        <div className='flex justify-between gap-[6px] h-28 w-[160vw]'>
           {
             itemdata.images.map( card => {
               return (
@@ -190,13 +316,13 @@ useEffect(() => {
         </div>
 
           {/* for large screeens */}
-        <div className='hidden lg:block md:block xl:block no-scrollbar overflow-y-scroll md:h-[60vh] lg:h-[100vh] h-[27vh] w-28'>
+        <div className='hidden mt-4 lg:block px-4 md:block xl:block  no-scrollbar overflow-y-scroll md:h-[60vh] lg:h-[100vh] h-[27vh] w-28'>
         <div className='flex h-[80vh] gap-y-4 flex-col '>
           {
             itemdata.images.map( card => {
               return (
-                <div key={card.imgId} className=" w-20  ">
-                  <img src={card.url} alt="product image" className="xs:w-20 sm:w-20" onClick={() => setImgSrc(card.url)}/>
+                <div key={card.imgId} className={`w-20  `}  >
+                  <img src={card.url} alt="product image" className={`w-14 ${imgSrc === card.url ? "border" : ""}`} onClick={() => setImgSrc(card.url)}/>
                    </div>
               )
             })
@@ -204,7 +330,7 @@ useEffect(() => {
         </div>
         </div>
 
-        <div className='md:w-[95%]  overflow-hidden lg:w-[95%] xl:w-[95%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 '>
+        <div className='md:w-[95%]  overflow-hidden lg:w-[95%] xl:w-[80%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 '>
           <img
             className="w-[100%] "
             src={imgSrc}
@@ -217,10 +343,11 @@ useEffect(() => {
         {/* info */}
         <div className='md:w-[50%] lg:w-[50%] xl:w-[50%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 pr-8 tracking-wider'>
           <h3 className='text-2xl '>{itemdata.title} | Oversized-T-shirt | Sway Clothing</h3>
-          <h3 className='text-2xl text-gray-500 '>₹{itemdata.price}.00</h3>
+          <h3 className='text-2xl text-gray-500 my-2'>₹{itemdata.price}.00</h3>
 
           
-         <div className='flex gap-4'>
+         <div className='flex gap-4 my-2'>
+
          { 
          itemdata.review > 0 && (
           // Calculate the average rating from the user reviews
@@ -234,7 +361,7 @@ useEffect(() => {
          </div>
 
           <div className='flex gap-2  mb-3'>  <h3>Size :</h3> {itemSize} </div>
-          <div className='flex w-full justify-between my-2'>
+          <div className='flex w-full gap-2 my-2'>
 
            <div 
             onClick={ () => setItemSize('Small')}>
@@ -274,7 +401,7 @@ useEffect(() => {
            
           </div>
 
-          <div className='flex md:flex-row lg:flex-row xl:flex-row w-full gap-5 sm:flex-col xs:flex-col '>
+          <div className='flex md:flex-col lg:flex-row xl:flex-row w-full gap-5 sm:flex-col xs:flex-col '>
             <div className='bg-gray-600 justify-center w-[250px] flex items-center h-[50px]  rounded-l-full rounded-r-full py-2 my-3'>
               <button
                 className=' px-4 text-xl  w-[33%]  text-center border-r-2 disabled:opacity-55'
@@ -289,7 +416,7 @@ useEffect(() => {
               > + </button>
             </div>
 
-          <div className='flex gap-5 sm:mb-4 xs:mb-4'>
+          <div className='flex gap-5 md:mb-4 sm:mb-4 xs:mb-4'>
           {
               !itemInCart && (
                 <button
@@ -389,10 +516,10 @@ useEffect(() => {
                   alt="description image"
                 />
 
-                <p className='p-10 sm:p-4 xs:p-4'>Boost Your Brainpower with Brainfood
+                <p className='p-10 sm:p-4 xs:p-4'>{`Boost Your Brainpower with Brainfood
 Are you looking for a way to enhance your mental clarity and focus? Look no further than Brainfood! Our specially formulated product is designed to provide your brain with the nutrients it needs to function at its best.
 
-What is Brainfood?
+<span > What is Brainfood? </span>
 Brainfood is a unique blend of natural ingredients that have been scientifically proven to support brain health. Our formula includes vitamins, minerals, and antioxidants that nourish your brain and promote optimal cognitive function.
 
 Why Choose Brainfood?
@@ -403,7 +530,7 @@ Secondly, Brainfood is easy to incorporate into your daily routine. Simply take 
 Lastly, Brainfood is backed by science. Our formula is based on extensive research and studies that demonstrate the positive impact of our ingredients on brain health. You can trust that Brainfood is a reliable and effective choice for enhancing your cognitive abilities.
 
 Experience the Benefits of Brainfood
-With Brainfood, you can experience improved focus, enhanced memory, and increased mental clarity. Say goodbye to brain fog and hello to a sharper mind. Invest in your brain health today and unlock your full cognitive potential with Brainfood.</p>
+With Brainfood, you can experience improved focus, enhanced memory, and increased mental clarity. Say goodbye to brain fog and hello to a sharper mind. Invest in your brain health today and unlock your full cognitive potential with Brainfood. `}</p>
               </div>
 
               <div className='p-4'>
@@ -419,8 +546,33 @@ With Brainfood, you can experience improved focus, enhanced memory, and increase
           {info === 1 && <div id='additional'> Additional information content</div>}
           {info === 2 && <div id='reviews'>
 
-           wriite a review
+          {
+            itemReviews.map( ( item, index ) => {
+              return (
+                <div key={index} className='py-3 border-t-2'>
+                  <div className='flex mb-2 text-gray-500 gap-4 hover:text-white transition-colors duration-300 ease '> Akash Kumar  <StarRating rating={ Number(item.rating)} />  </div>
+                  <p> {item.review} </p>
+                </div>
+              )
 
+            })
+          }
+
+          <form onSubmit={ (e) => {
+            e.preventDefault();
+            console.log(e);
+            toast.success("Review submit successfully");
+          }} className='my-6'>
+
+            <p className='mb-2 w-full' >Your Rating <sup className='text-red-500'>*</sup></p>
+            <StarRating  rating={4} />
+
+            <p className='mt-4' >Write Review <sup className='text-red-500'>*</sup></p>
+            <textarea id="review" className='w-full h-36 focus:outline-none p-2 border-2 my-1 border-gray-400 text-black rounded-md'/>
+
+            <button className='border p-3 my-2 rounded-full'> Submit  </button>
+
+          </form>
           
             </div>}
         </div>

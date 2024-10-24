@@ -25,17 +25,16 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <div className="flex flex-col min-h-[100vh] h-screen overflow-x-hidden select-none relative">
+        <div className="flex flex-col  overflow-x-hidden select-none relative">
           <StoreProvider>
             {React.createElement(Navbar)}
 
             {/* Main content should grow and take available space */}
             <div className="flex-grow">{children}</div>
 
-            {/* Sticky mobile bar at the bottom */}
-            <div className="sticky bottom-0">
+            
               {React.createElement(mobileBar)}
-            </div>
+           
 
             <Toaster />
           </StoreProvider>

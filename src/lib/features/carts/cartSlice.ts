@@ -9,6 +9,7 @@ export interface Products {
   title: string;
   image: string;
   size: string,
+  docId: string,
 }
 
 // Define the CartState
