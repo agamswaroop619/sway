@@ -208,11 +208,11 @@ useEffect(() => {
             toast.error(`Maximum product reached`);
           }
       } else if (itemSize === "XXL" ) {
-        if( num < xl)
+        if( num < xxl)
           setNum(num + 1);
           else
           {
-            setNum(xl);
+            setNum(xxl);
             toast.error(`Maximum product reached`);
           }
       } else {

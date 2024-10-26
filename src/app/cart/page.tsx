@@ -59,7 +59,7 @@ const CartPage = () => {
               <img src={item.image} className="h-32 pt-6" alt={item.title} onClick={() => router.push(`/products/${item.itemId}`)} />
               <div className="p-4 w-full">
                 <div className="flex-row  w-full py-1 justify-between">
-                <p className=" text-xl">{item.title} | Oversized-T-shirt | Sway Clothing</p>
+                <p className=" text-xl">{item.title} | Sway Clothing</p>
                 <span>₹{Math.ceil(item.price)}</span>
                  </div>
                 

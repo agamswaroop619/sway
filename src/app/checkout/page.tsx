@@ -7,9 +7,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { GoArrowLeft } from "react-icons/go";
 import toast from "react-hot-toast";
-import { Item } from "@/lib/features/items/items";
 import { firestore } from "@/app/firebase.config";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { ItemsUpdate } from "../../../itemsUpdate";
 
 interface RazorpayResponse {
   razorpay_order_id: string;
@@ -32,19 +32,11 @@ const CheckoutPage = () => {
   const [phone, setPhone] = useState("");
   const [apartment, setApartment] = useState("");
 
-  let ItemsUpdate: any= [];
+  const ItemsUpdate: ItemsUpdate[]= [];
 
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (cartItems) {
-       getItemsUpdate();
-    }
-  }, [cartItems]);
-
   const getItemsUpdate = async () => {
-
-    const data = [];
 
     const ref = {
       data: {
@@ -68,8 +60,6 @@ const CheckoutPage = () => {
       },
     };
 
-    let i= 1;
-
     // Assuming `cartItems` is an array of objects with details about the items.
     for (const item of cartItems) {
 
@@ -80,7 +70,11 @@ const CheckoutPage = () => {
         const docSnap = await getDoc(docRef);
         const docData = docSnap.exists() ? docSnap.data() : ref.data;
 
-        console.log(`${i++}th data element : `, docData);
+        if( !docSnap.exists() ){
+          console.log("Document does not exist");
+          setError("Something went wrong");
+          return;
+        }
 
         switch( item.size ) {
 
@@ -90,53 +84,53 @@ const CheckoutPage = () => {
                   return;
                 }
                 
-                docData.quantity[0].Small= docData.quantity[0].small;
-                data.push({docData, docRef});
+                docData.quantity[0].small= docData.quantity[0].small - item.qnt;
+                ItemsUpdate.push({docData, docRef});
 
                 break;
 
           case 'Medium':
-            if( item.qnt > docData.quantity[0].medium ){
-              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[0].medium}`)
+            if( item.qnt > docData.quantity[1].medium ){
+              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[1].medium}`)
               return;
             }
 
-            docData.quantity[0].medium= docData.quantity[0].medium;
-            data.push({docData, docRef});
+            docData.quantity[1].medium= docData.quantity[1].medium - item.qnt;
+            ItemsUpdate.push({docData, docRef});
 
             break;
 
           case "Large":
-            if( item.qnt > docData.quantity[0].large ){
-              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[0].large}`)
+            if( item.qnt > docData.quantity[2].large ){
+              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[2].large}`)
               return;
             }
 
-            docData.quantity[0].large= docData.quantity[0].large;
-            data.push({docData, docRef});
+            docData.quantity[2].large= docData.quantity[2].large - item.qnt;
+            ItemsUpdate.push({docData, docRef});
 
 
             break;
 
           case 'XL':
-            if( item.qnt > docData.quantity[0].xl ){
-              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[0].xl}`)
+            if( item.qnt > docData.quantity[3].xl ){
+              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[3].xl}`)
               return;
             }
 
-            docData.quantity[0].xl= docData.quantity[0].xl;
-            data.push({docData, docRef});
+            docData.quantity[3].xl= docData.quantity[3].xl - item.qnt;
+            ItemsUpdate.push({docData, docRef});
 
             break;
 
           case 'XXL':
-            if( item.qnt > docData.quantity[0].xxl ){
-              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[0].xxl}`)
+            if( item.qnt > docData.quantity[4].xxl ){
+              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[4].xxl}`)
               return;
             }
 
-            docData.quantity[0].xxl= docData.quantity[0].xxl;
-            data.push({docData, docRef});
+            docData.quantity[4].xxl= docData.quantity[4].xxl - item.qnt;
+            ItemsUpdate.push({docData, docRef});
 
             break;
 
@@ -146,19 +140,13 @@ const CheckoutPage = () => {
 
         }
 
-        ItemsUpdate = data;
-
       } catch (error) {
         console.error("Error fetching document:", error);
         setError("Failed to fetch data for some items");
       }
     }
 
-    i= 1;
-    for( const item of ItemsUpdate ) {
-      const { docData, docRef } = item;
-      console.log("doc data : ", docData);
-    }
+    console.log("Data is  -> ", ItemsUpdate);
 
   };
 
@@ -166,55 +154,87 @@ const CheckoutPage = () => {
   const [shipping, setShipping] = useState("free");
 
   const createOrder = async () => {
-    const res = await fetch("/api/create-order", {
-      method: "POST",
-      body: JSON.stringify({ amount: 999 * 100 }),
-    });
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        body: JSON.stringify({ amount: 999 * 100 }),
+      });
+      const data = await res.json();
+  
+      const paymentData = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        order_id: data.id,
+        prefill: {
+          name: `${firstName} ${lastName}`,
+          contact: "1234567890",
+        },
+        handler: async function (response: RazorpayResponse) {
+          try {
+            // Verify payment
+            const res = await fetch("/api/verify-payment", {
+              method: "POST",
+              body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }),
+            });
+            const verificationData = await res.json();
+            if (verificationData.isOk) {
+              toast.success("Payment is successful");
+            
+              await updateDB();
 
-    const paymentData = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      order_id: data.id,
-      prefill: {
-        name: `${firstName} ${lastName}`,
-        contact: "1234567890",
-      },
-      handler: async function (response: RazorpayResponse) {
-        // verify payment
-        const res = await fetch("/api/verify-payment", {
-          method: "POST",
-          body: JSON.stringify({
-            orderId: response.razorpay_order_id,
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpaySignature: response.razorpay_signature,
-          }),
-        });
-        const data = await res.json();
-        console.log(data);
-        if (data.isOk) {
-          toast.success("Payment is successfull");
-          // await handleCheckout();
-           //updateDB();
-        } else {
-          toast.error("Something went wrong. ");
-        }
-      },
-    };
-
-    const payment = new window.Razorpay(paymentData);
-
-    payment.open();
+            } else {
+              toast.error("Something went wrong.");
+            }
+          } catch (error) {
+            console.error("Payment verification error:", error);
+            toast.error("Payment verification failed.");
+          }
+        },
+      };
+  
+      const payment = new window.Razorpay(paymentData);
+      payment.open();
+    } catch (error) {
+      console.error("Order creation error:", error);
+      toast.error("Failed to create order.");
+    }
   };
-
-  const updateDB =  () => {
-
-    let i= 1;
-
-    for( const item of ItemsUpdate ) {
-      console.log(`${i++}th Doc ref : `, item);
+  
+  const updateDB = async () => {
+    try {
+      console.log("Updating database... : ", ItemsUpdate);
+  
+      // Wait for all updates to complete
+      await Promise.all(
+        ItemsUpdate.map(async (item: ItemsUpdate) => {
+          const { docData, docRef } = item;
+          console.log("Updating doc data:", docData);
+          await updateDoc(docRef, docData);
+        })
+      );
+  
+      toast.success("Items updated successfully...");
+    } catch (error) {
+      console.error("Database update error:", error);
+      toast.error("Failed to update database.");
+    }
+  };
+  
+  const fetchAndupdate = async () => {
+   
+    if( cartItems ) {
+      await getItemsUpdate();
+    } else{
+      console.log("Cart is empty");
+      setError("cart is empty");
     }
 
   }
+
+  fetchAndupdate();
 
   useEffect(() => {
     setMounted(true);
@@ -230,48 +250,48 @@ const CheckoutPage = () => {
     0
   );
 
-  const handleCheckout = async () => {
-    const orderDetails = {
-      order_id: Math.random().toString(10), // Random order ID
-      order_date: new Date().toISOString(),
+  // const handleCheckout = async () => {
+  //   const orderDetails = {
+  //     order_id: Math.random().toString(10), // Random order ID
+  //     order_date: new Date().toISOString(),
 
-      billing_customer_name: `${firstName} ${lastName}`,
-      billing_address: `${address}`,
-      billing_city: "Gopal ganj",
-      billing_pincode: 841438,
-      billing_state: "Bihar", // Change as per user input
-      billing_country: "India", // Change as per user input
-      billing_email: "akr@gmail.com",
-      billing_phone: "+91 76350 31250",
-      shipping_is_billing: true, // Assuming shipping address is the same
+  //     billing_customer_name: `${firstName} ${lastName}`,
+  //     billing_address: `${address}`,
+  //     billing_city: "Gopal ganj",
+  //     billing_pincode: 841438,
+  //     billing_state: "Bihar", // Change as per user input
+  //     billing_country: "India", // Change as per user input
+  //     billing_email: "akr@gmail.com",
+  //     billing_phone: "+91 76350 31250",
+  //     shipping_is_billing: true, // Assuming shipping address is the same
 
-      order_items: cartItems,
-      payment_method: "COD",
-      sub_total: subtotal, // Total price
-      length: 10,
-      breadth: 15,
-      height: 20,
-      weight: 1.5, // Product dimensions and weight
-    };
+  //     order_items: cartItems,
+  //     payment_method: "COD",
+  //     sub_total: subtotal, // Total price
+  //     length: 10,
+  //     breadth: 15,
+  //     height: 20,
+  //     weight: 1.5, // Product dimensions and weight
+  //   };
 
-    console.log("Order details : ", orderDetails);
+  //   console.log("Order details : ", orderDetails);
 
-    try {
-      const response = await fetch("/api/place-order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ orderDetails }),
-      });
+  //   try {
+  //     const response = await fetch("/api/place-order", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ orderDetails }),
+  //     });
 
-      console.log("data : ", response);
-      toast.success("order placed successfully");
-    } catch (error) {
-      console.error("Checkout error:", error);
-      alert("Failed to place the order.");
-    }
-  };
+  //     console.log("data : ", response);
+  //     toast.success("order placed successfully");
+  //   } catch (error) {
+  //     console.error("Checkout error:", error);
+  //     alert("Failed to place the order.");
+  //   }
+  // };
 
   return (
     <div >
@@ -519,8 +539,8 @@ const CheckoutPage = () => {
                     <img src={item.image} className="h-20" />
                     <div className="w-[55%]">
                       <p className="tracking-wide leading-normal mb-2">
-                        {" "}
-                        {item.title} | Oversized-T-shirt | Sway Clothing
+                      
+                        {item.title} | Sway Clothing
                       </p>
                       <p>
                         <span className="line-through ">₹999</span>

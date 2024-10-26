@@ -10,6 +10,7 @@ import { Item, itemsDataInCart } from '@/lib/features/items/items';
 import { getData } from '@/app/utils/getData';
 import { setItemsData } from '@/lib/features/items/items';
 import StarRating from '../components/Rating';
+import RangeSlider from '../components/RangeSlider';
 
 const ProductsPage= () => {
 
@@ -22,6 +23,9 @@ const ProductsPage= () => {
   
   const data = useAppSelector(itemsDataInCart) || []; // Provide a default empty array
   const router = useRouter();
+
+  const [ min, setMin ] = useState(100);
+  const [ max, setMax ] = useState(1000);
   
   useEffect(() => {
     if (data.length === 0) {
@@ -48,6 +52,8 @@ const ProductsPage= () => {
       setShopData(data);
     }
   }, [data]);
+
+ 
   
 
 // Filter and sort logic
@@ -96,16 +102,22 @@ if (shopData && shopData.length > 0) {
 //   }
 // };
 
+const filterByPrice = () => {
+   let filteredData = [...data];
+
+   if( data && ( min !== 100 || max != 1000 )){
+    filteredData = filteredData.filter(item => item.price >= min && item.price <= max);
+    setShopData(filteredData);
+   }
+}
 
 
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
-      
-
 
       {/* Mobile view filter button */}
       <div className="p-6 border w-full  relative hidden sm:block xs:block md:hidden lg:hidden xl:hidden">
-       <div className='flex w-full items-center mb-2 border-b justify-around'>
+       <div className='flex w-full items-center mb-2  justify-around'>
        <CiFilter
           className="text-white  border text-3xl p-1"
           onClick={() => setFloatSiderbar(!floatSiderbar)}
@@ -132,8 +144,15 @@ if (shopData && shopData.length > 0) {
     
             <div className="mb-4">
               <h3 className="font-bold mb-2">Filter by price</h3>
-              <button className="bg-green-700 p-2 rounded-full mb-2">Filter</button>
-              <p>Price: ₹690 — ₹700</p>
+          
+              <p>Price: ₹{min} — ₹{max}</p>
+          <RangeSlider   min={min} setMin={setMin}
+          max={max} setMax={setMax}
+          onChange={({ min, max }: { min: number; max: number }) =>
+              console.log(`min = ${min}, max = ${max}`)
+          }   />
+          <button className="bg-green-700 p-2 rounded-full mt-4 mb-2"
+          onClick={ filterByPrice}>Filter</button>
             </div>
     
             <div className="mb-4">
@@ -169,8 +188,14 @@ if (shopData && shopData.length > 0) {
 
         <div className="mb-4">
           <h3 className="font-bold mb-2">Filter by price</h3>
-          <button className="bg-green-700 p-2 rounded-full mb-2">Filter</button>
-          <p>Price: ₹690 — ₹700</p>
+          <p>Price: ₹{min} — ₹{max}</p>
+          <RangeSlider   min={min} setMin={setMin}
+          max={max} setMax={setMax}
+          onChange={({ min, max }: { min: number; max: number }) =>
+              console.log(`min = ${min}, max = ${max}`)
+          }   />
+          <button className="bg-green-700 p-2 rounded-full mt-4 mb-2"
+          onClick={ filterByPrice}>Filter</button>
         </div>
 
         <div className="mb-4">
@@ -179,7 +204,7 @@ if (shopData && shopData.length > 0) {
         </div>
 
         <div>
-          <h3 className="font-bold mb-2">Filter by brand</h3>
+          <h3 className="font-bold mb-2">Filter by size</h3>
           <ul>
             <li><button className="p-2">Small</button></li>
             <li><button className="p-2">Medium</button></li>
@@ -230,7 +255,7 @@ if (shopData && shopData.length > 0) {
                   />
                 </div>
                 <div className="w-full p-3 text-center">
-                  <h3 className="mb-2">{item.title} | Oversized-T-shirt | Sway Clothing</h3>
+                  <h3 className="mb-2">{item.title}</h3>
                   <p>₹{item.price}</p>
                  
                   <div className='w-full flex items-center justify-center '>
