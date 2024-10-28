@@ -5,12 +5,19 @@ import { Products } from '../carts/cartSlice';
 export interface User {
     name: string;
     email: string ;
-    address: string;
     userId: string;
     refreshToken: string;
     accessToken: string;
     phone: string,
-    orders: Products[],
+    orders: String[],
+
+    // address
+    address: string,
+    apartment: string,
+    city: string,
+    postalCode: string,
+    state: string,
+    region: string
 }
 
 export interface UserState {

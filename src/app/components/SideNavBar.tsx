@@ -12,12 +12,12 @@ const SideNavBar: React.FC<PropsType> = ({ setSideNav }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="z-10  w-[100vw] bg-white h-[100vh] flex text-black">
+    <div className="z-10  w-[100vw]  h-[100vh] flex text-black">
 
-      <div className="sm:w-[70vw] p-10 xs:w-[80vw] md:w-[50vw] lg:w-[30vw] xl:w-[30vw] bg-white h-[100vh] ">
+      <div className="w-[80%] py-10 px-5 bg-white h-[100vh] ">
 
-        <div className="w-[80%] mb-4 relative">
-          <RiCloseLargeFill className="absolute right-0" onClick={() => setSideNav(false)} />
+        <div className="full mb-6 relative">
+          <RiCloseLargeFill className="absolute right-4" onClick={() => setSideNav(false)} />
         </div>
 
         <Link href="/">Home</Link>
@@ -25,25 +25,27 @@ const SideNavBar: React.FC<PropsType> = ({ setSideNav }) => {
         <div>
           <div className="flex gap-4 my-2" onClick={() => setOpen(!open)}>
             <span>Collections</span>
-            <GoChevronDown />
+            <GoChevronDown className={`  ${
+                open === true ? " transition duration-300 ease translate-y-2" : ""
+              }`} />
           </div>
 
           {open ? (
-            <ul>
+            <ul className="mx-3 px-2 border-l-2 border-slate-400">
               <li>
-                <Link href="">Oversized Tshirts</Link>
+                <Link className="my-2" href="">Oversized Tshirts</Link>
               </li>
 
               <li>
-                <Link href="">Regular Tshirts</Link>
+                <Link className="my-2" href="">Regular Tshirts</Link>
               </li>
 
               <li>
-                <Link href="">Polo</Link>
+                <Link className="my-2" href="">Polo</Link>
               </li>
 
               <li>
-                <Link href="">Psychedelics Tshirts</Link>
+                <Link className="my-2" href="">Psychedelics Tshirts</Link>
               </li>
             </ul>
           ) : null}
@@ -57,7 +59,7 @@ const SideNavBar: React.FC<PropsType> = ({ setSideNav }) => {
         </div>
       </div>
 
-      <div className=" bg-transparent opacity-80 flex-grow"
+      <div className=" bg-[#d2d0d0cf] opacity-60 flex-grow"
         onClick={() => setSideNav(false)} >
            
       </div>

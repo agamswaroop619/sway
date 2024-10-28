@@ -72,11 +72,18 @@ if (storedEmail && storedEmail !== user.email) {
           name: name || user.displayName || "",
           email: user.email || "",
           userId: user.uid,
-          address: "",
+          
           refreshToken: user.refreshToken || "",
           accessToken: "",
           phone: "",
           orders: [] ,
+
+          address: "",
+            apartment: "",
+            city: "",
+            postalCode: "",
+            state: "",
+            region: ""
         };
 
         dispatch(setUser(userData));
@@ -88,11 +95,17 @@ if (storedEmail && storedEmail !== user.email) {
             name: userDoc.data().name ,
             email: userDoc.data().email ,
             userId: userDoc.data().uid,
-            address: userDoc.data().uid,
             refreshToken: "",
             accessToken: "",
             phone: userDoc.data().phone,
             orders: [],
+
+            address: "",
+            apartment: "",
+            city: "",
+            postalCode: "",
+            state: "",
+            region: ""
           }
 
           dispatch( setUser(userData));

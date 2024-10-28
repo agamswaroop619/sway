@@ -10,6 +10,13 @@ import toast from "react-hot-toast";
 import { firestore } from "@/app/firebase.config";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { ItemsUpdate } from "../../../itemsUpdate";
+import { clearCart } from "@/lib/features/carts/cartSlice";
+import { useAppDispatch } from "@/lib/hooks";
+import { RootState } from "@/lib/store";
+import { useRouter } from "next/navigation";
+import { userProfileInfo } from "@/lib/features/user/user";
+
+const userInfo = ( state : RootState ) => state.user.userProfile;
 
 interface RazorpayResponse {
   razorpay_order_id: string;
@@ -18,9 +25,16 @@ interface RazorpayResponse {
 }
 
 const CheckoutPage = () => {
+
   const [mounted, setMounted] = useState(false);
+
+  // items that will be placed
   const cartItems = useAppSelector(selectCartItems);
 
+  // Items and their reference of cartItems for update in database
+  const ItemsUpdate: ItemsUpdate[]= [];
+
+  // Address field
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -32,10 +46,21 @@ const CheckoutPage = () => {
   const [phone, setPhone] = useState("");
   const [apartment, setApartment] = useState("");
 
-  const ItemsUpdate: ItemsUpdate[]= [];
+  // payment and shipping
+  const [payment, setPayment] = useState("cash");
+  const [shipping, setShipping] = useState("free");
 
+  // success and error
   const [error, setError] = useState("");
+  const [ success, setSuccess ] = useState(false);
 
+  // data of user
+  const userData = useAppSelector( userInfo );
+
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  // push ref and updated items of cartItems
   const getItemsUpdate = async () => {
 
     const ref = {
@@ -150,9 +175,8 @@ const CheckoutPage = () => {
 
   };
 
-  const [payment, setPayment] = useState("cash");
-  const [shipping, setShipping] = useState("free");
-
+ // 1. Make paymeyt and verify
+//  2. Mark success true for update the database
   const createOrder = async () => {
     try {
       const res = await fetch("/api/create-order", {
@@ -183,7 +207,7 @@ const CheckoutPage = () => {
             if (verificationData.isOk) {
               toast.success("Payment is successful");
             
-              await updateDB();
+              setSuccess( true );
 
             } else {
               toast.error("Something went wrong.");
@@ -202,7 +226,41 @@ const CheckoutPage = () => {
       toast.error("Failed to create order.");
     }
   };
+
+
+  // push orderd items in order section of user
+  const pushItems = async () => {
+    const userRef = doc(firestore, "users", userData?.userId || "");
   
+    try {
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        // Extract current orders or set an empty array if it doesn't exist
+        const currentOrders = userDoc.data().orders || [];
+  
+        // Collect the new items' IDs to push to orders
+        const newOrders = ItemsUpdate.map(item => item.docData.data().id);
+  
+        // Combine current orders with new orders
+        const updatedOrders = [...currentOrders, ...newOrders];
+  
+        // Update Firestore document with the new orders array
+        await updateDoc(userRef, { orders: updatedOrders });
+  
+        // Optionally update local reference if needed
+        if (userData) {
+          userData.orders = updatedOrders;
+        }
+      }
+    } catch (error) {
+      console.error("Error updating orders:", error);
+    }
+  };
+  
+  
+
+  // Function that use itemsupdate for update the quantity of products 
   const updateDB = async () => {
     try {
       console.log("Updating database... : ", ItemsUpdate);
@@ -223,6 +281,7 @@ const CheckoutPage = () => {
     }
   };
   
+  // call the get update fn asynchronusly
   const fetchAndupdate = async () => {
    
     if( cartItems ) {
@@ -239,6 +298,21 @@ const CheckoutPage = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect( () => {
+    if( success == true ){
+      updateAll();
+    }
+  }, [success])
+
+  const updateAll = async() => {
+
+    await updateDB();
+    await pushItems()
+    dispatch( clearCart());
+    console.log("cart is clear -> ", cartItems);
+    router.push('/profile');
+  }
 
   if (!mounted) {
     // Optionally, you can show a loading spinner here or a simple placeholder

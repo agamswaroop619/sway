@@ -100,11 +100,13 @@ const Navbar = () => {
               className={`${ nav === "home" ?  "text-white" : ""}
               hover:text-white transition-colors duration-300 ease `}>Home</Link>
             </li>
+
             <li>
               <Link href="/products" 
               className={`${ nav === "products" ?  "text-white" : ""}
               hover:text-white transition-colors duration-300 ease `}>Collections</Link>
             </li>
+
             <li>
               <Link href="/about" 
               className={`${ nav === "about" ?  "text-white" : ""}

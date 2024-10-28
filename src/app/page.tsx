@@ -1,6 +1,6 @@
 
 import React from "react";
-import SliderBanner from "./components/SliderBanner";
+// import SliderBanner from "./components/SliderBanner";
 import CardSlider from "./components/CardSlider";
 import Footer from "./components/Footer";
 
@@ -9,8 +9,8 @@ export default function Home() {
 
   return (
     <>
-      <SliderBanner />
-      <div className=" my-4">
+      {/* <SliderBanner /> */}
+      {/* <div className=" my-4">
         <div className="flex gap-4 justify-center w-[100vw]  lg:text-7xl xl:text-7xl md:text-5xl sm:text-4xl xs:text-4xl text-6xl">
           <h1 className="text-green-600">SLAY</h1>
           <h5 className="text-white">with</h5>
@@ -30,8 +30,66 @@ export default function Home() {
             </span>
           </h1>
         </div>
+      </div> */}
+
+      <div className="flex mx-10 justify-around items-center">
+        <div className="text-7xl">
+          <h3>SLAY WITH</h3>
+          <h3 className="text-green-700">SWAY</h3>
+        </div>
+
+        <img className="h-36" src="https://res.cloudinary.com/dbkiysdeh/image/upload/v1729970708/Untitled_Project_5_d2qnlz.jpg" alt="" />
       </div>
 
+        <div className="flex  mx-10  justify-between">
+        <div className="w-[70vw]">
+
+        </div>
+
+          <div className="flex gap-y-4 flex-wrap justify-between">
+
+          <video className="w-[22vw]" autoPlay muted loop preload="metadata">
+            <source
+              src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727183577/videos/final_journey_reel_xgtyga.mp4"
+              type="video/mp4"
+            />
+            Your browser does not support the video tag.
+          </video>
+
+          <video
+            className="w-[22vw]"
+            autoPlay
+            muted
+            loop
+            preload="metadata"
+            style={{ cursor: "pointer" }}
+          >
+            <source
+              src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727183521/videos/New_Project_304_Copy_Copy_rguan6.mp4"
+              type="video/mp4"
+            />
+          </video>
+
+          <video className="w-[22vw]" autoPlay muted loop preload="metadata">
+            <source
+              src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727364143/collection1/IMG_6991_dfktby.mov"
+              type="video/mp4"
+            />
+            Your browser does not support the video tag.
+          </video>
+
+          <video className="w-[22vw]" autoPlay muted loop preload="metadata">
+            <source
+              src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727364148/collection1/IMG_7011_m5gk4i.mov"
+              type="video/mp4"
+            />
+            Your browser does not support the video tag.
+          </video>
+
+          
+
+          </div>
+        </div>
 
       <CardSlider />
 

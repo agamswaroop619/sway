@@ -33,6 +33,8 @@ const ProductDetails = () => {
   const [itemSize, setItemSize] = useState("");
   const [ reviews, setReviews ] = useState(0);
 
+  const [ reviewMessage, setReviewMessage ] = useState(""); 
+
   const itemReviews = [
     {
       userId: 12,
@@ -547,28 +549,43 @@ With Brainfood, you can experience improved focus, enhanced memory, and increase
           {info === 2 && <div id='reviews'>
 
           {
-            itemReviews.map( ( item, index ) => {
-              return (
-                <div key={index} className='py-3 border-t-2'>
-                  <div className='flex mb-2 text-gray-500 gap-4 hover:text-white transition-colors duration-300 ease '> Akash Kumar  <StarRating rating={ Number(item.rating)} />  </div>
-                  <p> {item.review} </p>
-                </div>
-              )
-
-            })
+            itemdata && itemdata?.userReview?.map( (item, index) => {
+              {
+                return (
+                  <div key={index} className='py-3 border-t-2'>
+                    <div className='flex mb-2 text-gray-500 gap-4 hover:text-white transition-colors duration-300 ease'> {item.userName }  <StarRating rating={ Number(item.rating)} />  </div>
+                    <p> {item.comment} </p>
+                  </div>
+                )
+  
+              }
+            }
+            )
           }
 
           <form onSubmit={ (e) => {
             e.preventDefault();
             console.log(e);
             toast.success("Review submit successfully");
+
+            const comment= {
+              userId: "kljhdfkjash",
+              userName: "Akash kumar",
+              comment: reviewMessage,
+              rating: 4
+            }
+
+            itemdata.userReview?.push( comment );
+
+
           }} className='my-6'>
 
             <p className='mb-2 w-full' >Your Rating <sup className='text-red-500'>*</sup></p>
             <StarRating  rating={4} />
 
             <p className='mt-4' >Write Review <sup className='text-red-500'>*</sup></p>
-            <textarea id="review" className='w-full h-36 focus:outline-none p-2 border-2 my-1 border-gray-400 text-black rounded-md'/>
+            <textarea id="review" value={reviewMessage} onChange={ (e) => setReviewMessage(e.target.value)}
+             className='w-full h-36 focus:outline-none p-2 border-2 my-1 border-gray-400 text-black rounded-md'/>
 
             <button className='border p-3 my-2 rounded-full'> Submit  </button>
 

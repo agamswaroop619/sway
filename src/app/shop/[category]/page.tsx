@@ -9,12 +9,14 @@ import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { Item, itemsDataInCart } from '@/lib/features/items/items';
 import { getData } from '@/app/utils/getData';
 import { setItemsData } from '@/lib/features/items/items';
-import StarRating from '../components/Rating';
-import RangeSlider from '../components/RangeSlider';
-
-
+import StarRating from '@/app/components/Rating';
+import RangeSlider from '@/app/components/RangeSlider';
+import { useParams } from 'next/navigation';
 
 const ProductsPage = (  ) => {
+
+    const params = useParams();
+
 
   const dispatch = useAppDispatch();
   const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false);
@@ -24,6 +26,10 @@ const ProductsPage = (  ) => {
   const itemsPerPage = 12; // Number of products to show per page
   
   const data = useAppSelector(itemsDataInCart) || []; // Provide a default empty array
+  if( data ) {
+    data.filter( item => item.category === params.category);
+  }
+
   const router = useRouter();
 
   const [ min, setMin ] = useState(100);
@@ -51,7 +57,9 @@ const ProductsPage = (  ) => {
   // Whenever the data changes, update shopData accordingly
   useEffect(() => {
     if (data.length > 0) {
-      setShopData(data);
+        data.filter( item => item.category === params.category);
+    setShopData(data);
+
     }
   }, [data]);
 
@@ -60,9 +68,9 @@ const ProductsPage = (  ) => {
 
 // Filter and sort logic
 useEffect(() => {
-  if (filter !== "default" && data && data.length > 0) {
-    router.push(`/products?orderby=${filter}`);
-    let filteredData = [...data]; // Create a shallow copy to avoid mutating original data
+  if (filter !== "default" && shopData && shopData.length > 0) {
+    router.push(`/shop?orderby=${filter}`);
+    let filteredData = [...shopData]; // Create a shallow copy to avoid mutating original data
 
     if (filter === "popular") {
       // Implement popular sorting logic here
@@ -78,7 +86,7 @@ useEffect(() => {
 
     setShopData(filteredData);
   } else {
-    router.push(`/products`);
+    router.push(`/shop`);
     if( data && data.length > 0)
     setShopData(data );
   }
@@ -294,6 +302,8 @@ const filterByPrice = () => {
         </div>
       </div>
     </div>
+
+    
   );
 };
 
