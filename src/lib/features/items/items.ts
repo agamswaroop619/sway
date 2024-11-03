@@ -17,6 +17,7 @@ interface Quantity {
 export interface Item {
   id: string;
   docId: string,
+  collection: string,
   title: string;
   images: Image[];
   price: number;
@@ -25,6 +26,7 @@ export interface Item {
   color: string;
   review: number;
   userReview?: {
+    commentId: string,
     userId: string;
     userName: string;
     comment: string;

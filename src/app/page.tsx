@@ -1,12 +1,9 @@
-
 import React from "react";
 // import SliderBanner from "./components/SliderBanner";
 import CardSlider from "./components/CardSlider";
-import Footer from "./components/Footer";
+import { FaArrowRightLong } from "react-icons/fa6";
 
 export default function Home() {
-
-
   return (
     <>
       {/* <SliderBanner /> */}
@@ -32,64 +29,72 @@ export default function Home() {
         </div>
       </div> */}
 
-      <div className="flex mx-10 justify-around items-center">
+      {/* <div className="flex mx-10 justify-around items-center">
         <div className="text-7xl">
           <h3>SLAY WITH</h3>
           <h3 className="text-green-700">SWAY</h3>
         </div>
 
         <img className="h-36" src="https://res.cloudinary.com/dbkiysdeh/image/upload/v1729970708/Untitled_Project_5_d2qnlz.jpg" alt="" />
-      </div>
+        
+      </div> */}
 
-        <div className="flex  mx-10  justify-between">
-        <div className="w-[70vw]">
+      <div className="flex sm:flex-col xs:flex-col lg:flow-row md:flex-row xl:flex-row w-[100vw] px-10  justify-between">
+        <div className="w-[35vw] flex flex-col  justify-center ">
+          <h3 className="text-7xl font-bold">SLAY WITH</h3>
+          <h3 className="text-green-700 text-7xl font-bold">SWAY</h3>
 
+          <p className="">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus
+            quis repellendus odio ratione quaerat doloribus sapiente error? Est
+            quam dolore asperiores ratione iusto architecto vitae?
+          </p>
+
+          <button className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">Get started  <FaArrowRightLong/></button>
         </div>
 
-          <div className="flex gap-y-4 flex-wrap justify-between">
-
-          <video className="w-[22vw]" autoPlay muted loop preload="metadata">
-            <source
-              src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727183577/videos/final_journey_reel_xgtyga.mp4"
-              type="video/mp4"
-            />
-            Your browser does not support the video tag.
-          </video>
-
-          <video
-            className="w-[22vw]"
-            autoPlay
-            muted
-            loop
-            preload="metadata"
-            style={{ cursor: "pointer" }}
-          >
-            <source
-              src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727183521/videos/New_Project_304_Copy_Copy_rguan6.mp4"
-              type="video/mp4"
-            />
-          </video>
-
-          <video className="w-[22vw]" autoPlay muted loop preload="metadata">
-            <source
-              src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727364143/collection1/IMG_6991_dfktby.mov"
-              type="video/mp4"
-            />
-            Your browser does not support the video tag.
-          </video>
-
-          <video className="w-[22vw]" autoPlay muted loop preload="metadata">
-            <source
-              src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727364148/collection1/IMG_7011_m5gk4i.mov"
-              type="video/mp4"
-            />
-            Your browser does not support the video tag.
-          </video>
-
-          
-
+        <div className="flex flex-col w-[50vw]">
+          <div className="flex  gap-5 mb-3">
+            <video className="   h-[40vh]  rounded-xl" autoPlay muted loop preload="metadata">
+              <source
+                src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727183577/videos/final_journey_reel_xgtyga.mp4"
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
+            <video className="  h-[40vh]  rounded-xl "
+              autoPlay
+              muted
+              loop
+              preload="metadata"
+              style={{ cursor: "pointer" }}
+            >
+              <source
+                src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727183521/videos/New_Project_304_Copy_Copy_rguan6.mp4"
+                type="video/mp4"
+              />
+            </video>
           </div>
+
+          <div className="flex gap-5 ml-9">
+            <video className=" h-[40vh]  rounded-xl" autoPlay muted loop preload="metadata">
+              <source
+                src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727364143/collection1/IMG_6991_dfktby.mov"
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
+            <video className="   h-[40vh] rounded-xl" autoPlay muted loop preload="metadata">
+              <source
+                src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727364148/collection1/IMG_7011_m5gk4i.mov"
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
         </div>
+      </div>
 
       <CardSlider />
 
@@ -190,7 +195,7 @@ export default function Home() {
         />
       </div>
 
-      <Footer />
+      
     </>
   );
 }

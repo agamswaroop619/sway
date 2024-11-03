@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "./components/navbar";
 import React from "react";
-import mobileBar from "./components/mobileBar";
 import StoreProvider from "./StoreProvider";
 import { Toaster } from "react-hot-toast";
+import Footer from "./components/Footer";
 
 export const metadata: Metadata = {
   title: "Sway Club",
@@ -31,11 +31,8 @@ export default function RootLayout({
 
             {/* Main content should grow and take available space */}
             <div className="flex-grow">{children}</div>
-
-            
-              {React.createElement(mobileBar)}
            
-
+            <Footer/>
             <Toaster />
           </StoreProvider>
         </div>

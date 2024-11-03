@@ -5,7 +5,7 @@ import { selectCartItems } from "@/lib/features/carts/cartSlice";
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { GoArrowLeft } from "react-icons/go";
+import {  GoArrowLeft } from "react-icons/go";
 import toast from "react-hot-toast";
 import { firestore } from "@/app/firebase.config";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
@@ -14,7 +14,7 @@ import { clearCart } from "@/lib/features/carts/cartSlice";
 import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { useRouter } from "next/navigation";
-import { userProfileInfo } from "@/lib/features/user/user";
+import { GoChevronDown } from "react-icons/go";
 
 const userInfo = ( state : RootState ) => state.user.userProfile;
 
@@ -33,18 +33,35 @@ const CheckoutPage = () => {
 
   // Items and their reference of cartItems for update in database
   const ItemsUpdate: ItemsUpdate[]= [];
+    // data of user
+    const userData = useAppSelector( userInfo );
 
   // Address field
-  const [firstName, setFirstName] = useState("");
+  const [firstName, setFirstName] = useState( userData?.name);
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zipCode, setZipCode] = useState("");
-  const [region, setRegion] = useState("");
-  const [phone, setPhone] = useState("");
-  const [apartment, setApartment] = useState("");
+  const [email, setEmail] = useState(userData?.email);
+  const [address, setAddress] = useState(userData?.delivery?.address);
+  const [city, setCity] = useState(userData?.delivery?.city);
+  const [state, setState] = useState(userData?.delivery?.state);
+  const [zipCode, setZipCode] = useState(userData?.delivery?.postalCode);
+  const [country, setCountry] = useState(userData?.delivery?.country );
+  const [phone, setPhone] = useState(userData?.phone);
+  const [apartment, setApartment] = useState(userData?.delivery?.apartment);
+
+  const [ couponErr , setCouponErr ] = useState("");
+  const [couponOpen, setCouponOpen] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+
+  const couponHandler = () => {
+    
+    if (couponCode === "") {
+      setCouponErr("Please enter a valid coupon code");
+    }
+    else
+    setCouponErr("Invalid Coupon Code");
+
+    return ;
+  }
 
   // payment and shipping
   const [payment, setPayment] = useState("cash");
@@ -53,9 +70,6 @@ const CheckoutPage = () => {
   // success and error
   const [error, setError] = useState("");
   const [ success, setSuccess ] = useState(false);
-
-  // data of user
-  const userData = useAppSelector( userInfo );
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -177,56 +191,55 @@ const CheckoutPage = () => {
 
  // 1. Make paymeyt and verify
 //  2. Mark success true for update the database
-  const createOrder = async () => {
-    try {
-      const res = await fetch("/api/create-order", {
-        method: "POST",
-        body: JSON.stringify({ amount: 999 * 100 }),
-      });
-      const data = await res.json();
-  
-      const paymentData = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        order_id: data.id,
-        prefill: {
-          name: `${firstName} ${lastName}`,
-          contact: "1234567890",
-        },
-        handler: async function (response: RazorpayResponse) {
-          try {
-            // Verify payment
-            const res = await fetch("/api/verify-payment", {
-              method: "POST",
-              body: JSON.stringify({
-                orderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-              }),
-            });
-            const verificationData = await res.json();
-            if (verificationData.isOk) {
-              toast.success("Payment is successful");
-            
-              setSuccess( true );
+const createOrder = async () => {
+  try {
+    const res = await fetch("/api/create-order", {
+      method: "POST",
+      body: JSON.stringify({ amount: (subtotal+79) * 100 }),
+    });
+    const data = await res.json();
 
-            } else {
-              toast.error("Something went wrong.");
-            }
-          } catch (error) {
-            console.error("Payment verification error:", error);
-            toast.error("Payment verification failed.");
+    const paymentData = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      order_id: data.id,
+      prefill: {
+        name: `${firstName}` ,
+        contact: "1234567890",
+      },
+      handler: async function (response: RazorpayResponse) {
+        try {
+          // Verify payment
+          const res = await fetch("/api/verify-payment", {
+            method: "POST",
+            body: JSON.stringify({
+              orderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+            }),
+          });
+          const verificationData = await res.json();
+          if (verificationData.isOk) {
+            toast.success("Payment is successful");
+          
+            setSuccess( true );
+
+          } else {
+            toast.error("Something went wrong.");
           }
-        },
-      };
-  
-      const payment = new window.Razorpay(paymentData);
-      payment.open();
-    } catch (error) {
-      console.error("Order creation error:", error);
-      toast.error("Failed to create order.");
-    }
-  };
+        } catch (error) {
+          console.error("Payment verification error:", error);
+          toast.error("Payment verification failed.");
+        }
+      },
+    };
 
+    const payment = new window.Razorpay(paymentData);
+    payment.open();
+  } catch (error) {
+    console.error("Order creation error:", error);
+    toast.error("Failed to create order.");
+  }
+};
 
   // push orderd items in order section of user
   const pushItems = async () => {
@@ -234,23 +247,23 @@ const CheckoutPage = () => {
   
     try {
       const userDoc = await getDoc(userRef);
-      
+  
+      console.log("User ID:", userData?.userId);
+      console.log("User Document:", userDoc);
+  
       if (userDoc.exists()) {
-        // Extract current orders or set an empty array if it doesn't exist
         const currentOrders = userDoc.data().orders || [];
+        const newOrders = ItemsUpdate.map(item => {
+          console.log("Processing item:", item);
+          return item?.docData?.data()?.id;
+        });
   
-        // Collect the new items' IDs to push to orders
-        const newOrders = ItemsUpdate.map(item => item.docData.data().id);
-  
-        // Combine current orders with new orders
         const updatedOrders = [...currentOrders, ...newOrders];
-  
-        // Update Firestore document with the new orders array
         await updateDoc(userRef, { orders: updatedOrders });
   
-        // Optionally update local reference if needed
         if (userData) {
           userData.orders = updatedOrders;
+          console.log("Updated orders:", updatedOrders);
         }
       }
     } catch (error) {
@@ -258,8 +271,6 @@ const CheckoutPage = () => {
     }
   };
   
-  
-
   // Function that use itemsupdate for update the quantity of products 
   const updateDB = async () => {
     try {
@@ -324,48 +335,89 @@ const CheckoutPage = () => {
     0
   );
 
-  // const handleCheckout = async () => {
-  //   const orderDetails = {
-  //     order_id: Math.random().toString(10), // Random order ID
-  //     order_date: new Date().toISOString(),
+  // check user details and if details are correct make the payment call
+  const checkDetails = async () => {
 
-  //     billing_customer_name: `${firstName} ${lastName}`,
-  //     billing_address: `${address}`,
-  //     billing_city: "Gopal ganj",
-  //     billing_pincode: 841438,
-  //     billing_state: "Bihar", // Change as per user input
-  //     billing_country: "India", // Change as per user input
-  //     billing_email: "akr@gmail.com",
-  //     billing_phone: "+91 76350 31250",
-  //     shipping_is_billing: true, // Assuming shipping address is the same
+    if( userData ){
 
-  //     order_items: cartItems,
-  //     payment_method: "COD",
-  //     sub_total: subtotal, // Total price
-  //     length: 10,
-  //     breadth: 15,
-  //     height: 20,
-  //     weight: 1.5, // Product dimensions and weight
-  //   };
+      if( firstName?.trim() === "" )
+      {
+        toast.error("Name can't be empty");
+        return;
+      } else if( phone?.trim() === "" ){
+        toast.error("Phone can't be empty");
+        return;
+      } else if( address?.trim() === "" ){
+        toast.error("Address can't be empty");
+        return;
+      } else if( zipCode?.trim() === "" ){
+        toast.error("Postal can't be empty");
+        return;
+      } else if( state?.trim() === "" ) {
+        toast.error("State can't be empty");
+        return;
+      } else if( country?.trim() === "" ) {
+        toast.error("County can't be empty");
+        return;
+      } else if( city?.trim() === "" ){
+        toast.error("City can't be empty");
+        return;
+       }// else if ( landmark?.trim() === "" ){
+      //   toast.error("LandMark can't be empty");
+      //   return;
+      // }
 
-  //   console.log("Order details : ", orderDetails);
+      await createOrder();
 
-  //   try {
-  //     const response = await fetch("/api/place-order", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ orderDetails }),
-  //     });
+    } else{
+      router.push("/login");
+    }
 
-  //     console.log("data : ", response);
-  //     toast.success("order placed successfully");
-  //   } catch (error) {
-  //     console.error("Checkout error:", error);
-  //     alert("Failed to place the order.");
-  //   }
-  // };
+  }
+
+  /*const handleCheckout = async () => {
+    const orderDetails = {
+      order_id: Math.random().toString(10), // Random order ID
+      order_date: new Date().toISOString(),
+
+      billing_customer_name: `${firstName} `,
+      billing_address: `${address}`,
+      billing_city: `${city}`,
+      billing_pincode: `${zipCode}`,
+      billing_state: `${state}`, // Change as per user input
+      billing_country: `${country}`, // Change as per user input
+      billing_email: `${userData?.email}`,
+      billing_phone: `${phone}`,
+      shipping_is_billing: true, // Assuming shipping address is the same
+
+      order_items: cartItems,
+      payment_method: `${ payment === "cash" ? "COD" : "Online"}`,
+      sub_total: subtotal+79, // Total price
+      length: 10,
+      breadth: 15,
+      height: 20,
+      weight: 1.5, // Product dimensions and weight
+    };
+
+    console.log("Order details : ", orderDetails);
+
+    try {
+      const response = await fetch("/api/place-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderDetails }),
+      });
+
+      console.log("data : ", response);
+      toast.success("order placed successfully");
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("Failed to place the order.");
+    }
+  };
+  */
 
   return (
     <div >
@@ -414,9 +466,10 @@ const CheckoutPage = () => {
                 <span className="text-[#7E7E7E]">County/Region</span>
                 <input
                   type="text"
+                  value={ country}
                   className="w-full bg-transparent focus:outline-none"
-                  onChange={(e) => setRegion(e.target.value)}
-                  value={region}
+                  onChange={(e) => setCountry(e.target.value)}
+                 
                 />
               </div>
 
@@ -593,7 +646,7 @@ const CheckoutPage = () => {
               </Link>
               <Link
                 href="#"
-                onClick={createOrder}
+                onClick={checkDetails}
                 className="border flex justify-center items-center  px-28 "
               >
                 Place Order
@@ -603,7 +656,7 @@ const CheckoutPage = () => {
 
           <div className="w-[30vw] xl:w-[30vw] lg:w-[30vw] md:w-[30vw] sm:w-[90vw] xs:w-[90vw] mt-10 text-[#7E7E7E]">
             <div>
-              <p>Order summary </p>
+              <p className="pb-2 border-b">Order summary </p>
               {cartItems.map((item) => {
                 return (
                   <div
@@ -633,19 +686,25 @@ const CheckoutPage = () => {
               })}
             </div>
 
-            <div className="py-2 my-2">
-              Apply Coupon
+            <div className="py-2 my-2 border-b-[1px] border-t-[1px]">
+              <p className="flex justify-between" onClick={ () => setCouponOpen(!couponOpen)}>Apply coupon <GoChevronDown /> </p>
               {
-                <div className="my-1">
+                <div className={`my-1  ${couponOpen === true ? "" : "hidden"}`}>
+                  <div className="flex mx-4">
                   <input
                     type="text"
                     id="coupon"
                     name="coupon"
-                    className="bg-transparent p-2 border focus:outline-none"
+                    value={couponCode} onChange={(e)=> setCouponCode(e.target.value)}
+                    className={`bg-transparent p-2 border focus:outline-none ${ couponErr !== "" ? "border-red-500" :""}`}
                     placeholder="Enter Coupon Code"
                   />
 
-                  <button className="p-2 ml-4 border">Apply</button>
+                  <button className="p-2 ml-4 border" onClick={ couponHandler}>Apply</button>
+                </div>
+
+                <p className="text-red-700">{couponErr}</p>
+
                 </div>
               }
             </div>
@@ -653,7 +712,7 @@ const CheckoutPage = () => {
             <div>
               <p className="w-full  my-3 flex justify-between">
                 <span>Subtotal</span>
-                <span>₹{subtotal}</span>
+                <span>₹{(subtotal )}</span>
               </p>
 
               <p className="w-full my-3 flex justify-between">

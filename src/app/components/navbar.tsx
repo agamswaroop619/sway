@@ -8,7 +8,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store"; // Import the RootState type
-import { usePathname } from "next/navigation";
 import { RiMenu2Fill } from "react-icons/ri";
 import SideNavBar from "./SideNavBar";
 
@@ -19,11 +18,8 @@ const Navbar = () => {
   const [search, setSearch] = useState("");
   const [not, setNot] = useState(0); // 'not' to store the count of cart items
   const [wish, setWish] = useState(0); // 'wish' to store
-  const [ nav, setNav ] = useState('home');
 
   const [ sideNav, setSideNav ] = useState(false);
-
-  const url = usePathname();
 
   const itemsFromStore = useAppSelector(selectCartItems);
   const itemsFromWish = useAppSelector(selectWishlistItems);
@@ -36,22 +32,7 @@ const Navbar = () => {
 
   
 
-  useEffect( () => {
-    
-    if( url === "/" ) {
-      setNav('home');
-    } else if ( url === '/products' ) {
-      setNav('products');
-    } else if ( url === '/about' ) {
-      setNav('about');
-    } else if ( url === '/contacts') {
-      setNav('contacts');
-    }
-     else {
-      setNav('');
-    }
 
-  }, [url])
 
   useEffect(() => {
     setWish(itemsFromWish.length);
@@ -80,43 +61,44 @@ const Navbar = () => {
           </div>
       }
 
-      <header className="flex  px-3 bg-[#3fe607]  text-black w-full py-4 mb-2 justify-between items-center">
+      <header className="flex  px-3   text-white w-full py-4 mb-2 justify-between items-center">
 
 
-        <div className="block  md:hidden lg:hidden xl:hidden">
+        <div className="block   md:hidden lg:hidden xl:hidden">
         <RiMenu2Fill onClick={() => setSideNav(true) }  />
         </div>
 
        
 
         <Link href="/" className="w-2/12">
-          <h2 className="text-2xl hover:text-white transition-colors duration-300 ease">Sway</h2>
+          <h2 className="text-2xl items-center  flex">
+          <img className="h-10" src="https://res.cloudinary.com/dbkiysdeh/image/upload/v1729970708/Untitled_Project_5_d2qnlz.jpg" alt="" />
+        
+            Sway</h2>
         </Link>
 
         <nav className="hidden md:block lg:block">
           <ul className="flex flex-wrap w-[40vw] justify-between text-xl">
             <li>
               <Link href="/" 
-              className={`${ nav === "home" ?  "text-white" : ""}
-              hover:text-white transition-colors duration-300 ease `}>Home</Link>
+             >
+                Home</Link>
+              
             </li>
 
             <li>
               <Link href="/products" 
-              className={`${ nav === "products" ?  "text-white" : ""}
-              hover:text-white transition-colors duration-300 ease `}>Collections</Link>
+              >Collections</Link>
             </li>
 
             <li>
               <Link href="/about" 
-              className={`${ nav === "about" ?  "text-white" : ""}
-              hover:text-white transition-colors duration-300 ease `}>About us</Link>
+              >About us</Link>
             </li>
 
             <li>
               <Link href="/contacts" 
-              className={`${ nav === "contacts" ?  "text-white" : ""}
-              hover:text-white transition-colors duration-300 ease `}>Contact us</Link>
+              >Contact us</Link>
             </li>
           </ul>
         </nav>
@@ -127,10 +109,10 @@ const Navbar = () => {
 
     
         <label  className={`flex items-center ${
-        showSearch ? 'bg-white w-[100%]' : 'bg-transparent w-10'
+        showSearch ? 'bg-white w-[100%] text-black' : 'bg-transparent w-10'
         } overflow-hidden transition-all duration-500 ease-in-out `}>
 
-        <IoIosSearch className="text-3xl px-1 cursor-pointer hover:text-white transition-colors duration-300 ease" onClick={toggleSearchBar} />
+        <IoIosSearch className="text-3xl px-1 cursor-pointer " onClick={toggleSearchBar} />
 
       {  
        showSearch && (
@@ -146,7 +128,7 @@ const Navbar = () => {
 
       {
         !showSearch && <div className="flex w-[70%] justify-between items-center"> 
-          <Link href="/wishlist" className="flex hover:text-white transition-colors duration-300 ease">
+          <Link href="/wishlist" className="flex ">
             <CiHeart />
             <sup className="text-sm "> {wish} </sup>
           </Link>

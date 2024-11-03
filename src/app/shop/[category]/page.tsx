@@ -9,119 +9,102 @@ import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { Item, itemsDataInCart } from '@/lib/features/items/items';
 import { getData } from '@/app/utils/getData';
 import { setItemsData } from '@/lib/features/items/items';
-import StarRating from '@/app/components/Rating';
+import {StarRating} from '@/app/components/Rating';
 import RangeSlider from '@/app/components/RangeSlider';
 import { useParams } from 'next/navigation';
+import { useMemo } from 'react';
 
 const ProductsPage = (  ) => {
 
-    const params = useParams();
+const params = useParams();
+const dispatch = useAppDispatch();
+const router = useRouter();
 
+const [floatSidebar, setFloatSidebar] = useState(false);
+const [filter, setFilter] = useState('default');
+const [shopData, setShopData] = useState<Item[]>([]);
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 12;
+const [min, setMin] = useState(100);
+const [max, setMax] = useState(1000);
 
-  const dispatch = useAppDispatch();
-  const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false);
-  const [filter, setFilter] = useState<string>('default');
-  const [shopData, setShopData] = useState<Item[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 12; // Number of products to show per page
-  
-  const data = useAppSelector(itemsDataInCart) || []; // Provide a default empty array
-  if( data ) {
-    data.filter( item => item.category === params.category);
-  }
+const [categoryData, setCategoryData] = useState<Item[]>([]);
+const data = useAppSelector(itemsDataInCart) || [];
 
-  const router = useRouter();
-
-  const [ min, setMin ] = useState(100);
-  const [ max, setMax ] = useState(1000);
-  
-  useEffect(() => {
-    if (data.length === 0) {
-      getData()
-        .then((fetchedData) => {
-          if (fetchedData && fetchedData.length > 0) {
-            dispatch(setItemsData(fetchedData)); // Properly dispatch to update the Redux state
-          } else {
-            dispatch(setItemsData([])); // Handle no fetched data case
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching data:', error);
-          dispatch(setItemsData([])); // Handle error case by dispatching an empty array
-        });
-    } else {
-      setShopData(data); // If data exists, update shopData state
-    }
-  }, [data, dispatch]);
-  
-  // Whenever the data changes, update shopData accordingly
-  useEffect(() => {
-    if (data.length > 0) {
-        data.filter( item => item.category === params.category);
-    setShopData(data);
-
-    }
-  }, [data]);
-
- 
-  
-
-// Filter and sort logic
+// Fetch data if not in Redux store (runs only once)
 useEffect(() => {
-  if (filter !== "default" && shopData && shopData.length > 0) {
-    router.push(`/shop?orderby=${filter}`);
-    let filteredData = [...shopData]; // Create a shallow copy to avoid mutating original data
-
-    if (filter === "popular") {
-      // Implement popular sorting logic here
-    } else if (filter === "latest") {
-      // Implement latest sorting logic here
-    } else if (filter === "rating") {
-      filteredData = filteredData.sort((a, b) => b.review - a.review); // Sort by rating
-    } else if (filter === "low") {
-      filteredData = filteredData.sort((a, b) => a.price - b.price); // Sort by low price
-    } else if (filter === "high") {
-      filteredData = filteredData.sort((a, b) => b.price - a.price); // Sort by high price
-    }
-
-    setShopData(filteredData);
-  } else {
-    router.push(`/shop`);
-    if( data && data.length > 0)
-    setShopData(data );
+  if (data.length === 0) {
+    getData()
+      .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        dispatch(setItemsData([]));
+      });
   }
-  setCurrentPage(1); // Reset to page 1 when the filter changes
-}, [filter, data, router]);
+}, [dispatch]);
 
-let totalPages: number = 0;
-let currentItems: Item[] = [];
+// Filter data based on params.category (uses useMemo to avoid unnecessary re-renders)
+const filteredData = useMemo(() => {
+  return data.filter((item) => item.collection === params.category);
+}, [data, params.category]);
 
-// pagination of items
-if (shopData && shopData.length > 0) {
-  // Calculate pagination
-  const totalItems = shopData.length;
-  totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  currentItems = shopData.slice(startIndex, startIndex + itemsPerPage);
-}
+useEffect(() => {
+  setCategoryData(filteredData);
+  console.log("Store data in category:", filteredData);
+}, [filteredData]);
 
-// Handle page changes
-// const handlePageChange = (newPage: number) => {
-//   if (newPage >= 1 && newPage <= totalPages) {
-//     setCurrentPage(newPage);
-//     window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top when changing pages
-//   }
-// };
+// Sort shopData based on filter state (depends only on filter and categoryData)
+useEffect(() => {
+  const sortedData = [...categoryData];
+  
+  switch (filter) {
+    case "rating":
+      sortedData.sort((a, b) => b.review - a.review);
+      break;
+    case "low":
+      sortedData.sort((a, b) => a.price - b.price);
+      break;
+    case "high":
+      sortedData.sort((a, b) => b.price - a.price);
+      break;
+  }
+
+  console.log("Category data:", categoryData);
+  console.log("Sorted array:", sortedData);
+  
+  if (filter !== "default") {
+    setShopData(sortedData);
+    setCurrentPage(1);
+    router.push(`/shop/${params.category}?orderby=${filter}`);
+  } else {
+    setShopData(sortedData);
+    router.push(`/shop/${params.category}`);
+  }
+}, [filter, categoryData, router]);
+
 
 const filterByPrice = () => {
-   let filteredData = [...data];
+  let filteredData = [...data];
 
-   if( data && ( min !== 100 || max != 1000 )){
-    filteredData = filteredData.filter(item => item.price >= min && item.price <= max);
-    setShopData(filteredData);
-   }
+  if( data && ( min !== 100 || max != 1000 )){
+   filteredData = filteredData.filter(item => item.price >= min && item.price <= max);
+   setShopData(filteredData);
+  }
 }
 
+let totalPages : number = 0;
+const [ totalItems, setTotalItems ] = useState(0);
+
+useEffect( () => {
+  if (shopData && shopData.length > 0) {
+    // Calculate pagination
+     setTotalItems ( shopData.length);
+    totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    setShopData( shopData.slice(startIndex, startIndex + itemsPerPage));
+    
+  }
+}, [categoryData.length])
 
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
@@ -131,7 +114,7 @@ const filterByPrice = () => {
        <div className='flex w-full items-center mb-2  justify-around'>
        <CiFilter
           className="text-white  border text-3xl p-1"
-          onClick={() => setFloatSiderbar(!floatSiderbar)}
+          onClick={() => setFloatSidebar(!floatSidebar)}
         />
         <select className="bg-black p-2 border focus:outline-none" onChange={(e) => setFilter(e.target.value)}>
             <option value="default">Default sorting</option>
@@ -145,12 +128,12 @@ const filterByPrice = () => {
 
       </div>
 
-      {floatSiderbar && (
+      {floatSidebar && (
         <div className="absolute left-0 z-10">
             <div className="z-10 w-[80vw] h-screen max-w-[500px] bg-black text-white">
             <div className="flex  px-5 items-center">
             <input type="text" placeholder="Search products" className="p-2 rounded-full w-full mb-4" />
-            <MdOutlineClear className="text-3xl" onClick={() => setFloatSiderbar(!floatSiderbar)} />
+            <MdOutlineClear className="text-3xl" onClick={() => setFloatSidebar(!floatSidebar)} />
             </div>
     
             <div className="mb-4">
@@ -244,10 +227,10 @@ const filterByPrice = () => {
         </div>
 
         <div className="flex my-2 mx-4 flex-wrap justify-between w-full">
-          {  currentItems.length === 0 ? (
+          {  shopData.length === 0 ? (
             <p>No products found</p>
           ) : (
-            currentItems.map((item) => (
+            shopData.map((item : Item) => (
               <Link
                 key={item.id}
                 href={`/products/${item.id}`}

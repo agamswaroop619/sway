@@ -29,7 +29,15 @@ const GoogleLogin = () => {
                 await setDoc(doc(firestore, "users", uid), {
                     name: result.user.displayName,
                     email: result.user.email,
-                    address: "",
+                    userId: uid,
+                    delivery: {
+                        address: "",
+                        apartment: "",
+                        city: "",
+                        postalCode: "",
+                        state: "",
+                        country: ""
+                      },
                     phone: "" ,
                     orders: [],
                 });
@@ -38,7 +46,14 @@ const GoogleLogin = () => {
                     userId: result.user.uid,
                     name: result.user.displayName || "",
                     email: result.user.email || "",
-                    address: "",
+                    delivery: {
+                        address: "",
+                        apartment: "",
+                        city: "",
+                        postalCode: "",
+                        state: "",
+                        country: ""
+                      },
                     phone: "",
                     orders: [],
                     refreshToken: result.user.refreshToken || "",
@@ -53,7 +68,14 @@ const GoogleLogin = () => {
                     userId: result.user.uid,
                     name: userDoc.data().name,
                     email: userDoc.data().email,
-                    address: userDoc.data().address,
+                    delivery: {
+                        address: userDoc.data().address,
+                        apartment: userDoc.data().apartment,
+                        city: userDoc.data().apartment,
+                        postalCode: userDoc.data().postalCode,
+                        state: userDoc.data().state,
+                        country: userDoc.data().country
+                      },
                     phone: userDoc.data().phone,
                     orders: userDoc.data().orders,
                     refreshToken: result.user.refreshToken || "",

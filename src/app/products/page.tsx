@@ -9,7 +9,7 @@ import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { Item, itemsDataInCart } from '@/lib/features/items/items';
 import { getData } from '@/app/utils/getData';
 import { setItemsData } from '@/lib/features/items/items';
-import StarRating from '../components/Rating';
+import {StarRating} from '../components/Rating';
 import RangeSlider from '../components/RangeSlider';
 
 
@@ -298,4 +298,3 @@ const filterByPrice = () => {
 };
 
 export default ProductsPage;
-

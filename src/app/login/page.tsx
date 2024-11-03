@@ -78,12 +78,14 @@ if (storedEmail && storedEmail !== user.email) {
           phone: "",
           orders: [] ,
 
-          address: "",
+          delivery: {
+            address: "",
             apartment: "",
             city: "",
             postalCode: "",
             state: "",
-            region: ""
+            country: ""
+          }
         };
 
         dispatch(setUser(userData));
@@ -100,12 +102,14 @@ if (storedEmail && storedEmail !== user.email) {
             phone: userDoc.data().phone,
             orders: [],
 
-            address: "",
-            apartment: "",
-            city: "",
-            postalCode: "",
-            state: "",
-            region: ""
+            delivery: {
+              address: "",
+              apartment: "",
+              city: "",
+              postalCode: "",
+              state: "",
+              country: ""
+            }
           }
 
           dispatch( setUser(userData));

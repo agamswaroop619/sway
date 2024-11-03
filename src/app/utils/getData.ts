@@ -19,12 +19,6 @@ export async function getData(): Promise<Item[] | null> {
         : doc.data().createdAt.createdAt,
       }));
 
-      querySnapshot.docs.map( (doc) => {
-        console.log("Item id : ", doc.id);
-        console.log("data : ", doc.data());
-      })
-
-      console.log('res :', res);
   
       // Check if res is an array
       if (Array.isArray(res) && res.length > 0)  {

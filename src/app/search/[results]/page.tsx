@@ -63,14 +63,12 @@ const SearchPage = () => {
   useEffect(() => {
     if (data && data.length > 0) {
  
- 
-      const searchResults = data.filter((item): item is Item => {
-          const normalizedInput = input.toLowerCase();
-          const normalizedTitle = item.title.toLowerCase();
-      
-          const categoryMatch = item.category.some(cat => cat.toLowerCase() === normalizedInput);
-      
-          return normalizedTitle === normalizedInput || categoryMatch;
+      const searchResults = data.filter((item) => {
+        const normalizedInput = input.toLowerCase();
+        const normalizedTitle = item.title.toLowerCase();
+        const categoryMatch = item.category.some((cat) => cat.toLowerCase().includes(normalizedInput));
+        
+        return normalizedTitle.includes(normalizedInput) || categoryMatch;
       });
       
   

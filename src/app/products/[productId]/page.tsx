@@ -12,8 +12,9 @@ import { Item } from '@/lib/features/items/items';
 import { itemsDataInCart } from '@/lib/features/items/items';
 import { setItemsData } from '@/lib/features/items/items';
 import { getData } from '@/app/utils/getData';
-import StarRating from '@/app/components/Rating';
+import {StarRating} from '@/app/components/Rating';
 import Link from 'next/link';
+import {StarRating2} from '@/app/components/Rating';
 
 const selectCartItems = (state: RootState) => state.cart.items;
 
@@ -35,64 +36,12 @@ const ProductDetails = () => {
 
   const [ reviewMessage, setReviewMessage ] = useState(""); 
 
-  const itemReviews = [
-    {
-      userId: 12,
-      rating: 5,
-      review: "This product is amazing",
-    },
-    {
-      userId: 10,
-      rating: 4,
-      review: "This product is good",
-    },
-    {
-      userId: 3,
-      rating: 3,
-      review: "This product is okay",
-    },
-    {
-      userdId: 4,
-      rating: 2,
-      review: "This product is bad",
-    },
-    {
-      userId: 5,
-      rating: 1,
-      review: "Worst experiences"
-    },
-    {
-      userId: 6,
-      rating: 5,
-      review: "This product is amazing",
-    },
-    {
-      userId: 21,
-      rating: 4,
-      review: "This product is good",
-    },
-    {
-      userId: 20,
-      rating: 3,
-      review: "This product is okay",
-    },
-    {
-      userId: 90,
-      rating: 3,
-      review: "This product is amazing",
-    },
-    {
-      userId: 81,
-      rating: 2,
-      review: "This product is good",
-    },
-    {
-      userId: 71,
-      rating: 1,
-      review: "This product is bad",
-    }
-  ]
 
+  const [rating, setRating] = useState(0);
+
+  const handleRatingChange = (newRating: number) => {
+    setRating(newRating);
+  };
   
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -136,7 +85,6 @@ useEffect(() => {
   
   const addHandler = (product: Item) => {
 
-    toast.success(`item docId: ${product.docId}`)
 
     if (itemSize === "") {
       toast.error("Plz select a size");
@@ -234,7 +182,6 @@ useEffect(() => {
   
   const addToWishlistHandler = (product: Item) => {
 
-    toast.success(`item docId: ${product.docId}`)
 
     if (itemSize === "") {
       toast.error("Plz select a size");
@@ -292,6 +239,21 @@ useEffect(() => {
   useEffect(() => {
     setImgSrc(itemdata?.images[0].url);
   }, [itemdata]);
+
+  // function generateUniqueString(productTitle: string) {
+  //   // Get the current date in YYYYMMDD format
+  //   const date = new Date();
+  //   const formattedDate = date.toISOString().slice(0, 10).replace(/-/g, ""); // e.g., 20241102 for Nov 2, 2024
+  
+  //   // Convert product title to a unique hash (for simplicity, using base64 encoding of the title)
+  //   const titleHash = btoa(productTitle).slice(0, 5); // Shorten the hash for brevity
+  
+  //   // Add a random 4-digit number to ensure uniqueness
+  //   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  
+  //   // Concatenate to form the unique string
+  //   return `${formattedDate}-${titleHash}-${randomSuffix}`;
+  // }
 
   // Ensure `itemdata` exists before rendering
   if (!itemdata) return <div>Loading...</div>;
@@ -565,23 +527,19 @@ With Brainfood, you can experience improved focus, enhanced memory, and increase
 
           <form onSubmit={ (e) => {
             e.preventDefault();
-            console.log(e);
-            toast.success("Review submit successfully");
+            
+           // const commentId = generateUniqueString(itemdata.title) ;
+            
 
-            const comment= {
-              userId: "kljhdfkjash",
-              userName: "Akash kumar",
-              comment: reviewMessage,
-              rating: 4
-            }
-
-            itemdata.userReview?.push( comment );
-
+            //itemdata.userReview?.push( { commentId: commentId, userId : "fddf" , userName: "Akash", comment :reviewMessage , rating: 4} );
+            handleRatingChange(0);
+             setReviewMessage("");
+             toast.success("Comment Success");
 
           }} className='my-6'>
 
             <p className='mb-2 w-full' >Your Rating <sup className='text-red-500'>*</sup></p>
-            <StarRating  rating={4} />
+            <StarRating2 rating={rating} onRatingChange={handleRatingChange} />
 
             <p className='mt-4' >Write Review <sup className='text-red-500'>*</sup></p>
             <textarea id="review" value={reviewMessage} onChange={ (e) => setReviewMessage(e.target.value)}

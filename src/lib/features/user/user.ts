@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
-import { Products } from '../carts/cartSlice';
 
 export interface User {
     name: string;
@@ -9,15 +8,16 @@ export interface User {
     refreshToken: string;
     accessToken: string;
     phone: string,
-    orders: String[],
+    orders: string[],
 
-    // address
+   delivery: {
     address: string,
     apartment: string,
     city: string,
     postalCode: string,
     state: string,
-    region: string
+    country: string
+   }
 }
 
 export interface UserState {
