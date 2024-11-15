@@ -12,6 +12,7 @@ import { Item } from '@/lib/features/items/items';
 import { getData } from '@/app/utils/getData';
 import { setItemsData } from '@/lib/features/items/items';
 import { useDispatch } from 'react-redux';
+import RangeSlider from '@/app/components/RangeSlider';
 
 const SearchPage = () => {
 
@@ -30,6 +31,13 @@ const SearchPage = () => {
   const [searchData, setSearchData] = useState<Item[]>([]); // For storing search results
   const [info, setInfo] = useState<Item[]>([]); // For filtered and search results
   const [status, setStatus] = useState(false); // For "products not found" status
+
+  const [min, setMin] = useState(100);
+const [max, setMax] = useState(1000);
+
+const filterByPrice = () => {
+
+}
   
   // Set initial data using useAppSelector
   useEffect(() => {
@@ -145,11 +153,21 @@ const SearchPage = () => {
           <MdOutlineClear className="text-3xl" onClick={() => setFloatSiderbar(!floatSiderbar)} />
           </div>
   
-          <div className="mb-4">
-            <h3 className="font-bold mb-2">Filter by price</h3>
-            <button className="bg-green-700 p-2 rounded-full mb-2">Filter</button>
-            <p>Price: ₹690 — ₹700</p>
-          </div>
+          <div className="  relative h-28">
+              <h3 className="font-bold mb-2 ">Filter by price</h3>
+          
+              <p>Price: ₹{min} — ₹{max}</p>
+            <div className='absolute h-28 top-13 left-[0px] '>
+            <RangeSlider  min={min} setMin={setMin}
+          max={max} setMax={setMax}
+          onChange={({ min, max }: { min: number; max: number }) =>
+              console.log(`min = ${min}, max = ${max}`)
+          }   />
+            </div>
+          
+            </div>
+            <button className="bg-green-700 py-2 px-4 rounded-full mt-1 mb-2"
+          onClick={ filterByPrice}>Filter</button>
   
           <div className="mb-4">
             <h3 className="font-bold mb-2">Filter by rating</h3>
@@ -182,11 +200,9 @@ const SearchPage = () => {
           <IoSearchOutline className=' text-xl' />
        </div>
 
-      <div className="mb-4">
-        <h3 className="font-bold mb-2">Filter by price</h3>
-        <button className="bg-green-700 p-2 rounded-full mb-2">Filter</button>
-        <p>Price: ₹690 — ₹700</p>
-      </div>
+        
+       <button className="bg-green-700 py-2 px-4 rounded-full mt-1 mb-2"
+          onClick={ filterByPrice}>Filter</button>
 
       <div className="mb-4">
         <h3 className="font-bold mb-2">Filter by rating</h3>

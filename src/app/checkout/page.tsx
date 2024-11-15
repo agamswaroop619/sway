@@ -1,7 +1,6 @@
 "use client";
 
 import { useAppSelector } from "@/lib/hooks";
-import { selectCartItems } from "@/lib/features/carts/cartSlice";
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -9,12 +8,13 @@ import {  GoArrowLeft } from "react-icons/go";
 import toast from "react-hot-toast";
 import { firestore } from "@/app/firebase.config";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { ItemsUpdate } from "../../../itemsUpdate";
 import { clearCart } from "@/lib/features/carts/cartSlice";
 import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { GoChevronDown } from "react-icons/go";
+import { setUser } from "@/lib/features/user/user";
+import { selectCheckoutItems, clearCheckout } from "@/lib/features/checkout/checkout";
 
 const userInfo = ( state : RootState ) => state.user.userProfile;
 
@@ -27,26 +27,30 @@ interface RazorpayResponse {
 const CheckoutPage = () => {
 
   const [mounted, setMounted] = useState(false);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
   // items that will be placed
-  const cartItems = useAppSelector(selectCartItems);
+  const cartItems = useAppSelector(selectCheckoutItems);
 
-  // Items and their reference of cartItems for update in database
-  const ItemsUpdate: ItemsUpdate[]= [];
     // data of user
     const userData = useAppSelector( userInfo );
 
+    if( !userData ){
+      router.push("/login");
+    }
+
   // Address field
-  const [firstName, setFirstName] = useState( userData?.name);
+  const [firstName, setFirstName] = useState( userData?.name || "");
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState(userData?.email);
-  const [address, setAddress] = useState(userData?.delivery?.address);
-  const [city, setCity] = useState(userData?.delivery?.city);
-  const [state, setState] = useState(userData?.delivery?.state);
-  const [zipCode, setZipCode] = useState(userData?.delivery?.postalCode);
-  const [country, setCountry] = useState(userData?.delivery?.country );
-  const [phone, setPhone] = useState(userData?.phone);
-  const [apartment, setApartment] = useState(userData?.delivery?.apartment);
+  const [email, setEmail] = useState(userData?.email || "");
+  const [address, setAddress] = useState(userData?.delivery?.address || "");
+  const [city, setCity] = useState(userData?.delivery?.city || "");
+  const [state, setState] = useState(userData?.delivery?.state || "");
+  const [zipCode, setZipCode] = useState(userData?.delivery?.postalCode || "");
+  const [country, setCountry] = useState(userData?.delivery?.country  || "");
+  const [phone, setPhone] = useState(userData?.phone || "");
+  const [apartment, setApartment] = useState(userData?.delivery?.apartment || "");
 
   const [ couponErr , setCouponErr ] = useState("");
   const [couponOpen, setCouponOpen] = useState(false);
@@ -71,127 +75,11 @@ const CheckoutPage = () => {
   const [error, setError] = useState("");
   const [ success, setSuccess ] = useState(false);
 
-  const dispatch = useAppDispatch();
-  const router = useRouter();
-
-  // push ref and updated items of cartItems
-  const getItemsUpdate = async () => {
-
-    const ref = {
-      data: {
-        docId: "adfafasf",
-        id: 12,
-        title: "Test Item to prevent undefined",
-        images: [
-          // image URLs here...
-        ],
-        quantity: {
-          small: 100, // Example quantity for Small size
-          medium: 500, // Example quantity for Medium size
-          large: 1000, // Example quantity for Large size
-        },
-        price: 499.0,
-        category: "",
-        descImg:
-          "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
-        color: "Black",
-        review: 3.5,
-      },
-    };
-
-    // Assuming `cartItems` is an array of objects with details about the items.
-    for (const item of cartItems) {
-
-      const docRef = doc(firestore, "products", item.docId);
-
-      try {
-        // Fetch the document data, or use ref as a fallback
-        const docSnap = await getDoc(docRef);
-        const docData = docSnap.exists() ? docSnap.data() : ref.data;
-
-        if( !docSnap.exists() ){
-          console.log("Document does not exist");
-          setError("Something went wrong");
-          return;
-        }
-
-        switch( item.size ) {
-
-          case 'Small':
-                if( item.qnt > docData.quantity[0].small ){
-                  setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[0].small}`)
-                  return;
-                }
-                
-                docData.quantity[0].small= docData.quantity[0].small - item.qnt;
-                ItemsUpdate.push({docData, docRef});
-
-                break;
-
-          case 'Medium':
-            if( item.qnt > docData.quantity[1].medium ){
-              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[1].medium}`)
-              return;
-            }
-
-            docData.quantity[1].medium= docData.quantity[1].medium - item.qnt;
-            ItemsUpdate.push({docData, docRef});
-
-            break;
-
-          case "Large":
-            if( item.qnt > docData.quantity[2].large ){
-              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[2].large}`)
-              return;
-            }
-
-            docData.quantity[2].large= docData.quantity[2].large - item.qnt;
-            ItemsUpdate.push({docData, docRef});
-
-
-            break;
-
-          case 'XL':
-            if( item.qnt > docData.quantity[3].xl ){
-              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[3].xl}`)
-              return;
-            }
-
-            docData.quantity[3].xl= docData.quantity[3].xl - item.qnt;
-            ItemsUpdate.push({docData, docRef});
-
-            break;
-
-          case 'XXL':
-            if( item.qnt > docData.quantity[4].xxl ){
-              setError(`Quantity of ${item.title} is exceed from available by ${item.qnt- docData.quantity[4].xxl}`)
-              return;
-            }
-
-            docData.quantity[4].xxl= docData.quantity[4].xxl - item.qnt;
-            ItemsUpdate.push({docData, docRef});
-
-            break;
-
-          default:
-            setError(`Ye kon sa size hai ?`)
-            break;
-
-        }
-
-      } catch (error) {
-        console.error("Error fetching document:", error);
-        setError("Failed to fetch data for some items");
-      }
-    }
-
-    console.log("Data is  -> ", ItemsUpdate);
-
-  };
 
  // 1. Make paymeyt and verify
 //  2. Mark success true for update the database
 const createOrder = async () => {
+  toast.success("order creation")
   try {
     const res = await fetch("/api/create-order", {
       method: "POST",
@@ -240,100 +128,124 @@ const createOrder = async () => {
     toast.error("Failed to create order.");
   }
 };
-
-  // push orderd items in order section of user
-  const pushItems = async () => {
-    const userRef = doc(firestore, "users", userData?.userId || "");
   
-    try {
-      const userDoc = await getDoc(userRef);
-  
-      console.log("User ID:", userData?.userId);
-      console.log("User Document:", userDoc);
-  
-      if (userDoc.exists()) {
-        const currentOrders = userDoc.data().orders || [];
-        const newOrders = ItemsUpdate.map(item => {
-          console.log("Processing item:", item);
-          return item?.docData?.data()?.id;
-        });
-  
-        const updatedOrders = [...currentOrders, ...newOrders];
-        await updateDoc(userRef, { orders: updatedOrders });
-  
-        if (userData) {
-          userData.orders = updatedOrders;
-          console.log("Updated orders:", updatedOrders);
-        }
-      }
-    } catch (error) {
-      console.error("Error updating orders:", error);
-    }
-  };
-  
-  // Function that use itemsupdate for update the quantity of products 
+  // Function that use itemsupdate for update the database
+  // 1. Push item of itemsUpdate in user order section
+  // 2. Reduce the quantity of each item that placed for order
   const updateDB = async () => {
-    try {
-      console.log("Updating database... : ", ItemsUpdate);
+    const ref = {
+      data: {
+        docId: "adfafasf",
+        id: 12,
+        title: "Test Item to prevent undefined",
+        images: [],
+        quantity: [8, 8, 8, 4, 4],
+        price: 499.0,
+        category: "",
+        descImg: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
+        color: "Black",
+        review: 3.5,
+      },
+    };
   
-      // Wait for all updates to complete
+    const newOrders: string[] = [];
+    console.log("Function entered in update db ");
+  
+    if( cartItems ) {
+
+    try {
+      // Process cart items
       await Promise.all(
-        ItemsUpdate.map(async (item: ItemsUpdate) => {
-          const { docData, docRef } = item;
-          console.log("Updating doc data:", docData);
-          await updateDoc(docRef, docData);
+        cartItems.map(async (item) => {
+          const docRef = doc(firestore, "products", item.docId);
+          const docData = await getDoc(docRef);
+          const itemData = docData.exists() ? docData.data() : ref.data;
+  
+          switch (item.size) {
+            case "Small":
+              if (item.qnt > itemData.quantity[0]) {
+                setError(`Quantity of ${item.title} exceeds available stock.`);
+                return;
+              }
+              itemData.quantity[0] -= item.qnt;
+              break;
+            case "Medium":
+              if (item.qnt > itemData.quantity[1]) {
+                setError(`Quantity of ${item.title} exceeds available stock.`);
+                return;
+              }
+              itemData.quantity[1] -= item.qnt;
+              break;
+            case "Large":
+              if (item.qnt > itemData.quantity[2]) {
+                setError(`Quantity of ${item.title} exceeds available stock.`);
+                return;
+              }
+              itemData.quantity[2] -= item.qnt;
+              break;
+            case "XL":
+              if (item.qnt > itemData.quantity[3]) {
+                setError(`Quantity of ${item.title} exceeds available stock.`);
+                return;
+              }
+              itemData.quantity[3] -= item.qnt;
+              break;
+            case "XXL":
+              if (item.qnt > itemData.quantity[4]) {
+                setError(`Quantity of ${item.title} exceeds available stock.`);
+                return;
+              }
+              itemData.quantity[4] -= item.qnt;
+              break;
+          }
+  
+          // Update product stock in Firestore
+          await updateDoc(docRef, { quantity: itemData.quantity });
+          newOrders.push(item.itemId.toString());
         })
       );
   
-      toast.success("Items updated successfully...");
+      // Update user orders in Firestore
+      const userRef = doc(firestore, "users", userData?.userId || "");
+  
+      if (userData) {
+        const updatedOrders = [...newOrders, ...userData.orders];
+        // await updateDoc(userRef, { orders: updatedOrders }); // Make sure the update is awaited
+        const ordersUpdateResult = await updateDoc(userRef, { orders: updatedOrders });
+  
+        // Ensure that user state in Redux is updated correctly
+        const updatedUser = { ...userData, orders: updatedOrders };
+        dispatch(setUser(updatedUser));
+  
+        console.log("Orders updated in Firestore: ", ordersUpdateResult);
+        console.log("Updated orders: ", updatedOrders);
+      }
     } catch (error) {
-      console.error("Database update error:", error);
-      toast.error("Failed to update database.");
+      console.error("Error in updateDB:", error);
+      setError("Something went wrong while updating the database.");
     }
+  }
   };
   
-  // call the get update fn asynchronusly
-  const fetchAndupdate = async () => {
-   
-    if( cartItems ) {
-      await getItemsUpdate();
-    } else{
-      console.log("Cart is empty");
-      setError("cart is empty");
-    }
-
-  }
-
-  fetchAndupdate();
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect( () => {
-    if( success == true ){
+    if (success) {
       updateAll();
     }
-  }, [success])
-
+  }, [success]);
+  
+  
   const updateAll = async() => {
-
     await updateDB();
-    await pushItems()
     dispatch( clearCart());
-    console.log("cart is clear -> ", cartItems);
-    router.push('/profile');
+    dispatch( clearCheckout())
   }
 
-  if (!mounted) {
-    // Optionally, you can show a loading spinner here or a simple placeholder
-    return <div>Loading...</div>;
-  }
 
-  const subtotal = cartItems.reduce(
+  const subtotal = cartItems ?  cartItems.reduce(
     (acc, item) => acc + item.qnt * item.price,
     0
-  );
+  ) : 0;
 
   // check user details and if details are correct make the payment call
   const checkDetails = async () => {
@@ -362,18 +274,18 @@ const createOrder = async () => {
       } else if( city?.trim() === "" ){
         toast.error("City can't be empty");
         return;
-       }// else if ( landmark?.trim() === "" ){
-      //   toast.error("LandMark can't be empty");
-      //   return;
-      // }
+       }
 
+      toast.success("verification success");
       await createOrder();
-
-    } else{
-      router.push("/login");
-    }
+    } 
 
   }
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
 
   /*const handleCheckout = async () => {
     const orderDetails = {
@@ -419,6 +331,19 @@ const createOrder = async () => {
   };
   */
 
+  if( !mounted)
+  return(
+<div>
+  loading...
+</div>
+)
+
+  if( !cartItems){
+    return( <div>
+      Your cart is empty
+    </div> )
+  }
+ 
   return (
     <div >
       <Script
@@ -657,7 +582,7 @@ const createOrder = async () => {
           <div className="w-[30vw] xl:w-[30vw] lg:w-[30vw] md:w-[30vw] sm:w-[90vw] xs:w-[90vw] mt-10 text-[#7E7E7E]">
             <div>
               <p className="pb-2 border-b">Order summary </p>
-              {cartItems.map((item) => {
+              { cartItems && cartItems.map((item) => {
                 return (
                   <div
                     key={item.itemId}
@@ -741,6 +666,16 @@ const createOrder = async () => {
           <p> {error} </p>
         </div>
       )}
+
+      {
+        success && <div className="flex w-full h-full justify-center items-center">
+          <p className="text-lg font-bold my-4">Order Placed Successfully</p>
+
+        </div>
+      }
+
+      
+
     </div>
   );
 };

@@ -119,11 +119,11 @@ useEffect(() => {
     if (itemSize === "") {
       setNum(num + 1);
     } else {
-      const small = itemdata?.quantity?.[0]?.small || 5;
-      const medium = itemdata?.quantity?.[1]?.medium || 5;
-      const large = itemdata?.quantity?.[2]?.large || 5;
-      const xl = itemdata?.quantity?.[3]?.xl || 4;
-      const xxl = itemdata?.quantity?.[4]?.xxl || 4;
+      const small = itemdata?.quantity[0] || 5;
+      const medium = itemdata?.quantity[1] || 5;
+      const large = itemdata?.quantity[2] || 5;
+      const xl = itemdata?.quantity[3] || 4;
+      const xxl = itemdata?.quantity[4] || 4;
   
       if (itemSize === "Small" ) {
         if( num < small)

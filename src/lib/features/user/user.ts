@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
+import { saveToLocalStorage, loadFromLocalStorage, removeFromLocalStorage } from '@/lib/localstorage'
 
 export interface User {
     name: string;
@@ -8,16 +9,15 @@ export interface User {
     refreshToken: string;
     accessToken: string;
     phone: string,
-    orders: string[],
-
-   delivery: {
-    address: string,
-    apartment: string,
-    city: string,
-    postalCode: string,
-    state: string,
-    country: string
-   }
+    orders: string[],  
+    delivery: {
+        address: string,
+        apartment: string,
+        city: string,
+        postalCode: string,
+        state: string,
+        country: string
+    }
 }
 
 export interface UserState {
@@ -25,29 +25,58 @@ export interface UserState {
   isLoggedIn: boolean;       // Boolean to track logged-in status
 }
 
-const initialState: UserState = {
-  userProfile: null,         // No user initially
-  isLoggedIn: false,         // User is not logged in initially
+const loadUserFromLocalStorage = (): UserState => {
+  const storedUser = loadFromLocalStorage('user');
+  if (storedUser) {
+    return {
+      userProfile: storedUser.userProfile,
+      isLoggedIn: storedUser.isLoggedIn
+    };
+  }
+  return {
+    userProfile: null,
+    isLoggedIn: false,
+  };
 };
+
+const initialState: UserState = loadUserFromLocalStorage();
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User>) => {
-      state.userProfile = action.payload;    // Set user details
-      state.isLoggedIn = true;               // Mark user as logged in
+      state.userProfile = action.payload;
+      state.isLoggedIn = true;
+      // Save to localStorage
+      saveToLocalStorage('user', { userProfile: action.payload, isLoggedIn: true });
     },
     logout: (state) => {
-      state.userProfile = null;              // Clear user details
-      state.isLoggedIn = false;              // Mark user as logged out
+      state.userProfile = null;
+      state.isLoggedIn = false;
+      // Remove from localStorage
+      removeFromLocalStorage('user');
+    },
+    setOrder: (state, action: PayloadAction<string[]>) => {
+      if (state.userProfile) {
+        state.userProfile.orders = action.payload;
+        // Save updated user info to localStorage
+        saveToLocalStorage('user', state);
+      }
+    },
+    updateProfile: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.userProfile) {
+        state.userProfile = { ...state.userProfile, ...action.payload };
+        // Save updated user info to localStorage
+        saveToLocalStorage('user', state);
+      }
     },
   },
 });
 
 // Export actions
-export const { setUser, logout } = userSlice.actions;
-export const userProfileInfo =  (state: RootState) => state.user.userProfile;
-export const userLoginInfo = (state: RootState ) => state.user.isLoggedIn;
+export const { setUser, logout, updateProfile, setOrder } = userSlice.actions;
+export const userProfileInfo = (state: RootState) => state.user.userProfile;
+export const userLoginInfo = (state: RootState) => state.user.isLoggedIn;
 // Export reducer
 export default userSlice.reducer;

@@ -6,12 +6,12 @@ interface Image {
   imgId: number;
 }
 
-interface Quantity {
-  small?: number;
-  medium?: number;
-  large?: number;
-  xl?: number;
-  xxl?: number;
+interface Review {
+  commentId: string,
+  userId: string;
+  userName: string;
+  comment: string;
+  rating: number;
 }
 
 export interface Item {
@@ -25,24 +25,18 @@ export interface Item {
   descImg: string;
   color: string;
   review: number;
-  userReview?: {
-    commentId: string,
-    userId: string;
-    userName: string;
-    comment: string;
-    rating: number;
-  }[]; // Empty array in this case
+  userReview?: Review[]; // Empty array in this case
   category: string[]; // Array of categories
-  quantity: Quantity[]; // Array of size-quantity objects
+  quantity: number[]; // Array of size-quantity objects
   createdAt: number;  // Firestore Timestamp type
 }
 
 
-  export interface UserState {
+  export interface itemState {
     itemsData: Item[] | null;  // User profile or null if not logged in
   }
   
-  const initialState: UserState = {
+  const initialState: itemState = {
     itemsData: null,
   };
 
@@ -55,6 +49,17 @@ export interface Item {
             state.itemsData = action.payload; // Expecting an array of items
             console.log(" Data in redux : ",state.itemsData);
           },
+
+         updateItem : ( state, action: PayloadAction<Item > ) => {
+
+          if( state.itemsData) {
+            state.itemsData = state.itemsData.map((item: Item) =>
+              item.id === action.payload.id ? action.payload: item
+               
+            );
+          }
+
+         }
     }
   });
 

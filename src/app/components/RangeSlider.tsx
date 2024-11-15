@@ -95,11 +95,11 @@ const RangeSlider: FC<MultiRangeSliderProps> = ({
         className="thumb thumb--zindex-4"
       />
 
-      <div className="slider">
+      <div className="slider relative">
         <div className="slider__track"></div>
         <div ref={range} className="slider__range"></div>
-        <div className="slider__left-value">{min}</div>
-        <div className="slider__right-value">{max}</div>
+        <div className="slider__left-value  "></div>
+        <div className="slider__right-value"></div>
       </div>
     </div>
   );

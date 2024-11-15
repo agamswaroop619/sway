@@ -18,6 +18,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { DocumentReference } from "firebase/firestore";
 import toast from "react-hot-toast";
 
+
 const Page = () => {
   const router = useRouter();
 
@@ -35,10 +36,16 @@ const Page = () => {
   const cartItems = useAppSelector(itemsDataInCart);
 
   // Filtered orders based on cart items
-  const orders = userData?.orders;
-  const newOrders = orders
-    ? cartItems?.filter((item) => orders.includes(item.id))
-    : [];
+  const newOrders = Array.isArray(userData?.orders) && Array.isArray(cartItems)
+  ? cartItems.filter(item => userData?.orders.includes(item.id.toString()))
+  : [];
+
+  const orders = Array.isArray(userData?.orders) && Array.isArray(cartItems)
+  ? cartItems.filter(item => userData?.orders.includes(item.id.toString()))
+  : [];
+
+  console.log("new orders : ",newOrders)
+  console.log("orders : ", orders);
 
   // Navigation state
   const [nav, setNav] = useState("dashboard");
@@ -60,6 +67,9 @@ const Page = () => {
   useEffect(() => {
     if (!isLoggedIn) {
       router.push("/login");
+    }
+    else{
+      console.log("user Data : ", userData);
     }
   }, [isLoggedIn, router]);
 
@@ -115,6 +125,7 @@ const Page = () => {
       setUserRef( ref);
     }
 
+    console.log("users data in redux : ", userData);
 
   }, [userData] )
 
@@ -187,8 +198,13 @@ const Page = () => {
 
                     {newOrders && newOrders.length > 0 ? (
                       newOrders.map((item, index) => (
-                        <div key={index}>
-                          <p>{item.title}</p>
+                        <div key={index} className="flex mb-2">
+                          <img src={item.images[0].url} alt="image" className="h-20" />
+                          <div className="flex flex-col ml-4">
+                            <p className="text-lg ">{item.title}</p>
+                           
+                            </div>
+                          
                         </div>
                       ))
                     ) : (

@@ -6,43 +6,11 @@ import { FaArrowRightLong } from "react-icons/fa6";
 export default function Home() {
   return (
     <>
-      {/* <SliderBanner /> */}
-      {/* <div className=" my-4">
-        <div className="flex gap-4 justify-center w-[100vw]  lg:text-7xl xl:text-7xl md:text-5xl sm:text-4xl xs:text-4xl text-6xl">
-          <h1 className="text-green-600">SLAY</h1>
-          <h5 className="text-white">with</h5>
-          <h1 className="text-white animate-glitch relative">
-            SWAY
-            <span
-              className="absolute top-0 left-0 w-full h-full text-white opacity-50 animate-glitchShift"
-              style={{ clip: "rect(0, 900px, 0, 0)" }}
-            >
-              SWAY
-            </span>
-            <span
-              className="absolute top-0 left-0 w-full h-full text-green-600 opacity-50 animate-glitchShift"
-              style={{ clip: "rect(0, 900px, 0, 0)" }}
-            >
-              SWAY
-            </span>
-          </h1>
-        </div>
-      </div> */}
-
-      {/* <div className="flex mx-10 justify-around items-center">
-        <div className="text-7xl">
-          <h3>SLAY WITH</h3>
-          <h3 className="text-green-700">SWAY</h3>
-        </div>
-
-        <img className="h-36" src="https://res.cloudinary.com/dbkiysdeh/image/upload/v1729970708/Untitled_Project_5_d2qnlz.jpg" alt="" />
-        
-      </div> */}
 
       <div className="flex sm:flex-col xs:flex-col lg:flow-row md:flex-row xl:flex-row w-[100vw] px-10  justify-between">
-        <div className="w-[35vw] flex flex-col  justify-center ">
+        <div className="w-[35vw] xs:mb-4 sm:mb-6 sm:w-full xs:w-full md:w-[35vw] lg:w-[35vw] xl:w-[35vw] flex flex-col  justify-center ">
           <h3 className="text-7xl font-bold">SLAY WITH</h3>
-          <h3 className="text-green-700 text-7xl font-bold">SWAY</h3>
+          <h3 className="text-[#3fe607] text-7xl font-bold">SWAY</h3>
 
           <p className="">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus
@@ -53,7 +21,7 @@ export default function Home() {
           <button className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">Get started  <FaArrowRightLong/></button>
         </div>
 
-        <div className="flex flex-col w-[50vw]">
+        <div className="flex flex-col w-[50vw] sm:w-[100vw] xs:w-[100vw] md:w-[50vw] lg:w-[50vw] xl:w-[50vw]">
           <div className="flex  gap-5 mb-3">
             <video className="   h-[40vh]  rounded-xl" autoPlay muted loop preload="metadata">
               <source
@@ -76,7 +44,7 @@ export default function Home() {
             </video>
           </div>
 
-          <div className="flex gap-5 ml-9">
+          <div className="flex gap-5 lg:ml-9 md:ml-9 xl:md-11">
             <video className=" h-[40vh]  rounded-xl" autoPlay muted loop preload="metadata">
               <source
                 src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727364143/collection1/IMG_6991_dfktby.mov"

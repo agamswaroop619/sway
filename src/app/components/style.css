@@ -4,6 +4,7 @@
     align-items: center;
     justify-content: center;
   }
+
   
   .slider {
     position: relative;
@@ -24,15 +25,16 @@
   }
   
   .slider__track {
-    background-color: #ced4da;
+    background-color: #ced4da; /* Ensure this is correct */
     width: 100%;
     z-index: 1;
   }
   
   .slider__range {
-    background-color: #9fe5e1;
+    background-color: #9fe5e1; /* Selected range color */
     z-index: 2;
   }
+  
   
   .slider__left-value,
   .slider__right-value {

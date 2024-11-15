@@ -136,17 +136,20 @@ useEffect( () => {
             <MdOutlineClear className="text-3xl" onClick={() => setFloatSidebar(!floatSidebar)} />
             </div>
     
-            <div className="mb-4">
-              <h3 className="font-bold mb-2">Filter by price</h3>
+            <div className="  relative h-28">
+              <h3 className="font-bold mb-2 ">Filter by price</h3>
           
               <p>Price: ₹{min} — ₹{max}</p>
-          <RangeSlider   min={min} setMin={setMin}
+            <div className='absolute h-28 top-13 left-[0px] '>
+            <RangeSlider  min={min} setMin={setMin}
           max={max} setMax={setMax}
           onChange={({ min, max }: { min: number; max: number }) =>
               console.log(`min = ${min}, max = ${max}`)
           }   />
-          <button className="bg-green-700 p-2 rounded-full mt-4 mb-2"
+            </div>
+            <button className="bg-green-700 py-2 px-4 rounded-full mt-1 mb-2"
           onClick={ filterByPrice}>Filter</button>
+          
             </div>
     
             <div className="mb-4">
@@ -180,17 +183,21 @@ useEffect( () => {
           <IoSearchOutline className=' text-xl' />
        </div>
 
-        <div className="mb-4">
-          <h3 className="font-bold mb-2">Filter by price</h3>
-          <p>Price: ₹{min} — ₹{max}</p>
-          <RangeSlider   min={min} setMin={setMin}
+       <div className="  relative h-28">
+              <h3 className="font-bold mb-2 ">Filter by price</h3>
+          
+              <p>Price: ₹{min} — ₹{max}</p>
+            <div className='absolute h-28 top-13 left-[0px] '>
+            <RangeSlider  min={min} setMin={setMin}
           max={max} setMax={setMax}
           onChange={({ min, max }: { min: number; max: number }) =>
               console.log(`min = ${min}, max = ${max}`)
           }   />
-          <button className="bg-green-700 p-2 rounded-full mt-4 mb-2"
+            </div>
+            <button className="bg-green-700 py-2 px-4 rounded-full mt-1 mb-2"
           onClick={ filterByPrice}>Filter</button>
-        </div>
+          
+            </div>
 
         <div className="mb-4">
           <h3 className="font-bold mb-2">Filter by rating</h3>

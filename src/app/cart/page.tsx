@@ -6,36 +6,168 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { removeFromCart , selectCartItems, updateQnt } from '@/lib/features/carts/cartSlice';
-import { Products} from "@/lib/features/carts/cartSlice";
+import { itemsDataInCart } from '@/lib/features/items/items';
+import { pushItem, removeCheckoutItem} from '@/lib/features/checkout/checkout';
+import { GoChevronDown } from "react-icons/go";
+
+interface cartItems {
+  itemId: number;
+  qnt: number;
+  price: number;
+  title: string;
+  image: string;
+  size: string;
+  docId: string;
+  stock: number;  // stock should always be a number
+}
+
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState<Products[]>([]);  // Initialize with empty array
 
+  const [cartItems, setCartItems] = useState<cartItems[]>([]);  // Initialize with empty array
+
+  const [ couponErr , setCouponErr ] = useState("");
+  const [couponOpen, setCouponOpen] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+
+  const couponHandler = () => {
+    
+    if (couponCode === "") {
+      setCouponErr("Please enter a valid coupon code");
+    }
+    else
+    setCouponErr("Invalid Coupon Code");
+
+    return ;
+  }
 
   const dispatch = useAppDispatch();
 
   // Fetch cart items from Redux store
   const itemsFromStore = useAppSelector(selectCartItems);
+  const allItems = useAppSelector(itemsDataInCart);
+
+  const [ outOfStock , setOutOfStock ] =useState<cartItems[]>([]);
 
   useEffect(() => {
-    setCartItems(itemsFromStore || []);  // Ensure cartItems is always an array
-  }, [itemsFromStore]);  // Update only when itemsFromStore changes
+    const carts: cartItems[] = [];
+    const out: cartItems[] = [];
+  
+    itemsFromStore.map((item) => {
+      // Get the item data based on itemId
+      const itemData = allItems?.find((card) => card.id === item.itemId.toString());
+  
+      // Initialize stock as 0 (default)
+      let stock = 0;
+  
+      // If itemData is found, calculate stock based on the size
+      if (itemData) {
+        // Calculate stock based on size
+        switch (item.size) {
+          case 'Small':
+            stock =  itemData.quantity[0] - item.qnt ;
+            break;
+          case 'Medium':
+            stock =  itemData.quantity[1] - item.qnt ;
+            break;
+          case 'Large':
+            stock =   itemData.quantity[2] - item.qnt ;
+            break;
+          case 'XL':
+            stock =    itemData.quantity[3] - item.qnt ;
+            break;
+          case 'XXL':
+            stock =   itemData.quantity[4] - item.qnt;
+            break;
+          default:
+            stock = -1; // If no matching size, set stock to 0
+            break;
+        }
+      }
+  
+      // Create the item object
+      const data = {
+        itemId: item.itemId,
+        qnt: item.qnt,
+        price: item.price,
+        title: item.title,
+        image: item.image,
+        size: item.size,
+        docId: item.docId,
+        stock: stock
+      };
+  
+      // Add to appropriate array based on stock
+      if (stock >= 0) {
+        carts.push(data); // Add to carts if stock is available
+        dispatch( pushItem(data))
+      } else {
+        out.push(data); // Add to out-of-stock if stock is 0 or negative
+      }
+    });
+  
+    // Update state with cart and out-of-stock items
+    setCartItems(carts);
+    setOutOfStock(out);
+  
+  }, [itemsFromStore, allItems]); // Make sure to include allItems as a dependency
+    // Update only when itemsFromStore changes
 
   const router = useRouter();
-
-  // const handleQuantityClick = (item: any) => {
-  //   // This function will be called when the quantity button is clicked
-  //   console.log("item : ",item);
-  // };
 
   const handleRemoveItem = (id: number) => {
     // This function will be called when the remove item button is clicked
     dispatch(removeFromCart(id));
+    dispatch( removeCheckoutItem(id));
   };
 
-  const incHandler = ( itemId: number, quantity: number) => {
-      const num= quantity+1;
-      dispatch( updateQnt({ itemId: itemId, quantity: num }))
+  const incHandler = ( itemId: number, quantity: number, size: string) => {
+
+    const itemData = allItems?.find((card) => card.id === itemId.toString());
+    
+    switch( size ) {
+      case 'Small': 
+            if( itemData &&  quantity+1 <= itemData?.quantity[0] )
+            {
+              const num= quantity+1;
+              dispatch( updateQnt({ itemId: itemId, quantity: num }))
+            }
+            break;
+
+      case 'Medium': 
+          if( itemData &&  quantity+1 <= itemData?.quantity[1] )
+          {
+            const num= quantity+1;
+            dispatch( updateQnt({ itemId: itemId, quantity: num }))
+          }
+          break;
+
+      case 'Large': 
+          if( itemData &&  quantity+1 <= itemData?.quantity[1] )
+          {
+            const num= quantity+1;
+            dispatch( updateQnt({ itemId: itemId, quantity: num }))
+          }
+          break;
+
+      case 'XL': 
+          if( itemData &&  quantity+1 <= itemData?.quantity[1] )
+          {
+            const num= quantity+1;
+            dispatch( updateQnt({ itemId: itemId, quantity: num }))
+          }
+          break;
+
+      case 'XXL': 
+          if( itemData &&  quantity+1 <= itemData?.quantity[1] )
+          {
+            const num= quantity+1;
+            dispatch( updateQnt({ itemId: itemId, quantity: num }))
+          }
+          break;
+    }
+
+      
   };
 
   const decHandler = ( itemId: number, quantity: number) => {
@@ -43,119 +175,199 @@ const CartPage = () => {
     dispatch( updateQnt({ itemId: itemId, quantity: num }))
 };
 
-  const total = cartItems.reduce((acc, item) => acc + item.price * item.qnt, 0);;
+  const total = cartItems.reduce((acc, item) => acc + item.price * item.qnt, 0);
 
   return (
-    <div>
-      {cartItems.length > 0 ? (
+    <div className="relative">
+  {cartItems.length > 0 ? (
+    <>
       <div className="lg:px-10 sm:p-4 xs:p-3 md:p-6 xl:p-8 sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row flex justify-between w-full items-start">
-        <div className=" md:w-7/12 lg:w-7/12 xl:w-7/12 sm:w-full xs:w-full">
-        <div className='flex justify-between pb-2 text-[#7E7E7E]'>
-          <span>Products</span>
-          <span>Total</span>
-        </div>
-          {cartItems.map((item: Products) => (
-            <div key={item.itemId} className=" mb-2 flex border-t  w-full hover:cursor-pointer">
-              <img src={item.image} className="h-32 pt-6" alt={item.title} onClick={() => router.push(`/products/${item.itemId}`)} />
+        
+        {/* In-stock items */}
+        <div className="md:w-7/12 lg:w-7/12 xl:w-7/12 sm:w-full xs:w-full">
+          <div className="flex justify-between pb-2 text-[#7E7E7E]">
+            <span>Products</span>
+            <span>Total</span>
+          </div>
+       
+         <div className=''>
+         {cartItems.map((item: cartItems) => (
+            <div key={item.itemId} className="mb-2 flex border-t w-full hover:cursor-pointer">
+              <img
+                src={item.image}
+                className="h-32 pt-6"
+                alt={item.title}
+                onClick={() => router.push(`/products/${item.itemId}`)}
+              />
               <div className="p-4 w-full">
-                <div className="flex-row  w-full py-1 justify-between">
-                <p className=" text-xl">{item.title} | Sway Clothing</p>
-                <span>₹{Math.ceil(item.price)}</span>
-                 </div>
-                
-               <p>5 Left in Stock</p>
-               <p className='border p-2 my-1 w-32'>SAVE ₹300.00 </p>
-               <p>Size : Medium</p>
+                <div className="flex-row w-full py-1 justify-between">
+                  <p className="text-xl">{item.title} | Sway Clothing</p>
+                  <span>₹{Math.ceil(item.price)}</span>
+                </div>
 
-                <div className=' justify-center border  w-[150px] flex items-center h-[50px]  rounded-lg py-2 my-3'>
-              <button
-                className=' px-4 text-xl  w-[33%]  text-center border-r-2 disabled:opacity-55'
-                disabled={item.qnt < 2}
-                onClick={() => decHandler( item.itemId, item.qnt )}
-              > - </button>
-              <span className=' w-[33%] grow text-center  '>{item.qnt}</span>
-              <button
-                className='border-l-2 text-center w-[34%]  disabled:opacity-55 '
-                
-                onClick={() => incHandler(item.itemId, item.qnt)}
-              > + </button>
-            </div>
+                <p>
+                  {item.stock} items left</p>
+                <p className="border p-2 my-1 w-32">SAVE ₹300.00</p>
+                <p>Size: {item.size}</p>
 
-            <span className=" flex items-center gap-1 pb-1 underline" onClick={() => handleRemoveItem(item.itemId)} > <MdOutlineDeleteForever /> Remove from Cart </span>
-                
+                <div className="justify-center border w-[150px] flex items-center h-[50px] rounded-lg py-2 my-3">
+                  <button
+                    className="px-4 text-xl w-[33%] text-center border-r-2 disabled:opacity-55"
+                    disabled={item.qnt < 2}
+                    onClick={() => decHandler(item.itemId, item.qnt)}
+                  >
+                    -
+                  </button>
+                  <span className="w-[33%] grow text-center">{item.qnt}</span>
+                  <button
+                    className="border-l-2 text-center w-[34%] disabled:opacity-55"
+                    onClick={() => incHandler(item.itemId, item.qnt, item.size)}
+                  >
+                    +
+                  </button>
+                </div>
+
+                <span
+                  className="flex items-center gap-1 pb-1 underline"
+                  onClick={() => handleRemoveItem(item.itemId)}
+                >
+                  <MdOutlineDeleteForever /> Remove from Cart
+                </span>
               </div>
-              <span className='pt-6'>₹{item.price*item.qnt}</span>
+              <span className="pt-6">₹{item.price * item.qnt}</span>
+            </div>
+          ))}
+         </div>
+          
+
+     
+      {outOfStock.length > 0 && (
+        <div className="md:w-7/12 lg:w-7/12 xl:w-7/12 sm:w-full xs:w-full">
+          <h2 className='my-3  text-lg'>Out of Stock</h2>
+          {outOfStock.map((item: cartItems) => (
+            <div key={item.itemId} className="mb-2 flex border-t w-full hover:cursor-pointer">
+              <img
+                src={item.image}
+                className="h-32 pt-6"
+                alt={item.title}
+                onClick={() => router.push(`/products/${item.itemId}`)}
+              />
+              <div className="p-4 w-full">
+                <div className="flex-row w-full py-1 justify-between">
+                  <p className="text-xl">{item.title} | Sway Clothing</p>
+                  <span>₹{Math.ceil(item.price)}</span>
+                </div>
+
+                <p className="text-red-600">Out of Stock</p>
+                <p className="border p-2 my-1 w-32">SAVE ₹300.00</p>
+                <p>Size: {item.size}</p>
+
+                <div className="justify-center border w-[150px] flex items-center h-[50px] rounded-lg py-2 my-3">
+                  <button
+                    className="px-4 text-xl w-[33%] text-center border-r-2 disabled:opacity-55"
+                    disabled={item.qnt < 2}
+                    onClick={() => decHandler(item.itemId, item.qnt)}
+                  >
+                    -
+                  </button>
+                  <span className="w-[33%] grow text-center">{item.qnt}</span>
+                  <button
+                    className="border-l-2 text-center w-[34%] disabled:opacity-55"
+                    onClick={() => incHandler(item.itemId, item.qnt, item.size)}
+                  >
+                    +
+                  </button>
+                </div>
+
+                <span
+                  className="flex items-center gap-1 pb-1 underline"
+                  onClick={() => handleRemoveItem(item.itemId)}
+                >
+                  <MdOutlineDeleteForever /> Remove from Cart
+                </span>
+              </div>
+              <span className="pt-6">₹{item.price * item.qnt}</span>
             </div>
           ))}
         </div>
+      )}
 
-        <div className=" px-5  md:w-4/12 lg:w-4/12 xl:w-4/12 sm:w-full xs:w-full pb-4">
-          <p className="text-[#7E7E7E] "> CART TOTAL  </p>
-
-          <div className="p-2 border-t border-b my-2">
-          Apply Coupon
-          {
-            <div className="my-1">
-              <input
-                type="text"
-                id="coupon"
-                name="coupon"
-                className="bg-transparent p-2 border focus:outline-none"
-                placeholder="Enter Coupon Code"
-              />
-
-              <button className="p-2 ml-4 border">Apply</button>
-            </div>
-          }
         </div>
+
+        {/* Cart total section */}
+        <div className="px-5 md:w-4/12 lg:w-4/12 xl:w-4/12 sm:w-full xs:w-full pb-4">
+          <p className="text-[#7E7E7E]">CART TOTAL</p>
+
+          <div className="py-2 my-2 border-b-[1px] border-t-[1px]">
+              <p className="flex justify-between" onClick={ () => setCouponOpen(!couponOpen)}>Apply coupon <GoChevronDown /> </p>
+              {
+                <div className={`my-1  ${couponOpen === true ? "" : "hidden"}`}>
+                  <div className="flex mx-4">
+                  <input
+                    type="text"
+                    id="coupon"
+                    name="coupon"
+                    value={couponCode} onChange={(e)=> setCouponCode(e.target.value)}
+                    className={`bg-transparent p-2 border focus:outline-none ${ couponErr !== "" ? "border-red-500" :""}`}
+                    placeholder="Enter Coupon Code"
+                  />
+
+                  <button className="p-2 ml-4 border" onClick={ couponHandler}>Apply</button>
+                </div>
+
+                <p className="text-red-700">{couponErr}</p>
+
+                </div>
+              }
+            </div>
 
           <div className="border-b-2 py-2">
             <div className="flex justify-between">
-              <p> Subtotal </p>
-              <p> ₹{Math.floor(total)} </p>
+              <p>Subtotal</p>
+              <p>₹{Math.floor(total)}</p>
             </div>
 
             <div className="flex py-2 justify-between">
-              <p> Discount on MRP </p>
+              <p>Discount on MRP</p>
               <p className="text-green-500">{0}</p>
             </div>
             <div className="flex py-2 justify-between">
-             <div>
-              <p> Shipping </p>
-              <p className='text-sm text-gray-500'>Free Shipping</p>
-             </div>
-             <span className="text-green-500">FREE</span>
+              <div>
+                <p>Shipping</p>
+                <p className="text-sm text-gray-500">Free Shipping</p>
+              </div>
+              <span className="text-green-500">FREE</span>
             </div>
           </div>
 
           <div className="flex py-3 justify-between font-semibold">
             <p>Total Amount</p>
-            <p>₹{Math.floor(total )}</p>
+            <p>₹{Math.floor(total)}</p>
           </div>
 
-          <Link href="/checkout" > <button className="w-full text-center p-2 rounded-md bg-green-600 my-2 ">
-             Checkout 
-          
+          <Link href="/checkout" > <button  className="w-full text-center py-2 px-8 rounded-md bg-green-600 my-2">
+            Checkout
           </button>
           </Link>
-        </div>
 
+         
+        </div>
       </div>
-      ) 
 
-      :
+      {/* Out of stock items */}
+     
+      
+    </>
+  ) : (
+    <div className="flex flex-col w-full h-screen justify-center items-center">
+      <h1 className="text-3xl my-2 font-bold text-white">Your Cart is Empty</h1>
+      <Link href="/products" className="border p-2 rounded-md">
+        Add items
+      </Link>
+    </div>
+  )}
+</div>
 
-      (
-        <div className='flex flex-col w-full h-screen justify-center items-center'> 
-          <h1 className="text-3xl my-2 font-bold text-white">Your Cart is
-            Empty</h1>
-
-          <Link href="/products" className='border p-2 rounded-md' >Add items</Link>
-
-        </div>
-      )
-}
-     </div>
   )
 };
 
