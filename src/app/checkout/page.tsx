@@ -4,7 +4,7 @@ import { useAppSelector } from "@/lib/hooks";
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import {  GoArrowLeft } from "react-icons/go";
+import { GoArrowLeft } from "react-icons/go";
 import toast from "react-hot-toast";
 import { firestore } from "@/app/firebase.config";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
@@ -14,9 +14,12 @@ import { RootState } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { GoChevronDown } from "react-icons/go";
 import { setUser } from "@/lib/features/user/user";
-import { selectCheckoutItems, clearCheckout } from "@/lib/features/checkout/checkout";
+import {
+  selectCheckoutItems,
+  clearCheckout,
+} from "@/lib/features/checkout/checkout";
 
-const userInfo = ( state : RootState ) => state.user.userProfile;
+const userInfo = (state: RootState) => state.user.userProfile;
 
 interface RazorpayResponse {
   razorpay_order_id: string;
@@ -25,7 +28,6 @@ interface RazorpayResponse {
 }
 
 const CheckoutPage = () => {
-
   const [mounted, setMounted] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -33,39 +35,38 @@ const CheckoutPage = () => {
   // items that will be placed
   const cartItems = useAppSelector(selectCheckoutItems);
 
-    // data of user
-    const userData = useAppSelector( userInfo );
+  // data of user
+  const userData = useAppSelector(userInfo);
 
-    if( !userData ){
-      router.push("/login");
-    }
+  if (!userData) {
+    router.push("/login");
+  }
 
   // Address field
-  const [firstName, setFirstName] = useState( userData?.name || "");
+  const [firstName, setFirstName] = useState(userData?.name || "");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState(userData?.email || "");
   const [address, setAddress] = useState(userData?.delivery?.address || "");
   const [city, setCity] = useState(userData?.delivery?.city || "");
   const [state, setState] = useState(userData?.delivery?.state || "");
   const [zipCode, setZipCode] = useState(userData?.delivery?.postalCode || "");
-  const [country, setCountry] = useState(userData?.delivery?.country  || "");
+  const [country, setCountry] = useState(userData?.delivery?.country || "");
   const [phone, setPhone] = useState(userData?.phone || "");
-  const [apartment, setApartment] = useState(userData?.delivery?.apartment || "");
+  const [apartment, setApartment] = useState(
+    userData?.delivery?.apartment || ""
+  );
 
-  const [ couponErr , setCouponErr ] = useState("");
+  const [couponErr, setCouponErr] = useState("");
   const [couponOpen, setCouponOpen] = useState(false);
   const [couponCode, setCouponCode] = useState("");
 
   const couponHandler = () => {
-    
     if (couponCode === "") {
       setCouponErr("Please enter a valid coupon code");
-    }
-    else
-    setCouponErr("Invalid Coupon Code");
+    } else setCouponErr("Invalid Coupon Code");
 
-    return ;
-  }
+    return;
+  };
 
   // payment and shipping
   const [payment, setPayment] = useState("cash");
@@ -73,62 +74,60 @@ const CheckoutPage = () => {
 
   // success and error
   const [error, setError] = useState("");
-  const [ success, setSuccess ] = useState(false);
+  const [success, setSuccess] = useState(false);
 
+  // 1. Make paymeyt and verify
+  //  2. Mark success true for update the database
+  const createOrder = async () => {
+    toast.success("order creation");
+    try {
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        body: JSON.stringify({ amount: (subtotal + 79) * 100 }),
+      });
+      const data = await res.json();
 
- // 1. Make paymeyt and verify
-//  2. Mark success true for update the database
-const createOrder = async () => {
-  toast.success("order creation")
-  try {
-    const res = await fetch("/api/create-order", {
-      method: "POST",
-      body: JSON.stringify({ amount: (subtotal+79) * 100 }),
-    });
-    const data = await res.json();
+      const paymentData = {
+        key: process.env.PUBLIC_RAZORPAY_KEY_ID,
+        order_id: data.id,
+        prefill: {
+          name: `${firstName}`,
+          contact: "1234567890",
+        },
+        handler: async function (response: RazorpayResponse) {
+          try {
+            // Verify payment
+            const res = await fetch("/api/verify-payment", {
+              method: "POST",
+              body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }),
+            });
+            const verificationData = await res.json();
+            if (verificationData.isOk) {
+              toast.success("Payment is successful");
 
-    const paymentData = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      order_id: data.id,
-      prefill: {
-        name: `${firstName}` ,
-        contact: "1234567890",
-      },
-      handler: async function (response: RazorpayResponse) {
-        try {
-          // Verify payment
-          const res = await fetch("/api/verify-payment", {
-            method: "POST",
-            body: JSON.stringify({
-              orderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-            }),
-          });
-          const verificationData = await res.json();
-          if (verificationData.isOk) {
-            toast.success("Payment is successful");
-          
-            setSuccess( true );
-
-          } else {
-            toast.error("Something went wrong.");
+              setSuccess(true);
+            } else {
+              toast.error("Something went wrong.");
+            }
+          } catch (error) {
+            console.error("Payment verification error:", error);
+            toast.error("Payment verification failed.");
           }
-        } catch (error) {
-          console.error("Payment verification error:", error);
-          toast.error("Payment verification failed.");
-        }
-      },
-    };
+        },
+      };
 
-    const payment = new window.Razorpay(paymentData);
-    payment.open();
-  } catch (error) {
-    console.error("Order creation error:", error);
-    toast.error("Failed to create order.");
-  }
-};
-  
+      const payment = new window.Razorpay(paymentData);
+      payment.open();
+    } catch (error) {
+      console.error("Order creation error:", error);
+      toast.error("Failed to create order.");
+    }
+  };
+
   // Function that use itemsupdate for update the database
   // 1. Push item of itemsUpdate in user order section
   // 2. Reduce the quantity of each item that placed for order
@@ -142,150 +141,153 @@ const createOrder = async () => {
         quantity: [8, 8, 8, 4, 4],
         price: 499.0,
         category: "",
-        descImg: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
+        descImg:
+          "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
         color: "Black",
         review: 3.5,
       },
     };
-  
+
     const newOrders: string[] = [];
     console.log("Function entered in update db ");
-  
-    if( cartItems ) {
 
-    try {
-      // Process cart items
-      await Promise.all(
-        cartItems.map(async (item) => {
-          const docRef = doc(firestore, "products", item.docId);
-          const docData = await getDoc(docRef);
-          const itemData = docData.exists() ? docData.data() : ref.data;
-  
-          switch (item.size) {
-            case "Small":
-              if (item.qnt > itemData.quantity[0]) {
-                setError(`Quantity of ${item.title} exceeds available stock.`);
-                return;
-              }
-              itemData.quantity[0] -= item.qnt;
-              break;
-            case "Medium":
-              if (item.qnt > itemData.quantity[1]) {
-                setError(`Quantity of ${item.title} exceeds available stock.`);
-                return;
-              }
-              itemData.quantity[1] -= item.qnt;
-              break;
-            case "Large":
-              if (item.qnt > itemData.quantity[2]) {
-                setError(`Quantity of ${item.title} exceeds available stock.`);
-                return;
-              }
-              itemData.quantity[2] -= item.qnt;
-              break;
-            case "XL":
-              if (item.qnt > itemData.quantity[3]) {
-                setError(`Quantity of ${item.title} exceeds available stock.`);
-                return;
-              }
-              itemData.quantity[3] -= item.qnt;
-              break;
-            case "XXL":
-              if (item.qnt > itemData.quantity[4]) {
-                setError(`Quantity of ${item.title} exceeds available stock.`);
-                return;
-              }
-              itemData.quantity[4] -= item.qnt;
-              break;
-          }
-  
-          // Update product stock in Firestore
-          await updateDoc(docRef, { quantity: itemData.quantity });
-          newOrders.push(item.itemId.toString());
-        })
-      );
-  
-      // Update user orders in Firestore
-      const userRef = doc(firestore, "users", userData?.userId || "");
-  
-      if (userData) {
-        const updatedOrders = [...newOrders, ...userData.orders];
-        // await updateDoc(userRef, { orders: updatedOrders }); // Make sure the update is awaited
-        const ordersUpdateResult = await updateDoc(userRef, { orders: updatedOrders });
-  
-        // Ensure that user state in Redux is updated correctly
-        const updatedUser = { ...userData, orders: updatedOrders };
-        dispatch(setUser(updatedUser));
-  
-        console.log("Orders updated in Firestore: ", ordersUpdateResult);
-        console.log("Updated orders: ", updatedOrders);
+    if (cartItems) {
+      try {
+        // Process cart items
+        await Promise.all(
+          cartItems.map(async (item) => {
+            const docRef = doc(firestore, "products", item.docId);
+            const docData = await getDoc(docRef);
+            const itemData = docData.exists() ? docData.data() : ref.data;
+
+            switch (item.size) {
+              case "Small":
+                if (item.qnt > itemData.quantity[0]) {
+                  setError(
+                    `Quantity of ${item.title} exceeds available stock.`
+                  );
+                  return;
+                }
+                itemData.quantity[0] -= item.qnt;
+                break;
+              case "Medium":
+                if (item.qnt > itemData.quantity[1]) {
+                  setError(
+                    `Quantity of ${item.title} exceeds available stock.`
+                  );
+                  return;
+                }
+                itemData.quantity[1] -= item.qnt;
+                break;
+              case "Large":
+                if (item.qnt > itemData.quantity[2]) {
+                  setError(
+                    `Quantity of ${item.title} exceeds available stock.`
+                  );
+                  return;
+                }
+                itemData.quantity[2] -= item.qnt;
+                break;
+              case "XL":
+                if (item.qnt > itemData.quantity[3]) {
+                  setError(
+                    `Quantity of ${item.title} exceeds available stock.`
+                  );
+                  return;
+                }
+                itemData.quantity[3] -= item.qnt;
+                break;
+              case "XXL":
+                if (item.qnt > itemData.quantity[4]) {
+                  setError(
+                    `Quantity of ${item.title} exceeds available stock.`
+                  );
+                  return;
+                }
+                itemData.quantity[4] -= item.qnt;
+                break;
+            }
+
+            // Update product stock in Firestore
+            await updateDoc(docRef, { quantity: itemData.quantity });
+            newOrders.push(item.itemId.toString());
+          })
+        );
+
+        // Update user orders in Firestore
+        const userRef = doc(firestore, "users", userData?.userId || "");
+
+        if (userData) {
+          const updatedOrders = [...newOrders, ...userData.orders];
+          // await updateDoc(userRef, { orders: updatedOrders }); // Make sure the update is awaited
+          const ordersUpdateResult = await updateDoc(userRef, {
+            orders: updatedOrders,
+          });
+
+          // Ensure that user state in Redux is updated correctly
+          const updatedUser = { ...userData, orders: updatedOrders };
+          dispatch(setUser(updatedUser));
+
+          console.log("Orders updated in Firestore: ", ordersUpdateResult);
+          console.log("Updated orders: ", updatedOrders);
+        }
+      } catch (error) {
+        console.error("Error in updateDB:", error);
+        setError("Something went wrong while updating the database.");
       }
-    } catch (error) {
-      console.error("Error in updateDB:", error);
-      setError("Something went wrong while updating the database.");
     }
-  }
   };
-  
 
   useEffect(() => {
     if (success) {
       updateAll();
     }
   }, [success]);
-  
-  
-  const updateAll = async() => {
+
+  const updateAll = async () => {
     await updateDB();
-    dispatch( clearCart());
-    dispatch( clearCheckout())
-  }
+    dispatch(clearCart());
+    dispatch(clearCheckout());
+  };
 
-
-  const subtotal = cartItems ?  cartItems.reduce(
-    (acc, item) => acc + item.qnt * item.price,
-    0
-  ) : 0;
+  const subtotal = cartItems
+    ? cartItems.reduce((acc, item) => acc + item.qnt * item.price, 0)
+    : 0;
 
   // check user details and if details are correct make the payment call
   const checkDetails = async () => {
-
-    if( userData ){
-
-      if( firstName?.trim() === "" )
-      {
+    if (userData) {
+      if (firstName?.trim() === "") {
         toast.error("Name can't be empty");
         return;
-      } else if( phone?.trim() === "" ){
+      } else if (phone?.trim() === "") {
         toast.error("Phone can't be empty");
         return;
-      } else if( address?.trim() === "" ){
+      } else if (address?.trim() === "") {
         toast.error("Address can't be empty");
         return;
-      } else if( zipCode?.trim() === "" ){
+      } else if (zipCode?.trim() === "") {
         toast.error("Postal can't be empty");
         return;
-      } else if( state?.trim() === "" ) {
+      } else if (state?.trim() === "") {
         toast.error("State can't be empty");
         return;
-      } else if( country?.trim() === "" ) {
+      } else if (country?.trim() === "") {
         toast.error("County can't be empty");
         return;
-      } else if( city?.trim() === "" ){
+      } else if (city?.trim() === "") {
         toast.error("City can't be empty");
         return;
-       }
+      }
 
       toast.success("verification success");
       await createOrder();
-    } 
-
-  }
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
   }, []);
-  
 
   /*const handleCheckout = async () => {
     const orderDetails = {
@@ -331,28 +333,21 @@ const createOrder = async () => {
   };
   */
 
-  if( !mounted)
-  return(
-<div>
-  loading...
-</div>
-)
+  if (!mounted) return <div>loading...</div>;
 
-  if( !cartItems){
-    return( <div>
-      Your cart is empty
-    </div> )
+  if (!cartItems) {
+    return <div>Your cart is empty</div>;
   }
- 
+
   return (
-    <div >
+    <div>
       <Script
         type="text/javascript"
         src="https://checkout.razorpay.com/v1/checkout.js"
       />
 
       {error === "" ? (
-        <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row mx-7 justify-between" >
+        <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row mx-7 justify-between">
           <div className="w-[56vw] xl:w-[56vw] lg:w-[56vw] md:w-[56vw] sm:w-[90vw] xs:w-[90vw]">
             <div className="w-full mt-10 mb-4">
               <h3 className="text-xl">Contact Information</h3>
@@ -391,10 +386,9 @@ const createOrder = async () => {
                 <span className="text-[#7E7E7E]">County/Region</span>
                 <input
                   type="text"
-                  value={ country}
+                  value={country}
                   className="w-full bg-transparent focus:outline-none"
                   onChange={(e) => setCountry(e.target.value)}
-                 
                 />
               </div>
 
@@ -582,54 +576,63 @@ const createOrder = async () => {
           <div className="w-[30vw] xl:w-[30vw] lg:w-[30vw] md:w-[30vw] sm:w-[90vw] xs:w-[90vw] mt-10 text-[#7E7E7E]">
             <div>
               <p className="pb-2 border-b">Order summary </p>
-              { cartItems && cartItems.map((item) => {
-                return (
-                  <div
-                    key={item.itemId}
-                    className="flex text-sm justify-between my-5 "
-                  >
-                    <img src={item.image} className="h-20" />
-                    <div className="w-[55%]">
-                      <p className="tracking-wide leading-normal mb-2">
-                      
-                        {item.title} | Sway Clothing
-                      </p>
-                      <p>
-                        <span className="line-through ">₹999</span>
-                        <span> ₹{item.price}</span>
-                      </p>
-                      <p className="p-2 border rounded-md my-2 w-28">
-                        5 left in stock
-                      </p>
-                      <p>
-                        Size : <span>Medium</span>
-                      </p>
+              {cartItems &&
+                cartItems.map((item) => {
+                  return (
+                    <div
+                      key={item.itemId}
+                      className="flex text-sm justify-between my-5 "
+                    >
+                      <img src={item.image} className="h-20" />
+                      <div className="w-[55%]">
+                        <p className="tracking-wide leading-normal mb-2">
+                          {item.title} | Sway Clothing
+                        </p>
+                        <p>
+                          <span className="line-through ">₹999</span>
+                          <span> ₹{item.price}</span>
+                        </p>
+                        <p className="p-2 border rounded-md my-2 w-28">
+                          5 left in stock
+                        </p>
+                        <p>
+                          Size : <span>Medium</span>
+                        </p>
+                      </div>
+                      <span>₹{item.price * item.qnt}</span>
                     </div>
-                    <span>₹{item.price * item.qnt}</span>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
 
             <div className="py-2 my-2 border-b-[1px] border-t-[1px]">
-              <p className="flex justify-between" onClick={ () => setCouponOpen(!couponOpen)}>Apply coupon <GoChevronDown /> </p>
+              <p
+                className="flex justify-between"
+                onClick={() => setCouponOpen(!couponOpen)}
+              >
+                Apply coupon <GoChevronDown />{" "}
+              </p>
               {
                 <div className={`my-1  ${couponOpen === true ? "" : "hidden"}`}>
                   <div className="flex mx-4">
-                  <input
-                    type="text"
-                    id="coupon"
-                    name="coupon"
-                    value={couponCode} onChange={(e)=> setCouponCode(e.target.value)}
-                    className={`bg-transparent p-2 border focus:outline-none ${ couponErr !== "" ? "border-red-500" :""}`}
-                    placeholder="Enter Coupon Code"
-                  />
+                    <input
+                      type="text"
+                      id="coupon"
+                      name="coupon"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className={`bg-transparent p-2 border focus:outline-none ${
+                        couponErr !== "" ? "border-red-500" : ""
+                      }`}
+                      placeholder="Enter Coupon Code"
+                    />
 
-                  <button className="p-2 ml-4 border" onClick={ couponHandler}>Apply</button>
-                </div>
+                    <button className="p-2 ml-4 border" onClick={couponHandler}>
+                      Apply
+                    </button>
+                  </div>
 
-                <p className="text-red-700">{couponErr}</p>
-
+                  <p className="text-red-700">{couponErr}</p>
                 </div>
               }
             </div>
@@ -637,7 +640,7 @@ const createOrder = async () => {
             <div>
               <p className="w-full  my-3 flex justify-between">
                 <span>Subtotal</span>
-                <span>₹{(subtotal )}</span>
+                <span>₹{subtotal}</span>
               </p>
 
               <p className="w-full my-3 flex justify-between">
@@ -667,15 +670,11 @@ const createOrder = async () => {
         </div>
       )}
 
-      {
-        success && <div className="flex w-full h-full justify-center items-center">
+      {success && (
+        <div className="flex w-full h-full justify-center items-center">
           <p className="text-lg font-bold my-4">Order Placed Successfully</p>
-
         </div>
-      }
-
-      
-
+      )}
     </div>
   );
 };
