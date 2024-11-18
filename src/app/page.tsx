@@ -6,7 +6,6 @@ import { FaArrowRightLong } from "react-icons/fa6";
 export default function Home() {
   return (
     <>
-
       <div className="flex sm:flex-col xs:flex-col lg:flow-row md:flex-row xl:flex-row w-[100vw] px-10  justify-between">
         <div className="w-[35vw] xs:mb-4 sm:mb-6 sm:w-full xs:w-full md:w-[35vw] lg:w-[35vw] xl:w-[35vw] flex flex-col  justify-center ">
           <h3 className="text-7xl font-bold">SLAY WITH</h3>
@@ -18,19 +17,28 @@ export default function Home() {
             quam dolore asperiores ratione iusto architecto vitae?
           </p>
 
-          <button className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">Get started  <FaArrowRightLong/></button>
+          <button className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">
+            Get started <FaArrowRightLong />
+          </button>
         </div>
 
         <div className="flex flex-col w-[50vw] sm:w-[100vw] xs:w-[100vw] md:w-[50vw] lg:w-[50vw] xl:w-[50vw]">
           <div className="flex  gap-5 mb-3">
-            <video className="   h-[40vh]  rounded-xl" autoPlay muted loop preload="metadata">
+            <video
+              className="   h-[40vh]  rounded-xl"
+              autoPlay
+              muted
+              loop
+              preload="metadata"
+            >
               <source
                 src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727183577/videos/final_journey_reel_xgtyga.mp4"
                 type="video/mp4"
               />
               Your browser does not support the video tag.
             </video>
-            <video className="  h-[40vh]  rounded-xl "
+            <video
+              className="  h-[40vh]  rounded-xl "
               autoPlay
               muted
               loop
@@ -45,14 +53,26 @@ export default function Home() {
           </div>
 
           <div className="flex gap-5 lg:ml-9 md:ml-9 xl:md-11">
-            <video className=" h-[40vh]  rounded-xl" autoPlay muted loop preload="metadata">
+            <video
+              className=" h-[40vh]  rounded-xl"
+              autoPlay
+              muted
+              loop
+              preload="metadata"
+            >
               <source
                 src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727364143/collection1/IMG_6991_dfktby.mov"
                 type="video/mp4"
               />
               Your browser does not support the video tag.
             </video>
-            <video className="   h-[40vh] rounded-xl" autoPlay muted loop preload="metadata">
+            <video
+              className="   h-[40vh] rounded-xl"
+              autoPlay
+              muted
+              loop
+              preload="metadata"
+            >
               <source
                 src="https://res.cloudinary.com/dbkiysdeh/video/upload/v1727364148/collection1/IMG_7011_m5gk4i.mov"
                 type="video/mp4"
@@ -60,13 +80,12 @@ export default function Home() {
               Your browser does not support the video tag.
             </video>
           </div>
-
         </div>
       </div>
 
       <CardSlider />
 
-      {/* Zig-Zag Grid Section */}
+      {/* Zig-Zag Grid Section
       <section>
         <h3 className="pl-6 text-3xl font-bold">Art Gallery</h3>
         <div className="w-full py-4 flex justify-between">
@@ -150,8 +169,8 @@ export default function Home() {
             src="https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074378/rock/16_gsydvo.jpg"
             alt="product 4"
           />
-        </div> */}
-      </section>
+        </div> 
+      </section> */}
 
       <div className="my-20 w-full flex flex-col ">
         <h2 className="text-3xl font-semibold m-3">
@@ -162,8 +181,6 @@ export default function Home() {
           src="https://sway.club/wp-content/uploads/2024/04/sway-website-post-1536x922.jpg"
         />
       </div>
-
-      
     </>
   );
 }
