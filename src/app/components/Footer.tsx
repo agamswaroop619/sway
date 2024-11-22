@@ -15,19 +15,19 @@ const Footer = () => {
           <div className="lg:w-3/12">
             <h3 className="text-green-600 my-4 text-xl ">About Sway</h3>
             <ul className="flex flex-col gap-y-4">
-              <li> <a href="#">Streetwear Collection</a> </li>
+              <li> <a href="/shop/streetwears">Streetwear Collection</a> </li>
               <li> <a href="#">Blogs</a> </li>
-              <li> <a href="#">Cart</a> </li>
+              <li> <a href="/carts">Cart</a> </li>
               <li> <a href="#">Checkout</a> </li>
-              <li> <a href="#">Wishlist</a> </li>
-              <li> <a href="#">Privacy Policy</a> </li>
+              <li> <a href="/wishlist">Wishlist</a> </li>
+              <li> <a href="/privacy-policy">Privacy Policy</a> </li>
             </ul>
           </div>
 
           <div className="lg:w-3/12">
           <h3 className="text-green-600 my-4 text-xl ">Help & Support</h3>
             <ul className="flex flex-col gap-y-4">
-              <li> <a href="#">About us</a> </li>
+              <li> <a href="/about">About us</a> </li>
               <li> <a href="#">Contact us</a> </li>
               <li> <a href="#">My account</a> </li>
               <li> <a href="#">Terms & Conditions</a> </li>

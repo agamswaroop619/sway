@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from "@/lib/store";
 
+
 // Define the Products type
 export interface Products {
   itemId: number;
@@ -58,14 +59,17 @@ export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
+
     addToCart: (state, action: PayloadAction<Products>) => {
       state.items.push(action.payload);
       saveToLocalStorage(state.items); // Save to localStorage after modification
     },
+
     removeFromCart: (state, action: PayloadAction<number>) => {
       state.items = state.items.filter(item => item.itemId !== action.payload);
       saveToLocalStorage(state.items); // Save to localStorage after modification
     },
+
     // update quantity of each product
     updateQnt: (state, action: PayloadAction<{ itemId: number; quantity: number }>) => {
       const item = state.items.find(item => item.itemId === action.payload.itemId);
@@ -79,6 +83,12 @@ export const cartSlice = createSlice({
     clearCart: (state) => {
       state.items = [];
       saveToLocalStorage(state.items); // Clear from localStorage too
+    },
+
+    filterCart : ( state, action: PayloadAction<string[]> ) => {
+     if( state.items) {
+      state.items = state.items.filter(item => !action.payload.includes(item.itemId.toString()))
+     }
     }
   },
 });

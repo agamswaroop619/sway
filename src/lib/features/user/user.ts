@@ -2,6 +2,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
 import { saveToLocalStorage, loadFromLocalStorage, removeFromLocalStorage } from '@/lib/localstorage'
 
+export interface Order {
+  itemId: string,
+  orderId: string,
+  shipmentId: string,
+  image: string,
+  title: string,
+  price: number,
+}
+
 export interface User {
     name: string;
     email: string ;
@@ -9,7 +18,7 @@ export interface User {
     refreshToken: string;
     accessToken: string;
     phone: string,
-    orders: string[],  
+    orders: Order[],  
     delivery: {
         address: string,
         apartment: string,
@@ -57,7 +66,7 @@ export const userSlice = createSlice({
       // Remove from localStorage
       removeFromLocalStorage('user');
     },
-    setOrder: (state, action: PayloadAction<string[]>) => {
+    setOrder: (state, action: PayloadAction<Order[]>) => {
       if (state.userProfile) {
         state.userProfile.orders = action.payload;
         // Save updated user info to localStorage
@@ -71,11 +80,16 @@ export const userSlice = createSlice({
         saveToLocalStorage('user', state);
       }
     },
+    clearOrders: (state) => {
+      if (state.userProfile) {
+        state.userProfile.orders = [];
+      }
+    }
   },
 });
 
 // Export actions
-export const { setUser, logout, updateProfile, setOrder } = userSlice.actions;
+export const { setUser, logout, updateProfile, setOrder, clearOrders } = userSlice.actions;
 export const userProfileInfo = (state: RootState) => state.user.userProfile;
 export const userLoginInfo = (state: RootState) => state.user.isLoggedIn;
 // Export reducer

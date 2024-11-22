@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { removeFromCart , selectCartItems, updateQnt } from '@/lib/features/carts/cartSlice';
 import { itemsDataInCart } from '@/lib/features/items/items';
-import { pushItem, removeCheckoutItem} from '@/lib/features/checkout/checkout';
+import { pushItem, removeCheckoutItem, clearCheckout } from '@/lib/features/checkout/checkout';
 import { GoChevronDown } from "react-icons/go";
 
 interface cartItems {
@@ -50,8 +50,11 @@ const CartPage = () => {
   const [ outOfStock , setOutOfStock ] =useState<cartItems[]>([]);
 
   useEffect(() => {
+
     const carts: cartItems[] = [];
     const out: cartItems[] = [];
+
+    dispatch( clearCheckout() );
   
     itemsFromStore.map((item) => {
       // Get the item data based on itemId

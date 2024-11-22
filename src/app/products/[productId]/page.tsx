@@ -240,20 +240,15 @@ useEffect(() => {
     setImgSrc(itemdata?.images[0].url);
   }, [itemdata]);
 
-  // function generateUniqueString(productTitle: string) {
-  //   // Get the current date in YYYYMMDD format
-  //   const date = new Date();
-  //   const formattedDate = date.toISOString().slice(0, 10).replace(/-/g, ""); // e.g., 20241102 for Nov 2, 2024
-  
-  //   // Convert product title to a unique hash (for simplicity, using base64 encoding of the title)
-  //   const titleHash = btoa(productTitle).slice(0, 5); // Shorten the hash for brevity
-  
-  //   // Add a random 4-digit number to ensure uniqueness
-  //   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  
-  //   // Concatenate to form the unique string
-  //   return `${formattedDate}-${titleHash}-${randomSuffix}`;
-  // }
+
+  const reviewHandler = () => {
+    if( itemdata && itemdata.userReview ) {
+      const updatedRating = (4 * 4 + 3.5) / (4 + 1); // => 19.5 / 5 = 3.9
+      let clampedRating = Math.max(0, Math.min(5, updatedRating)); // => 3.9 (no change, since it's within range)
+      clampedRating = Math.round(3.9 * 2) / 2; // => 7.8 / 2 = 4.0 (rounded to nearest half-point)
+      console.log("updated rating : ", clampedRating);
+    }
+  }
 
   // Ensure `itemdata` exists before rendering
   if (!itemdata) return <div>Loading...</div>;
@@ -545,7 +540,7 @@ With Brainfood, you can experience improved focus, enhanced memory, and increase
             <textarea id="review" value={reviewMessage} onChange={ (e) => setReviewMessage(e.target.value)}
              className='w-full h-36 focus:outline-none p-2 border-2 my-1 border-gray-400 text-black rounded-md'/>
 
-            <button className='border p-3 my-2 rounded-full'> Submit  </button>
+            <button onClick={ reviewHandler} className='border p-3 my-2 rounded-full'> Submit  </button>
 
           </form>
           

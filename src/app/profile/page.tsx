@@ -11,12 +11,12 @@ import { LuLogOut, LuUser } from "react-icons/lu";
 import { MdOutlineLocalShipping } from "react-icons/md";
 import { SlDirection } from "react-icons/sl";
 import { FaRegHeart } from "react-icons/fa";
-import { itemsDataInCart } from "@/lib/features/items/items";
 import { CiSettings } from "react-icons/ci";
 import { firestore } from "../firebase.config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { DocumentReference } from "firebase/firestore";
 import toast from "react-hot-toast";
+import { Order } from "@/lib/features/user/user";
 
 
 const Page = () => {
@@ -33,19 +33,10 @@ const Page = () => {
 
 
   const userData = useAppSelector((state: RootState) => state.user.userProfile);
-  const cartItems = useAppSelector(itemsDataInCart);
-
-  // Filtered orders based on cart items
-  const newOrders = Array.isArray(userData?.orders) && Array.isArray(cartItems)
-  ? cartItems.filter(item => userData?.orders.includes(item.id.toString()))
-  : [];
-
-  const orders = Array.isArray(userData?.orders) && Array.isArray(cartItems)
-  ? cartItems.filter(item => userData?.orders.includes(item.id.toString()))
-  : [];
+  
+  const newOrders: Order[] = userData ? userData.orders : []
 
   console.log("new orders : ",newOrders)
-  console.log("orders : ", orders);
 
   // Navigation state
   const [nav, setNav] = useState("dashboard");
@@ -197,9 +188,9 @@ const Page = () => {
                   <h2 className="text-xl mb-3 border-b pb-2">Orders </h2>
 
                     {newOrders && newOrders.length > 0 ? (
-                      newOrders.map((item, index) => (
-                        <div key={index} className="flex mb-2">
-                          <img src={item.images[0].url} alt="image" className="h-20" />
+                      newOrders.map((item : Order) => (
+                        <div key={item.itemId} className="flex mb-2">
+                          <img src={item.image} alt="image" className="h-20" />
                           <div className="flex flex-col ml-4">
                             <p className="text-lg ">{item.title}</p>
                            
@@ -430,8 +421,8 @@ const Page = () => {
                   <h2 className="text-xl mb-3 border-b pb-2">Orders </h2>
 
                     {newOrders && newOrders.length > 0 ? (
-                      newOrders.map((item, index) => (
-                        <div key={index}>
+                      newOrders.map((item: Order) => (
+                        <div key={item.itemId}>
                           <p>{item.title}</p>
                         </div>
                       ))
@@ -583,3 +574,9 @@ const Page = () => {
 };
 
 export default Page;
+
+
+
+
+
+

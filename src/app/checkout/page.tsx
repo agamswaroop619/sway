@@ -18,6 +18,9 @@ import {
   selectCheckoutItems,
   clearCheckout,
 } from "@/lib/features/checkout/checkout";
+import { Order } from "@/lib/features/user/user";
+import { v4 as uuidv4 } from "uuid"; // For unique order ID
+import { updateQntAtCart } from "@/lib/features/items/items";
 
 const userInfo = (state: RootState) => state.user.userProfile;
 
@@ -28,7 +31,7 @@ interface RazorpayResponse {
 }
 
 const CheckoutPage = () => {
-  const [mounted, setMounted] = useState(false);
+  
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -56,17 +59,10 @@ const CheckoutPage = () => {
     userData?.delivery?.apartment || ""
   );
 
+  // coupon Handler
   const [couponErr, setCouponErr] = useState("");
   const [couponOpen, setCouponOpen] = useState(false);
   const [couponCode, setCouponCode] = useState("");
-
-  const couponHandler = () => {
-    if (couponCode === "") {
-      setCouponErr("Please enter a valid coupon code");
-    } else setCouponErr("Invalid Coupon Code");
-
-    return;
-  };
 
   // payment and shipping
   const [payment, setPayment] = useState("cash");
@@ -76,10 +72,66 @@ const CheckoutPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  const [ orderId , setOrderId ] = useState("");
+  const [ shipmentId, setShipmentId ] = useState("");
+
+  const subtotal = cartItems
+    ? cartItems.reduce((acc, item) => acc + item.qnt * item.price, 0)
+    : 0;
+
+    const checkDetails = async () => {
+      if (userData) {
+        const requiredFields = {
+          firstName,
+          phone,
+          address,
+          zipCode,
+          state,
+          country,
+          city,
+        };
+    
+        for (const [key, value] of Object.entries(requiredFields)) {
+          if (!value?.trim()) {
+            toast.error(`${key.replace(/([A-Z])/g, ' $1')} can't be empty`);
+            return;
+          }
+        }
+
+        setSuccess(true);
+
+        try {
+
+          if( payment === "online") {
+            await createOrder();
+          }
+          else{
+            setSuccess(true);
+          }
+
+        } catch (error) {
+          console.log("Something went wrong ", error);
+        }
+        
+      }
+    };
+    
+    useEffect(() => {
+      if (success) {
+        updateAll();
+      }
+    }, [success]);
+
+    const updateAll = async () => {
+      await updateDB();
+      dispatch(clearCart());
+      dispatch(clearCheckout());
+    };
+    
+
   // 1. Make paymeyt and verify
   //  2. Mark success true for update the database
   const createOrder = async () => {
-    toast.success("order creation");
     try {
       const res = await fetch("/api/create-order", {
         method: "POST",
@@ -107,15 +159,13 @@ const CheckoutPage = () => {
             });
             const verificationData = await res.json();
             if (verificationData.isOk) {
-              toast.success("Payment is successful");
-
               setSuccess(true);
             } else {
               toast.error("Something went wrong.");
+              setError("SOmething went wrong at creating order for razorpay")
             }
           } catch (error) {
             console.error("Payment verification error:", error);
-            toast.error("Payment verification failed.");
           }
         },
       };
@@ -124,33 +174,33 @@ const CheckoutPage = () => {
       payment.open();
     } catch (error) {
       console.error("Order creation error:", error);
-      toast.error("Failed to create order.");
     }
   };
 
-  // Function that use itemsupdate for update the database
+
+   // Function that use itemsupdate for update the database
   // 1. Push item of itemsUpdate in user order section
   // 2. Reduce the quantity of each item that placed for order
   const updateDB = async () => {
     const ref = {
       data: {
-        docId: "adfafasf",
-        id: 12,
+        docId: "demoId",
+        id: 12000,
         title: "Test Item to prevent undefined",
         images: [],
         quantity: [8, 8, 8, 4, 4],
         price: 499.0,
         category: "",
-        descImg:
-          "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
+        descImg: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
         color: "Black",
         review: 3.5,
       },
     };
+    
+    await handleCheckout();
 
-    const newOrders: string[] = [];
-    console.log("Function entered in update db ");
-
+    const newOrders: Order[] = [];
+  
     if (cartItems) {
       try {
         // Process cart items
@@ -159,181 +209,144 @@ const CheckoutPage = () => {
             const docRef = doc(firestore, "products", item.docId);
             const docData = await getDoc(docRef);
             const itemData = docData.exists() ? docData.data() : ref.data;
-
+  
             switch (item.size) {
               case "Small":
                 if (item.qnt > itemData.quantity[0]) {
-                  setError(
-                    `Quantity of ${item.title} exceeds available stock.`
-                  );
-                  return;
+                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
                 }
                 itemData.quantity[0] -= item.qnt;
                 break;
               case "Medium":
                 if (item.qnt > itemData.quantity[1]) {
-                  setError(
-                    `Quantity of ${item.title} exceeds available stock.`
-                  );
-                  return;
+                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
                 }
                 itemData.quantity[1] -= item.qnt;
                 break;
               case "Large":
                 if (item.qnt > itemData.quantity[2]) {
-                  setError(
-                    `Quantity of ${item.title} exceeds available stock.`
-                  );
-                  return;
+                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
                 }
                 itemData.quantity[2] -= item.qnt;
                 break;
               case "XL":
                 if (item.qnt > itemData.quantity[3]) {
-                  setError(
-                    `Quantity of ${item.title} exceeds available stock.`
-                  );
-                  return;
+                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
                 }
                 itemData.quantity[3] -= item.qnt;
                 break;
               case "XXL":
                 if (item.qnt > itemData.quantity[4]) {
-                  setError(
-                    `Quantity of ${item.title} exceeds available stock.`
-                  );
-                  return;
+                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
                 }
                 itemData.quantity[4] -= item.qnt;
                 break;
             }
-
+  
             // Update product stock in Firestore
             await updateDoc(docRef, { quantity: itemData.quantity });
-            newOrders.push(item.itemId.toString());
+      
+            const itemId = item.itemId.toString();
+            const quantity = itemData.quantity;
+            const image= item.image;
+            const title = item.title;
+            const price= item.price;
+
+            dispatch( updateQntAtCart({itemId, quantity}) )
+  
+            newOrders.push({ itemId, orderId, shipmentId, image, title, price});
           })
         );
-
+  
         // Update user orders in Firestore
         const userRef = doc(firestore, "users", userData?.userId || "");
-
+  
         if (userData) {
           const updatedOrders = [...newOrders, ...userData.orders];
-          // await updateDoc(userRef, { orders: updatedOrders }); // Make sure the update is awaited
-          const ordersUpdateResult = await updateDoc(userRef, {
-            orders: updatedOrders,
-          });
-
+          const ordersUpdateResult = await updateDoc(userRef, { orders: updatedOrders });
+  
           // Ensure that user state in Redux is updated correctly
           const updatedUser = { ...userData, orders: updatedOrders };
           dispatch(setUser(updatedUser));
-
+  
           console.log("Orders updated in Firestore: ", ordersUpdateResult);
           console.log("Updated orders: ", updatedOrders);
         }
-      } catch (error) {
-        console.error("Error in updateDB:", error);
-        setError("Something went wrong while updating the database.");
+      } catch (err) {
+        console.error("Something went wrong at checkout: ", err);
       }
     }
   };
 
-  useEffect(() => {
-    if (success) {
-      updateAll();
-    }
-  }, [success]);
 
-  const updateAll = async () => {
-    await updateDB();
-    dispatch(clearCart());
-    dispatch(clearCheckout());
+const handleCheckout = async () => {
+
+  const shippingFee = 79;
+
+  const orderDetails = {
+    order_id: uuidv4(), // Unique order ID
+    order_date: new Date().toISOString(),
+    billing_customer_name: firstName,
+    billing_last_name: "",
+    billing_address: apartment || "N/A",
+    billing_address_2: address || "N/A",
+    billing_city: city || "N/A",
+    billing_pincode: zipCode || "000000",
+    billing_state: state || "N/A",
+    billing_country: country || "N/A",
+    billing_email: userData?.email || "N/A",
+    billing_phone: phone || "N/A",
+    shipping_is_billing: true,
+    order_items: cartItems,
+    payment_method: payment === "cash" ? "COD" : "Prepaid",
+    sub_total: subtotal + shippingFee, // Use a variable for fees
+    length: 35,
+    breadth: 28,
+    height: 10,
+    weight: 0.2,
   };
 
-  const subtotal = cartItems
-    ? cartItems.reduce((acc, item) => acc + item.qnt * item.price, 0)
-    : 0;
+  console.log("Order details:", orderDetails);
 
-  // check user details and if details are correct make the payment call
-  const checkDetails = async () => {
-    if (userData) {
-      if (firstName?.trim() === "") {
-        toast.error("Name can't be empty");
-        return;
-      } else if (phone?.trim() === "") {
-        toast.error("Phone can't be empty");
-        return;
-      } else if (address?.trim() === "") {
-        toast.error("Address can't be empty");
-        return;
-      } else if (zipCode?.trim() === "") {
-        toast.error("Postal can't be empty");
-        return;
-      } else if (state?.trim() === "") {
-        toast.error("State can't be empty");
-        return;
-      } else if (country?.trim() === "") {
-        toast.error("County can't be empty");
-        return;
-      } else if (city?.trim() === "") {
-        toast.error("City can't be empty");
-        return;
-      }
+  try {
+    const response = await fetch("/api/place-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ orderDetails }),
+    });
 
-      toast.success("verification success");
-      await createOrder();
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+
+    const data = await response.json();
+    setOrderId(orderDetails.order_id);
+
+    if (data && data.shipmentId) {
+      setShipmentId(data.shipment_id);
+    } else {
+      alert("Failed to retrieve shipment ID from response.");
+    }
+
+    console.log("Shiprocket response : ", response)
+
+  } catch (error) {
+    console.error("Checkout error:", error);
+    alert("Failed to place the order. Please try again.");
+  }
+};
+  
+  const couponHandler = () => {
+    if (couponCode === "") {
+      setCouponErr("Please enter a valid coupon code");
+    } else setCouponErr("Invalid Coupon Code");
+
+    return;
   };
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  /*const handleCheckout = async () => {
-    const orderDetails = {
-      order_id: Math.random().toString(10), // Random order ID
-      order_date: new Date().toISOString(),
-
-      billing_customer_name: `${firstName} `,
-      billing_address: `${address}`,
-      billing_city: `${city}`,
-      billing_pincode: `${zipCode}`,
-      billing_state: `${state}`, // Change as per user input
-      billing_country: `${country}`, // Change as per user input
-      billing_email: `${userData?.email}`,
-      billing_phone: `${phone}`,
-      shipping_is_billing: true, // Assuming shipping address is the same
-
-      order_items: cartItems,
-      payment_method: `${ payment === "cash" ? "COD" : "Online"}`,
-      sub_total: subtotal+79, // Total price
-      length: 10,
-      breadth: 15,
-      height: 20,
-      weight: 1.5, // Product dimensions and weight
-    };
-
-    console.log("Order details : ", orderDetails);
-
-    try {
-      const response = await fetch("/api/place-order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ orderDetails }),
-      });
-
-      console.log("data : ", response);
-      toast.success("order placed successfully");
-    } catch (error) {
-      console.error("Checkout error:", error);
-      alert("Failed to place the order.");
-    }
-  };
-  */
-
-  if (!mounted) return <div>loading...</div>;
+  
 
   if (!cartItems) {
     return <div>Your cart is empty</div>;
@@ -680,3 +693,4 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
+

@@ -44,7 +44,8 @@ export const checkoutSlice = createSlice({
 
     clearCheckout: ( state ) => {
       state.checkoutItems= [];
-    }
+    },
+
   }
 });
 

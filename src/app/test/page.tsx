@@ -1,60 +1,16 @@
 'use client'
-import { useEffect} from "react";
-import { firestore } from '@/app/firebase.config';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import React from 'react'
 
 
 const TestPage = () => {
-  
-  const getData = async () => {
-      const docRef =  doc(firestore, "products", "5zx1GpSmh4SwS8CTSdNj");
 
-      console.log("Data fetched : ", docRef);
-
-      try {
-        // Fetch the document data
-        const docSnap = await getDoc(docRef);
-    
-        // Check if the document exists
-        if (docSnap.exists()) {
-          // Access the document data
-          console.log("Document data:", docSnap);
-        } else {
-          // The document does not exist
-          console.log("No such document!");
-        }
-      } catch (error) {
-        console.error("Error fetching document: ", error);
-      }
-
-
-      // Data you want to update
-      const updatedData = {
-         title: "new value",  // The field and the new value you want to update
-      };
-
-    try {
-    // Update the field
-    await updateDoc(docRef, updatedData);
-    console.log("Document field updated successfully!");
-  } catch (error) {
-    console.error("Error updating document field: ", error);
-  }
-  }
-
-  // Log data when it changes
-  useEffect(() => {
-
-    getData()
-
-  }, []);
 
   return (
-    <div>
-      Results
-    
-    </div>
-  );
-};
+    <div className='mt-20 mx-80 h-[60vh] w-[100vw] '>
 
-export default TestPage;
+      <button  className='relative  text-white p-2 border rounded-md'>Test page</button>
+    </div>
+  )
+}
+
+export default TestPage
