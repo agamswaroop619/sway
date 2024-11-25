@@ -2,6 +2,7 @@ import React from "react";
 // import SliderBanner from "./components/SliderBanner";
 import CardSlider from "./components/CardSlider";
 import { FaArrowRightLong } from "react-icons/fa6";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -17,9 +18,11 @@ export default function Home() {
             quam dolore asperiores ratione iusto architecto vitae?
           </p>
 
-          <button className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">
+         <Link href="/products">
+         <button   className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">
             Get started <FaArrowRightLong />
           </button>
+         </Link>
         </div>
 
         <div className="flex flex-col w-[50vw] sm:w-[100vw] xs:w-[100vw] md:w-[50vw] lg:w-[50vw] xl:w-[50vw]">

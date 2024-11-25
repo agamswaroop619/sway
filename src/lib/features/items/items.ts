@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "@/lib/store";
+import toast from "react-hot-toast";
 
 interface Image {
   url: string;
@@ -7,11 +8,12 @@ interface Image {
 }
 
 interface Review {
+ review: string
+  userRating: number,
+  userId: string,
+  userName: string,
   commentId: string,
-  userId: string;
-  userName: string;
-  comment: string;
-  rating: number;
+  createdAt: string, 
 }
 
 export interface Item {
@@ -62,43 +64,55 @@ export interface Item {
          },
 
          updateReview: (state, action: PayloadAction<{
-          id: string, 
-          review: number, 
-          message: string, 
-          userDocId: string, 
-          userName: string, 
-          updatedReview: number
-      }>) => {
+          itemId: string, 
+          userRating: number,
+          updatedRating: number,
+          userId: string,
+          userName: string,
+          commentId: string,  
+          review: string   ,
+          createdAt: string,  
+        }>) => {
           if (state.itemsData) {
-              state.itemsData = state.itemsData.map((item) => {
-                  // Check if the current item's id matches the id from the action payload
-                  if (item.id === action.payload.id) {
-                      // Create the new review object
-                      // const newReview = {
-                      //     userName: action.payload.userName,
-                      //     userDocId: action.payload.userDocId,
-                      //     review: action.payload.message, // The review message
-                      //     createdAt: new Date().getTime(),
-                      //     rating: action.payload.review // The rating the user gave
-                      // };
-      
-                      // Add the new review to the reviews array of the item (assuming `item.reviews` is an array)
-                      // if( item.userReview) {
-                      // item.userReview.unshift(newReview); // Add the review at the beginning of the array
-                      // }
-                      // else{
-                      //   item.userReview = [newReview];
-                      // }
-                      // Update the item's rating with the new updated rating (calculated elsewhere)
-                      // newReview.rating = action.payload.updatedReview;
-      
-                      // return item; // Return the updated item
-                  }
-                  return item; // Return unchanged item if id doesn't match
-              });
-          }
-         },
 
+            state.itemsData = state.itemsData.map((item) => {
+
+              
+        
+              if (Number(item.id) == Number(action.payload.itemId)) {
+                // Update the review rating (ensure it's a string if needed)
+                item.review = action.payload.updatedRating; // Assuming this should be a string
+        
+                // Prepend the updated review to the userReview array (ensure it matches the Review interface)
+                item.userReview = [{
+                  review: action.payload.review,
+                  userId: action.payload.userId,
+                  userName: action.payload.userName,
+                  commentId: action.payload.commentId,
+                  userRating: action.payload.userRating,
+                  createdAt: action.payload.createdAt,
+                }, ...(item.userReview || [])];
+
+
+                console.log("item match for update review");
+              } else {
+                console.log(`item not match for update review -> ${item.id } ${action.payload.itemId}`);
+              }
+        
+              // Return the unchanged item if the id doesn't match
+              return item;
+            });
+          } else {
+            console.log("itemsData not found");
+          }
+        },
+        
+        
+          testReview : ( state ) => {
+            toast.success("Test function called");
+            console.log("state item data ",state.itemsData)
+          },
+      
          updateQntAtCart: (state, action: PayloadAction<{ itemId: string; quantity: number[] }>) => {
           if (state.itemsData) {
             state.itemsData = state.itemsData.map((item) => 
@@ -112,7 +126,7 @@ export interface Item {
     }
   });
 
-  export const { setItemsData, updateItem, updateReview, updateQntAtCart } = itemSlice.actions;
+  export const { setItemsData, updateItem, updateReview, updateQntAtCart, testReview } = itemSlice.actions;
 
   export const itemsDataInCart = ( state : RootState ) => state.items.itemsData;
 

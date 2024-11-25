@@ -53,6 +53,7 @@ const ProductsPage = (  ) => {
     if (data.length > 0) {
       setShopData(data);
     }
+    console.log("data is ", data)
   }, [data]);
 
  
@@ -114,6 +115,18 @@ const filterByPrice = () => {
    }
 }
 
+
+const [mounting, setMounting] = useState(false);
+
+  useEffect(() => {
+    // Set mounting to true after the component is mounted
+    setMounting(true);
+  }, []);
+
+  // Show loading message if mounting is still false
+  if (!mounting) {
+    return <>Loading ...</>;
+  }
 
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
