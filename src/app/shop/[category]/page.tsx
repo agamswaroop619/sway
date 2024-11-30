@@ -20,7 +20,7 @@ const params = useParams();
 const dispatch = useAppDispatch();
 const router = useRouter();
 
-const [floatSidebar, setFloatSidebar] = useState(false);
+const [floatSiderbar, setFloatSiderbar] = useState(false);
 const [filter, setFilter] = useState('default');
 const [shopData, setShopData] = useState<Item[]>([]);
 const [currentPage, setCurrentPage] = useState(1);
@@ -95,6 +95,9 @@ const filterByPrice = () => {
 let totalPages : number = 0;
 const [ totalItems, setTotalItems ] = useState(0);
 
+const [ filterRating, setFilterRating]= useState(0);
+const [ filterSize, setFilterSize ] = useState("all");
+
 useEffect( () => {
   if (shopData && shopData.length > 0) {
     // Calculate pagination
@@ -114,7 +117,7 @@ useEffect( () => {
        <div className='flex w-full items-center mb-2  justify-around'>
        <CiFilter
           className="text-white  border text-3xl p-1"
-          onClick={() => setFloatSidebar(!floatSidebar)}
+          onClick={() => setFloatSiderbar(!floatSiderbar)}
         />
         <select className="bg-black p-2 border focus:outline-none" onChange={(e) => setFilter(e.target.value)}>
             <option value="default">Default sorting</option>
@@ -128,12 +131,13 @@ useEffect( () => {
 
       </div>
 
-      {floatSidebar && (
-        <div className="absolute left-0 z-10">
-            <div className="z-10 w-[80vw] h-screen max-w-[500px] bg-black text-white">
-            <div className="flex  px-5 items-center">
-            <input type="text" placeholder="Search products" className="p-2 rounded-full w-full mb-4" />
-            <MdOutlineClear className="text-3xl" onClick={() => setFloatSidebar(!floatSidebar)} />
+      {/* Mobile sidebar */}
+      {floatSiderbar && (
+        <div className="absolute left-0  z-20">
+            <div className="z-20 p-2 w-[80vw] h-screen max-w-[500px] bg-black text-white">
+            <div className="flex mb-2 gap-2 items-center">
+            <input type="text" placeholder="Search products" className="p-2 rounded-full w-full " />
+            <MdOutlineClear className="text-3xl " onClick={() => setFloatSiderbar(!floatSiderbar)} />
             </div>
     
             <div className="  relative h-28">
@@ -147,14 +151,19 @@ useEffect( () => {
               console.log(`min = ${min}, max = ${max}`)
           }   />
             </div>
-            <button className="bg-green-700 py-2 px-4 rounded-full mt-1 mb-2"
-          onClick={ filterByPrice}>Filter</button>
           
             </div>
+            <button className="bg-green-700 py-2 px-4 rounded-full mt-1 mb-2"
+          onClick={ filterByPrice}>Filter</button>
     
             <div className="mb-4">
               <h3 className="font-bold mb-2">Filter by rating</h3>
-              <p>⭐⭐⭐⭐⭐ (1)</p>
+              
+              <p>5 ⭐ & above </p>
+          <p>4 ⭐ & above</p>
+          <p>3 ⭐ & above</p>
+          <p>2 ⭐ & above</p>
+          <p>1 ⭐ & above</p>
             </div>
     
             <div>
@@ -171,7 +180,7 @@ useEffect( () => {
         </div>
       )}
 
-      {/* Sidebar */}
+      {/* Laptop  Sidebar */}
       <div className="w-1/4 p-4 hidden md:block lg:block xl:block">
        
        <div className='text-black mb-2 px-4 bg-white rounded-full flex border items-center'>
@@ -187,31 +196,50 @@ useEffect( () => {
               <h3 className="font-bold mb-2 ">Filter by price</h3>
           
               <p>Price: ₹{min} — ₹{max}</p>
-            <div className='absolute h-28 top-13 left-[0px] '>
+            <div className='absolute mb-1 h-28 top-13 left-[0px] '>
             <RangeSlider  min={min} setMin={setMin}
           max={max} setMax={setMax}
           onChange={({ min, max }: { min: number; max: number }) =>
               console.log(`min = ${min}, max = ${max}`)
           }   />
             </div>
-            <button className="bg-green-700 py-2 px-4 rounded-full mt-1 mb-2"
-          onClick={ filterByPrice}>Filter</button>
           
             </div>
+            <button className="bg-green-700 border-2 cursor-pointer p-2 rounded-full mt-1 mb-2"
+          onClick={ filterByPrice}>Filter</button>
 
         <div className="mb-4">
-          <h3 className="font-bold mb-2">Filter by rating</h3>
-          <p>⭐⭐⭐⭐⭐ (1)</p>
+          <h3 className="font-bold mb-2">Filter by Rating</h3>
+          <p className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
+          ${filterRating === 4 ? "text-white" : "text-[#7e7e7e]"}`}
+          onClick={ () => filterRating !== 3 ? setFilterRating(4) : setFilterRating(0)}>
+            4 ⭐ & above</p>
+
+          <p className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
+          ${filterRating === 3 ? "text-white" : "text-[#7e7e7e]"}`}
+          onClick={ () => filterRating !== 3? setFilterRating(3) : setFilterRating(0)}>
+            3 ⭐ & above</p>
+
+          <p className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
+          ${filterRating === 2 ? "text-white" : "text-[#7e7e7e]"}`}
+          onClick={ () => filterRating !== 2 ? setFilterRating(2) : setFilterRating(0)}>
+            2 ⭐ & above</p>
+
+          <p className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
+          ${filterRating === 1 ? "text-white" : "text-[#7e7e7e]"}`}
+          onClick={ () => filterRating !== 1 ? setFilterRating(1) : setFilterRating(0)}>
+            1 ⭐ & above</p>
+
         </div>
 
         <div>
-          <h3 className="font-bold mb-2">Filter by size</h3>
+          <h3 className="font-bold mb-2">Filter by Size</h3>
           <ul>
-            <li><button className="p-2">Small</button></li>
-            <li><button className="p-2">Medium</button></li>
-            <li><button className="p-2">Large</button></li>
-            <li><button className="p-2">XL</button></li>
-            <li><button className="p-2">XXL</button></li>
+            <li><button onClick={ () => filterSize !== "small" ? setFilterSize("small") : setFilterSize("all")  } className={`p-2 ${filterSize === "small" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>Small</button></li>
+            <li><button onClick={ () => filterSize !== "medium" ? setFilterSize("medium")  : setFilterSize("all") } className={`p-2 ${filterSize === "medium" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>Medium</button></li>
+            <li><button onClick={ () => filterSize !== "large" ? setFilterSize("large") : setFilterSize("all")  } className={`p-2 ${filterSize === "large" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>Large</button></li>
+            <li><button onClick={ () => filterSize !== "xl" ? setFilterSize("xl") : setFilterSize("all")  } className={`p-2 ${filterSize === "xl" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>XL</button></li>
+            <li><button onClick={ () => filterSize !== "xxl" ? setFilterSize("xxl") : setFilterSize("all")  } className={`p-2 ${filterSize === "xxl" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>XXL</button></li>
           </ul>
         </div>
       </div>

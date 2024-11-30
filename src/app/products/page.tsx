@@ -11,7 +11,7 @@ import { getData } from '@/app/utils/getData';
 import { setItemsData } from '@/lib/features/items/items';
 import {StarRating} from '../components/Rating';
 import RangeSlider from '../components/RangeSlider';
-
+import toast from 'react-hot-toast';
 
 
 const ProductsPage = (  ) => {
@@ -56,9 +56,6 @@ const ProductsPage = (  ) => {
     console.log("data is ", data)
   }, [data]);
 
- 
-  
-
 // Filter and sort logic
 useEffect(() => {
   if (filter !== "default" && data && data.length > 0) {
@@ -86,6 +83,58 @@ useEffect(() => {
   setCurrentPage(1); // Reset to page 1 when the filter changes
 }, [filter, data, router]);
 
+const [ filterRating, setFilterRating]= useState(0);
+const [ filterSize, setFilterSize ] = useState("all");
+
+// filter using rating
+useEffect( () => {
+  if( data ){
+    if( filterRating < 1  ) {
+      setShopData(data);
+    }
+    else{
+      const originalData = [...data];
+      const filteredData = originalData.filter(item => item.review >= filterRating );
+      setShopData(filteredData)
+    }
+  }
+}, [ filterRating])
+
+// filter using size
+useEffect(() => {
+  if (data) {
+    if (filterSize === "all") {
+      setShopData(data);
+      } else
+        {
+          const originalData = [...data];
+
+          let idx= 0;
+          switch( filterSize ) {
+            case "small":
+                idx= 0;
+                break;
+            case "medium":
+                idx = 1;
+                break;
+            case "large":
+                idx = 2;
+                break;
+            case "xl":
+                idx = 3;
+                break;
+            case "xxl":
+                idx = 4;
+                break;
+          }
+
+          const filteredData = originalData.filter(item => item.quantity[idx] > 0
+            );
+            setShopData(filteredData);
+            }
+        }
+        }, [filterSize, data]);
+
 let totalPages: number = 0;
 let currentItems: Item[] = [];
 
@@ -107,6 +156,9 @@ if (shopData && shopData.length > 0) {
 // };
 
 const filterByPrice = () => {
+
+  toast.success("filter by price clicked")
+
    let filteredData = [...data];
 
    if( data && ( min !== 100 || max != 1000 )){
@@ -150,6 +202,7 @@ const [mounting, setMounting] = useState(false);
 
       </div>
 
+      {/* Mobile sidebar */}
       {floatSiderbar && (
         <div className="absolute left-0  z-20">
             <div className="z-20 p-2 w-[80vw] h-screen max-w-[500px] bg-black text-white">
@@ -176,7 +229,12 @@ const [mounting, setMounting] = useState(false);
     
             <div className="mb-4">
               <h3 className="font-bold mb-2">Filter by rating</h3>
-              <p>⭐⭐⭐⭐⭐ (1)</p>
+              
+              <p>5 ⭐ & above </p>
+          <p>4 ⭐ & above</p>
+          <p>3 ⭐ & above</p>
+          <p>2 ⭐ & above</p>
+          <p>1 ⭐ & above</p>
             </div>
     
             <div>
@@ -193,7 +251,7 @@ const [mounting, setMounting] = useState(false);
         </div>
       )}
 
-      {/* Sidebar */}
+      {/* Laptop  Sidebar */}
       <div className="w-1/4 p-4 hidden md:block lg:block xl:block">
        
        <div className='text-black mb-2 px-4 bg-white rounded-full flex border items-center'>
@@ -218,22 +276,41 @@ const [mounting, setMounting] = useState(false);
             </div>
           
             </div>
-            <button className="bg-green-700 p-2 rounded-full mt-1 mb-2"
+            <button className="bg-green-700 border-2 cursor-pointer p-2 rounded-full mt-1 mb-2"
           onClick={ filterByPrice}>Filter</button>
 
         <div className="mb-4">
-          <h3 className="font-bold mb-2">Filter by rating</h3>
-          <p>⭐⭐⭐⭐⭐ (1)</p>
+          <h3 className="font-bold mb-2">Filter by Rating</h3>
+          <p className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
+          ${filterRating === 4 ? "text-white" : "text-[#7e7e7e]"}`}
+          onClick={ () => filterRating !== 3 ? setFilterRating(4) : setFilterRating(0)}>
+            4 ⭐ & above</p>
+
+          <p className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
+          ${filterRating === 3 ? "text-white" : "text-[#7e7e7e]"}`}
+          onClick={ () => filterRating !== 3? setFilterRating(3) : setFilterRating(0)}>
+            3 ⭐ & above</p>
+
+          <p className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
+          ${filterRating === 2 ? "text-white" : "text-[#7e7e7e]"}`}
+          onClick={ () => filterRating !== 2 ? setFilterRating(2) : setFilterRating(0)}>
+            2 ⭐ & above</p>
+
+          <p className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
+          ${filterRating === 1 ? "text-white" : "text-[#7e7e7e]"}`}
+          onClick={ () => filterRating !== 1 ? setFilterRating(1) : setFilterRating(0)}>
+            1 ⭐ & above</p>
+
         </div>
 
         <div>
-          <h3 className="font-bold mb-2">Filter by size</h3>
+          <h3 className="font-bold mb-2">Filter by Size</h3>
           <ul>
-            <li><button className="p-2">Small</button></li>
-            <li><button className="p-2">Medium</button></li>
-            <li><button className="p-2">Large</button></li>
-            <li><button className="p-2">XL</button></li>
-            <li><button className="p-2">XXL</button></li>
+            <li><button onClick={ () => filterSize !== "small" ? setFilterSize("small") : setFilterSize("all")  } className={`p-2 ${filterSize === "small" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>Small</button></li>
+            <li><button onClick={ () => filterSize !== "medium" ? setFilterSize("medium")  : setFilterSize("all") } className={`p-2 ${filterSize === "medium" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>Medium</button></li>
+            <li><button onClick={ () => filterSize !== "large" ? setFilterSize("large") : setFilterSize("all")  } className={`p-2 ${filterSize === "large" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>Large</button></li>
+            <li><button onClick={ () => filterSize !== "xl" ? setFilterSize("xl") : setFilterSize("all")  } className={`p-2 ${filterSize === "xl" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>XL</button></li>
+            <li><button onClick={ () => filterSize !== "xxl" ? setFilterSize("xxl") : setFilterSize("all")  } className={`p-2 ${filterSize === "xxl" ? "text-white" : "text-[#7e7e7e]"  } transition-colors hover:text-white duration-400  ease-in-out `}>XXL</button></li>
           </ul>
         </div>
       </div>

@@ -98,7 +98,6 @@ const CheckoutPage = () => {
           }
         }
 
-        setSuccess(true);
 
         try {
 

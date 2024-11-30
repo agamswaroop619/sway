@@ -31,10 +31,15 @@ const config: Config = {
 			  '90%': { transform: 'translate(-2px, 2px)' },
 			  '100%': { transform: 'translate(0)' },
 			},
+			fadeInItem: {
+				'0%': { opacity: '0' },
+				'100%': { opacity: '1' },
+			  },
 		  },
 		  animation: {
 			glitch: 'glitch 1s infinite linear alternate-reverse',
 			glitchShift: 'glitchShift 1s infinite linear alternate-reverse',
+			'fade-in-item': 'fadeInItem 0.3s ease-out forwards', // Fade in animation
 		  },
   		colors: {
   			background: 'hsl(var(--background))',

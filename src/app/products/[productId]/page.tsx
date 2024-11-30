@@ -500,6 +500,8 @@ const ProductDetails = () => {
             </div>
           </div>
 
+         
+
           <div className="flex md:flex-col lg:flex-row xl:flex-row w-full gap-5 sm:flex-col xs:flex-col ">
             <div className="bg-gray-600 justify-center w-[250px] flex items-center h-[50px]  rounded-l-full rounded-r-full py-2 my-3">
               <button
@@ -592,29 +594,30 @@ const ProductDetails = () => {
           </div>
 
           <p>Category: Streetwear</p>
+          <p>SKU : </p>
         </div>
       </div>
 
       <div className="lg:m-10 w-[90vw] lg:p-10">
         <div className="flex sm:gap-y-2 xs:gap-y-2 lg:flex-row xl:flex-row md:flex-row sm:flex-col xs:flex-col justify-around p-8">
           <span
-            className="text-xl cursor-pointer"
+            className={`text-xl cursor-pointer transition-colors hover:text-white duration-400 ease-in-out hover:scale-110 ${ info === 0 ? "text-white" : "text-[#7e7e7e]"} ` }
             onClick={() => clickHandler(0)}
           >
             Description
           </span>
           <span
-            className="text-xl cursor-pointer"
+            className={`text-xl cursor-pointer transition-colors hover:text-white duration-400 ease-in-out hover:scale-110 ${ info === 1 ? "text-white" : "text-[#7e7e7e]"} ` }
             onClick={() => clickHandler(1)}
           >
             Additional information
           </span>
 
           <span
-            className="text-xl flex cursor-pointer"
+            className={`text-xl flex cursor-pointer transition-colors hover:text-white duration-400 ease-in-out hover:scale-110 ${ info === 2 ? "text-white" : "text-[#7e7e7e]"} ` }
             onClick={() => clickHandler(2)}
           >
-            Reviews{" "}
+            Reviews
             {itemdata.review > 0 && (
               <span className="mx-1"> ({itemdata.userReview?.length}) </span>
             )}
@@ -624,17 +627,17 @@ const ProductDetails = () => {
         <div className=" w-full">
           {info === 0 && (
             <div className="flex flex-col w-full" id="desc">
-              <div className="flex  md:flex-row lg:flex-row xl:flex-row sm:flex-col xs:flex-col  gap-14 justify-between">
+              <div className="flex items-center px-10 md:flex-row lg:flex-row xl:flex-row sm:flex-col xs:flex-col  gap-10 justify-between">
                 <img
                   loading="lazy"
                   src={itemdata.descImg}
-                  className="w-[25vw] h-[35vh] lg:h-[65vh] md:w-[75vw]  xl:w-[65vw]  sm:w-full xs:w-full "
+                  className="h-[50vh] "
                   alt="description image"
                 />
-                <p className="p-10 sm:p-4 xs:p-4"></p>{" "}
+                <p className=" text-[#7e7e7e]"> {itemdata.description} </p>
               </div>
 
-              <div className="p-4">
+              <div className="p-10 text-[#7e7e7e]">
                 Description:
                 <br />
                 1. Weight: 200 GSM

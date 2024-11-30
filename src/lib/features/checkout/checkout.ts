@@ -46,11 +46,29 @@ export const checkoutSlice = createSlice({
       state.checkoutItems= [];
     },
 
+    setItems: (state, action: PayloadAction<cartItems[]> ) => {
+      state.checkoutItems = action.payload;
+    },
+
+    incQnt: (state, action: PayloadAction< cartItems>) => {
+
+      if( state.checkoutItems) {
+        state.checkoutItems = state.checkoutItems.map((item) => {
+          if (item.itemId === action.payload.itemId) {
+            return action.payload;
+          }
+          // Return the unchanged item if itemId does not match
+          return item;
+        });
+      }
+
+    }
+    
   }
 });
 
 // Optionally, you can export the actions if needed
-export const { pushItem , removeCheckoutItem , clearCheckout} = checkoutSlice.actions;
+export const { pushItem , incQnt, removeCheckoutItem , clearCheckout, setItems} = checkoutSlice.actions;
 
 // Selector to access checkoutItems
 export const selectCheckoutItems = (state: RootState) => state.checkout.checkoutItems;

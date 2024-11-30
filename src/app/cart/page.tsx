@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { removeFromCart , selectCartItems, updateQnt } from '@/lib/features/carts/cartSlice';
 import { itemsDataInCart } from '@/lib/features/items/items';
-import { pushItem, removeCheckoutItem, clearCheckout } from '@/lib/features/checkout/checkout';
+import { setItems, incQnt, removeCheckoutItem, clearCheckout, selectCheckoutItems } from '@/lib/features/checkout/checkout';
 import { GoChevronDown } from "react-icons/go";
 
 interface cartItems {
@@ -23,8 +23,6 @@ interface cartItems {
 
 
 const CartPage = () => {
-
-  const [cartItems, setCartItems] = useState<cartItems[]>([]);  // Initialize with empty array
 
   const [ couponErr , setCouponErr ] = useState("");
   const [couponOpen, setCouponOpen] = useState(false);
@@ -46,75 +44,75 @@ const CartPage = () => {
   // Fetch cart items from Redux store
   const itemsFromStore = useAppSelector(selectCartItems);
   const allItems = useAppSelector(itemsDataInCart);
+  const cartItems = useAppSelector(selectCheckoutItems);
 
   const [ outOfStock , setOutOfStock ] =useState<cartItems[]>([]);
 
   useEffect(() => {
-
     const carts: cartItems[] = [];
     const out: cartItems[] = [];
-
-    dispatch( clearCheckout() );
   
-    itemsFromStore.map((item) => {
-      // Get the item data based on itemId
-      const itemData = allItems?.find((card) => card.id === item.itemId.toString());
+    dispatch(clearCheckout());
+    console.log("at the starting phase");
   
-      // Initialize stock as 0 (default)
+    itemsFromStore.forEach((item) => {
+      const itemData = allItems?.find((card) => Number(card.id) === item.itemId); // changed filter to find
       let stock = 0;
   
-      // If itemData is found, calculate stock based on the size
       if (itemData) {
-        // Calculate stock based on size
         switch (item.size) {
           case 'Small':
-            stock =  itemData.quantity[0] - item.qnt ;
+            stock = itemData.quantity[0] - item.qnt;
             break;
           case 'Medium':
-            stock =  itemData.quantity[1] - item.qnt ;
+            stock = itemData.quantity[1] - item.qnt;
             break;
           case 'Large':
-            stock =   itemData.quantity[2] - item.qnt ;
+            stock = itemData.quantity[2] - item.qnt;
             break;
           case 'XL':
-            stock =    itemData.quantity[3] - item.qnt ;
+            stock = itemData.quantity[3] - item.qnt;
             break;
           case 'XXL':
-            stock =   itemData.quantity[4] - item.qnt;
+            stock = itemData.quantity[4] - item.qnt;
             break;
           default:
-            stock = -1; // If no matching size, set stock to 0
+            stock = -1;
             break;
         }
-      }
   
-      // Create the item object
-      const data = {
-        itemId: item.itemId,
-        qnt: item.qnt,
-        price: item.price,
-        title: item.title,
-        image: item.image,
-        size: item.size,
-        docId: item.docId,
-        stock: stock
-      };
+        const data = {
+          itemId: item.itemId,
+          qnt: item.qnt,
+          price: item.price,
+          title: item.title,
+          image: item.image,
+          size: item.size,
+          docId: item.docId,
+          stock: stock
+        };
   
-      // Add to appropriate array based on stock
-      if (stock >= 0) {
-        carts.push(data); // Add to carts if stock is available
-        dispatch( pushItem(data))
-      } else {
-        out.push(data); // Add to out-of-stock if stock is 0 or negative
+        if (stock >= 0) {
+          carts.push(data);
+        } else {
+          out.push(data);
+        }
       }
     });
   
-    // Update state with cart and out-of-stock items
-    setCartItems(carts);
+    dispatch(setItems(carts));
     setOutOfStock(out);
+  }, [itemsFromStore, allItems]); // Dependencies
   
-  }, [itemsFromStore, allItems]); // Make sure to include allItems as a dependency
-    // Update only when itemsFromStore changes
+  const incHandler = (itemId: number, quantity: number) => {
+    const item = cartItems?.find((card) => card.itemId === itemId);
+    if (item && Math.abs( item.stock - quantity ) > 0 ) {
+      const updatedItem = { ...item, qnt: item.qnt + 1, stock: item.stock - 1 };
+      dispatch(incQnt(updatedItem));
+    }
+  };
+  
+  
 
   const router = useRouter();
 
@@ -124,65 +122,21 @@ const CartPage = () => {
     dispatch( removeCheckoutItem(id));
   };
 
-  const incHandler = ( itemId: number, quantity: number, size: string) => {
-
-    const itemData = allItems?.find((card) => card.id === itemId.toString());
-    
-    switch( size ) {
-      case 'Small': 
-            if( itemData &&  quantity+1 <= itemData?.quantity[0] )
-            {
-              const num= quantity+1;
-              dispatch( updateQnt({ itemId: itemId, quantity: num }))
-            }
-            break;
-
-      case 'Medium': 
-          if( itemData &&  quantity+1 <= itemData?.quantity[1] )
-          {
-            const num= quantity+1;
-            dispatch( updateQnt({ itemId: itemId, quantity: num }))
-          }
-          break;
-
-      case 'Large': 
-          if( itemData &&  quantity+1 <= itemData?.quantity[1] )
-          {
-            const num= quantity+1;
-            dispatch( updateQnt({ itemId: itemId, quantity: num }))
-          }
-          break;
-
-      case 'XL': 
-          if( itemData &&  quantity+1 <= itemData?.quantity[1] )
-          {
-            const num= quantity+1;
-            dispatch( updateQnt({ itemId: itemId, quantity: num }))
-          }
-          break;
-
-      case 'XXL': 
-          if( itemData &&  quantity+1 <= itemData?.quantity[1] )
-          {
-            const num= quantity+1;
-            dispatch( updateQnt({ itemId: itemId, quantity: num }))
-          }
-          break;
-    }
-
-      
-  };
 
   const decHandler = ( itemId: number, quantity: number) => {
     const num= quantity-1;
     dispatch( updateQnt({ itemId: itemId, quantity: num }))
 };
 
-  const total = cartItems.reduce((acc, item) => acc + item.price * item.qnt, 0);
+ 
+
+
+
+  const total = cartItems ? cartItems.reduce((acc, item) => acc + item.price * item.qnt, 0) : 0;
 
   return (
     <div className="relative">
-  {cartItems.length > 0 ? (
+  { cartItems && cartItems.length > 0 ? (
     <>
       <div className="lg:px-10 sm:p-4 xs:p-3 md:p-6 xl:p-8 sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row flex justify-between w-full items-start">
         
@@ -223,12 +177,17 @@ const CartPage = () => {
                   </button>
                   <span className="w-[33%] grow text-center">{item.qnt}</span>
                   <button
-                    className="border-l-2 text-center w-[34%] disabled:opacity-55"
-                    onClick={() => incHandler(item.itemId, item.qnt, item.size)}
-                  >
-                    +
+  className="border-l-2 text-center w-[34%] disabled:opacity-55"
+  onClick={() => incHandler(item.itemId, item.qnt)}
+  disabled={ item.stock === 0 }  //Direct boolean value
+
+>
+                    + 
+                  
                   </button>
                 </div>
+
+                <span> true or false {item.stock - item.qnt === 0}</span>
 
                 <span
                   className="flex items-center gap-1 pb-1 underline"
@@ -276,7 +235,7 @@ const CartPage = () => {
                   <span className="w-[33%] grow text-center">{item.qnt}</span>
                   <button
                     className="border-l-2 text-center w-[34%] disabled:opacity-55"
-                    onClick={() => incHandler(item.itemId, item.qnt, item.size)}
+                    onClick={() => incHandler(item.itemId, item.qnt)}
                   >
                     +
                   </button>

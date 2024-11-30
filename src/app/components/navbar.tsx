@@ -21,6 +21,8 @@ const Navbar = () => {
 
   const [ sideNav, setSideNav ] = useState(false);
 
+  const [ dropDown, setDropDown ] = useState(false);
+
   const itemsFromStore = useAppSelector(selectCartItems);
   const itemsFromWish = useAppSelector(selectWishlistItems);
   const [showSearch, setShowSearch] = useState(false); // Track visibility of the search bar
@@ -29,9 +31,6 @@ const Navbar = () => {
   const toggleSearchBar = () => {
     setShowSearch(!showSearch); // Toggle the search bar visibility
   };
-
-  
-
 
 
   useEffect(() => {
@@ -86,9 +85,20 @@ const Navbar = () => {
               
             </li>
 
-            <li>
+            <li className="relative" onMouseLeave={() => setDropDown(false)} onMouseEnter={ () => setDropDown(true) }  >
               <Link href="/products" 
+            
               >Collections</Link>
+
+<ul  className={`z-10 bg-white text-black duration-400 ease-in-out absolute ${dropDown ? "block" : "hidden"} transition-all`}>
+   <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "0ms" }}>Streetwear</li>
+        <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "150ms" }}>Polo</li>
+        <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "300ms" }}>Hoodies</li>
+        <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "450ms" }}>Oversized</li>
+      
+</ul>
+
+
             </li>
 
             <li>
