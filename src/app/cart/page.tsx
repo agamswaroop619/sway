@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { removeFromCart , selectCartItems, updateQnt } from '@/lib/features/carts/cartSlice';
 import { itemsDataInCart } from '@/lib/features/items/items';
-import { setItems, incQnt, removeCheckoutItem, clearCheckout, selectCheckoutItems } from '@/lib/features/checkout/checkout';
+import { setItems,  removeCheckoutItem, clearCheckout, selectCheckoutItems } from '@/lib/features/checkout/checkout';
 import { GoChevronDown } from "react-icons/go";
 
 interface cartItems {
@@ -108,7 +108,9 @@ const CartPage = () => {
     const item = cartItems?.find((card) => card.itemId === itemId);
     if (item && Math.abs( item.stock - quantity ) > 0 ) {
       const updatedItem = { ...item, qnt: item.qnt + 1, stock: item.stock - 1 };
-      dispatch(incQnt(updatedItem));
+      const qnt: number= updatedItem.qnt;
+     // dispatch(incQnt(updatedItem));
+      dispatch( updateQnt({itemId: itemId , quantity: qnt }));
     }
   };
   
@@ -128,15 +130,12 @@ const CartPage = () => {
     dispatch( updateQnt({ itemId: itemId, quantity: num }))
 };
 
- 
-
-
 
   const total = cartItems ? cartItems.reduce((acc, item) => acc + item.price * item.qnt, 0) : 0;
 
   return (
     <div className="relative">
-  { cartItems && cartItems.length > 0 ? (
+  { itemsFromStore && itemsFromStore.length > 0 ? (
     <>
       <div className="lg:px-10 sm:p-4 xs:p-3 md:p-6 xl:p-8 sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row flex justify-between w-full items-start">
         
@@ -148,7 +147,7 @@ const CartPage = () => {
           </div>
        
          <div className=''>
-         {cartItems.map((item: cartItems) => (
+         { cartItems && cartItems.map((item: cartItems) => (
             <div key={item.itemId} className="mb-2 flex border-t w-full hover:cursor-pointer">
               <img
                 src={item.image}
@@ -203,8 +202,9 @@ const CartPage = () => {
           
 
      
-      {outOfStock.length > 0 && (
-        <div className="md:w-7/12 lg:w-7/12 xl:w-7/12 sm:w-full xs:w-full">
+          <div>
+          {outOfStock.length > 0 && (
+        <div className="">
           <h2 className='my-3  text-lg'>Out of Stock</h2>
           {outOfStock.map((item: cartItems) => (
             <div key={item.itemId} className="mb-2 flex border-t w-full hover:cursor-pointer">
@@ -253,6 +253,7 @@ const CartPage = () => {
           ))}
         </div>
       )}
+          </div>
 
         </div>
 
@@ -316,8 +317,6 @@ const CartPage = () => {
         </div>
       </div>
 
-      {/* Out of stock items */}
-     
       
     </>
   ) : (

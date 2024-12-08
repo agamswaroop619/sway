@@ -9,22 +9,26 @@ import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store"; // Import the RootState type
 import { RiMenu2Fill } from "react-icons/ri";
-import SideNavBar from "./SideNavBar";
+
 
 const selectCartItems = (state: RootState) => state.cart.items;
-const selectWishlistItems = (state: RootState) => state.wishlist.items;
+const userInfo = (state: RootState) => state.user.userProfile;
 
-const Navbar = () => {
+type NavbarProps = {
+  sideNav: boolean;
+  setSideNav: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const Navbar =({ sideNav, setSideNav }: NavbarProps) => {
   const [search, setSearch] = useState("");
   const [not, setNot] = useState(0); // 'not' to store the count of cart items
   const [wish, setWish] = useState(0); // 'wish' to store
 
-  const [ sideNav, setSideNav ] = useState(false);
 
   const [ dropDown, setDropDown ] = useState(false);
 
   const itemsFromStore = useAppSelector(selectCartItems);
-  const itemsFromWish = useAppSelector(selectWishlistItems);
+  const itemsFromWish = useAppSelector(userInfo)?.wishlist || [];
   const [showSearch, setShowSearch] = useState(false); // Track visibility of the search bar
 
 
@@ -54,21 +58,15 @@ const Navbar = () => {
   return (
     <div>
 
-      {
-        sideNav && <div>
-          < SideNavBar  setSideNav={ setSideNav} />
-          </div>
-      }
 
       <header className="flex  px-3   text-white w-full py-4 mb-2 justify-between items-center">
 
 
         <div className="block   md:hidden lg:hidden xl:hidden">
-        <RiMenu2Fill onClick={() => setSideNav(true) }  />
+        <RiMenu2Fill onClick={() => setSideNav(!sideNav) }  />
         </div>
 
        
-
         <Link href="/" className="w-2/12">
           <h2 className="text-2xl items-center  flex">
           <img className="h-10" src="https://res.cloudinary.com/dbkiysdeh/image/upload/v1729970708/Untitled_Project_5_d2qnlz.jpg" alt="" />
@@ -140,11 +138,11 @@ const Navbar = () => {
         !showSearch && <div className="flex w-[70%] justify-between items-center"> 
           <Link href="/wishlist" className="flex ">
             <CiHeart />
-            <sup className="text-sm "> {wish} </sup>
+            <sup className="text-sm "> {wish > 0 && wish } </sup>
           </Link>
 
           <Link href="/cart" className="flex hover:text-white transition-colors duration-300 ease">
-            <CiShoppingCart /> <sup className="text-sm  ">{not}</sup>
+            <CiShoppingCart /> <sup className="text-sm  ">{not > 0 && not}</sup>
           </Link>
 
           <Link href="/profile">

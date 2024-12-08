@@ -85,7 +85,9 @@ if (storedEmail && storedEmail !== user.email) {
             postalCode: "",
             state: "",
             country: ""
-          }
+          },
+          wishlist: [],
+          cart: [],
         };
 
         dispatch(setUser(userData));
@@ -109,7 +111,9 @@ if (storedEmail && storedEmail !== user.email) {
               postalCode: "",
               state: "",
               country: ""
-            }
+            },
+            wishlist: [],
+            cart: [],
           }
 
           dispatch( setUser(userData));

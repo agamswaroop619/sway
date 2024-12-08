@@ -1,10 +1,11 @@
+
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "./components/navbar";
 import React from "react";
 import StoreProvider from "./StoreProvider";
 import { Toaster } from "react-hot-toast";
 import Footer from "./components/Footer";
+import ClientLayout from "./ClientLayout";
 
 export const metadata: Metadata = {
   title: "Sway Club",
@@ -16,6 +17,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+ 
   return (
     <html lang="en">
       <head>
@@ -27,10 +30,9 @@ export default function RootLayout({
       <body className="antialiased">
         <div className="flex flex-col  overflow-x-hidden select-none relative">
           <StoreProvider>
-            {React.createElement(Navbar)}
-
-            {/* Main content should grow and take available space */}
-            <div className="flex-grow">{children}</div>
+          
+          <ClientLayout>{children}</ClientLayout>
+            
            
             <Footer/>
             <Toaster />

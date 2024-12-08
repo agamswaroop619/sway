@@ -40,6 +40,7 @@ const GoogleLogin = () => {
                       },
                     phone: "" ,
                     orders: [],
+                    wishlist: []
                 });
             
                 const user = {
@@ -58,6 +59,8 @@ const GoogleLogin = () => {
                     orders: [],
                     refreshToken: result.user.refreshToken || "",
                     accessToken: "",
+                    wishlist: [],
+                    cart: []
                 };
             
                 dispatch(setUser(user));
@@ -80,6 +83,8 @@ const GoogleLogin = () => {
                     orders: userDoc.data().orders,
                     refreshToken: result.user.refreshToken || "",
                     accessToken: "",
+                    wishlist: [],
+                    cart: []
                 };     
                 dispatch(setUser(user)); // You may want to add this dispatch for consistency
             }

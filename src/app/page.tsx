@@ -13,10 +13,7 @@ export default function Home() {
           <h3 className="text-[#3fe607] text-7xl font-bold">SWAY</h3>
 
           <p className="">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus
-            quis repellendus odio ratione quaerat doloribus sapiente error? Est
-            quam dolore asperiores ratione iusto architecto vitae?
-          </p>
+            Sway is a cool and comfy clothing brand. Our styles mix modern trends with classic vibes fir vintage yet stylish look. We ensure the quality of the fabric and comfortability of the fabric and comfortability of the product.</p>
 
          <Link href="/products">
          <button   className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">

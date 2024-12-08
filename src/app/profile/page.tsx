@@ -219,7 +219,9 @@ const Page = () => {
                     <h2 className="text-xl mb-3  pb-2">Orders </h2>
 
                     <div className="flex justify-between pb-2 border-b mb-4">
-                      <span className="bg-slate-400">Product</span><span className="bg-slate-400">Product Title</span><span className="bg-slate-400">Shipment Id</span>
+                      <span className="">Product</span>
+                      <span className="">Product Title</span>
+                      <span className="">Shipment Id</span>
                     </div>
 
                     {newOrders && newOrders.length > 0 ? (
@@ -231,9 +233,14 @@ const Page = () => {
                            
                            <p> {item.shipmentId ||
                                   `${
-                                    item.title.substring(0, 3) +
+                                    item.title.substring(0, 5) +
                                     Math.floor(Math.random() * 100000 + 1)
-                                  }`} </p>
+                                  }`}
+                                  
+                                  ...
+                                   </p>
+
+                          
                         
                         </div>
                       ))

@@ -7,7 +7,7 @@ interface Image {
   imgId: number;
 }
 
-interface Review {
+export interface Review {
  review: string
   userRating: number,
   userId: string,
