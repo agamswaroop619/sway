@@ -104,11 +104,6 @@ useEffect(() => {
   applyFiltersAndSorting();
 }, [applyFiltersAndSorting]);
 
-// Paginate data
-const paginatedData = useMemo(() => {
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  return shopData.slice(startIndex, startIndex + itemsPerPage);
-}, [shopData, currentPage, itemsPerPage]);
 
 
 
@@ -122,15 +117,17 @@ const sizeFilter = (size: string) => {
   setFilterSize(size);
 };
 
-const [totalPages, setTotalPages] = useState(0);
+let totalPages: number = 0;
+  let currentItems: Item[] = [];
 
-useEffect(() => {
-  if (shopData.length > 0) {
-    const pages = Math.ceil(shopData.length / itemsPerPage);
-    setTotalPages(pages);
-    setCurrentPage((prevPage) => (prevPage > pages ? pages : prevPage));
+  // pagination of items
+  if (shopData && shopData.length > 0) {
+    // Calculate pagination
+    const totalItems = shopData.length;
+    totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    currentItems = shopData.slice(startIndex, startIndex + itemsPerPage);
   }
-}, [shopData]);
 
 
 
@@ -344,10 +341,10 @@ useEffect(() => {
         </div>
 
         <div className="flex my-2 mx-4 flex-wrap justify-between w-full">
-          {shopData.length === 0 ? (
+          {currentItems.length === 0 ? (
             <p>No products found</p>
           ) : (
-            shopData.map((item: Item) => (
+            currentItems.map((item: Item) => (
               <Link
                 key={item.id}
                 href={`/products/${item.id}`}

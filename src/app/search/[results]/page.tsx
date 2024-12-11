@@ -1,198 +1,180 @@
 "use client";
-import { useParams } from "next/navigation";
-import React, { useState, useEffect } from "react";
-import { useAppSelector } from "@/lib/hooks";
-import { itemsDataInCart } from "@/lib/features/items/items";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { CiFilter } from "react-icons/ci";
-import { useRouter } from "next/navigation";
 import { MdOutlineClear } from "react-icons/md";
+import { useRouter } from "next/navigation";
 import { IoSearchOutline } from "react-icons/io5";
-import { Item } from "@/lib/features/items/items";
+import { useAppSelector, useAppDispatch } from "@/lib/hooks";
+import { Item, itemsDataInCart } from "@/lib/features/items/items";
 import { getData } from "@/app/utils/getData";
 import { setItemsData } from "@/lib/features/items/items";
-import { useDispatch } from "react-redux";
+import { StarRating } from "@/app/components/Rating";
 import RangeSlider from "@/app/components/RangeSlider";
+import { useParams } from "next/navigation";
+import { useMemo } from "react";
+import { useCallback } from "react";
+import { useSearchParams } from 'next/navigation';
 
-const SearchPage = () => {
-
-
+const ProductsPage = () => {
+  
   const params = useParams();
   const query = params.results;
   const input = String(query).replace(/%20/g, " ");
+  console.log(" params : ", params)
+ 
+const dispatch = useAppDispatch();
+const router = useRouter();
 
-  // Call all hooks at the top level of the component
-  const dataFromCart = useAppSelector(itemsDataInCart); // Do this only once at the top level
-  const dispatch = useDispatch();
-  const router = useRouter();
+const [floatSiderbar, setFloatSiderbar] = useState(false);
+const [filter, setFilter] = useState("default");
+const [shopData, setShopData] = useState<Item[]>([]);
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 12;
 
-  // state management
-  const [data, setData] = useState<Item[] | null>(null); // State to store data
-  const [searchData, setSearchData] = useState<Item[]>([]); // For storing search results
-  const [info, setInfo] = useState<Item[]>([]); // For filtered and search results
+const [min, setMin] = useState(100);
+const [max, setMax] = useState(1000);
 
-  const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false); // For mini screen sidebar
-  const [filter, setFilter] = useState<string>(""); // For filtering data
+const data = useAppSelector(itemsDataInCart) || [];
+const [filterRating, setFilterRating] = useState(0);
+const [filterSize, setFilterSize] = useState("all");
 
-  const [status, setStatus] = useState(false); // For "products not found" status
+const searchParams = useSearchParams();
+const currentQuery = searchParams.get("orderby") || "default";
 
-  const [min, setMin] = useState(100);
-  const [max, setMax] = useState(1000);
-
-  const [filterSize, setFilterSize] = useState("");
-  const [filterRating, setFilterRating] = useState(0);
-
-  const ratingFilter = (rating: number) => {
-    setFilterRating(rating);
-
-    if (data) {
-      if (rating < 1) {
-        setSearchData(data);
-      } else {
-        const originalData = [...data];
-        const filteredData = originalData.filter(
-          (item) => item.review >= rating
-        );
-        setSearchData(filteredData);
-      }
-    }
-  };
-
-  // filter using size
-  const sizeFilter = (size: string) => {
-    setFilterSize(size);
-
-    if (data) {
-      if (size === "all") {
-        setSearchData(data);
-      } else {
-        const originalData = [...data];
-
-        let idx = 0;
-        switch (size) {
-          case "small":
-            idx = 0;
-            break;
-          case "medium":
-            idx = 1;
-            break;
-          case "large":
-            idx = 2;
-            break;
-          case "xl":
-            idx = 3;
-            break;
-          case "xxl":
-            idx = 4;
-            break;
-        }
-
-        const filteredData = originalData.filter(
-          (item) => item.quantity[idx] > 0
-        );
-        setSearchData(filteredData);
-      }
-    }
-  };
-
-  // Set initial data using useAppSelector
-  useEffect(() => {
-    if (dataFromCart && dataFromCart.length > 0) {
-      setData(dataFromCart);
-    } else {
-      setData(null); // Ensure data is set to null if there's no cart data
-    }
-  }, [dataFromCart]);
-
-  useEffect( () => {
-
-    if( data && ( min !== 100 || max != 1000 )){
-      let filteredData = [...data];
-     filteredData = filteredData.filter(item => item.price >= min && item.price <= max);
-     setSearchData(filteredData);
-    }
-  
-  }, [data, searchData, min, max])
-
-  // Handle data fetching if not available
-  useEffect(() => {
-    if (!data) {
-      getData()
-        .then((fetchedData) => {
-          if (fetchedData && fetchedData.length > 0) {
-            dispatch(setItemsData(fetchedData)); // Dispatch to Redux state
-            setData(fetchedData); // Update local state
-          } else {
-            dispatch(setItemsData([])); // Dispatch empty data in case of no results
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-          dispatch(setItemsData([])); // Handle error by dispatching empty array
-        });
-    }
-  }, [data, dispatch]);
-
-  // Perform search based on the input
-  useEffect(() => {
-    if (data && data.length > 0) {
-      const searchResults = data.filter((item) => {
-        const normalizedInput = input.toLowerCase();
-        const normalizedTitle = item.title.toLowerCase();
-        const categoryMatch = item.category.some((cat) =>
-          cat.toLowerCase().includes(normalizedInput)
-        );
-
-        return normalizedTitle.includes(normalizedInput) || categoryMatch;
+// Fetch data if not in Redux store
+useEffect(() => {
+  if (data.length === 0) {
+    getData()
+      .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        dispatch(setItemsData([]));
       });
+  }
+}, [dispatch, data.length]);
 
-      if (searchResults.length < 1) {
-        setStatus(true); // No products found
-      } else {
-        setStatus(false); // Reset status if products are found
-        setInfo(searchResults); // Update filtered info
-        setSearchData(searchResults); // Update search data
-      }
+const filteredData = useMemo(() => {
+
+  if (data && data.length > 0) {
+    const searchResults = data.filter((item) => {
+      const normalizedInput = input.toLowerCase();
+      const normalizedTitle = item.title.toLowerCase();
+      const categoryMatch = item.category.some((cat) =>
+        cat.toLowerCase().includes(normalizedInput)
+      );
+      return normalizedTitle.includes(normalizedInput) || categoryMatch;
+    });
+    return searchResults.length > 0 ? searchResults : [];
+  }
+  return [];
+}, [data]);
+
+
+const applyFiltersAndSorting = useCallback(() => {
+
+
+  let processedData = [...filteredData];
+
+  // Filter by rating
+  if (filterRating > 0) {
+    processedData = processedData.filter((item) => item.review >= filterRating);
+  }
+
+  // Filter by size
+  if (filterSize !== "all") {
+    const sizeIndexMap: Record<string, number> = {
+      small: 0,
+      medium: 1,
+      large: 2,
+      xl: 3,
+      xxl: 4,
+    };
+    const idx = sizeIndexMap[filterSize];
+    processedData = processedData.filter((item) => item.quantity[idx] > 0);
+  }
+
+  // Filter by price range
+  if (min !== 100 || max !== 1000) {
+    processedData = processedData.filter(
+      (item) => item.price >= min && item.price <= max
+    );
+  }
+
+  // Sort data
+  switch (filter) {
+    case "rating":
+      processedData.sort((a, b) => b.review - a.review);
+      break;
+    case "low":
+      processedData.sort((a, b) => a.price - b.price);
+      break;
+    case "high":
+      processedData.sort((a, b) => b.price - a.price);
+      break;
+  }
+
+  // Update state
+  setShopData((prevData) => {
+    if (JSON.stringify(prevData) !== JSON.stringify(processedData)) {
+      return processedData;
     }
-  }, [input, data]);
+    return prevData;
+  });
 
-  // Handle sorting/filtering when filter changes
-  useEffect(() => {
-    if (filter !== "default" && filter !== "" && data && data.length > 0) {
-      router.push(`/search/${input}?orderby=${filter}`);
-      let filteredData = [...searchData]; // Create a shallow copy to avoid mutating the original array
+  setCurrentPage(1);
 
-      switch (filter) {
-        case "popular":
-          // Sorting logic for popular (implement if available)
-          break;
-        case "latest":
-          // Sorting logic for latest (implement if available)
-          break;
-        case "rating":
-          filteredData = filteredData.sort((a, b) => b.review - a.review); // Sort by review rating
-          break;
-        case "low":
-          filteredData = filteredData.sort((a, b) => a.price - b.price); // Sort by low price
-          break;
-        case "high":
-          filteredData = filteredData.sort((a, b) => b.price - a.price); // Sort by high price
-          break;
-        default:
-          break;
-      }
+  // Update query parameters
+  if (currentQuery !== filter) {
+    const query = filter !== "default" ? `?orderby=${filter}` : "";
+    router.push(`/search/${params.results}${query}`);
+  }
+}, [
+  filteredData,
+  filter,
+  filterRating,
+  filterSize,
+  min,
+  max,
+  params.results,
+]);
 
-      setSearchData(filteredData); // Update searchData with sorted data
-    } else {
-      router.push(`/search/${input}`);
-    }
-  }, [filter, router, data, input]);
 
-  if (info.length > 0)
-    return (
-      <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
-        
-             {/* Mobile view filter button */}
+
+useEffect(() => {
+  applyFiltersAndSorting();
+}, [applyFiltersAndSorting]);
+
+
+
+// Rating filter
+const ratingFilter = (rating: number) => {
+  setFilterRating(rating);
+};
+
+// Size filter
+const sizeFilter = (size: string) => {
+  setFilterSize(size);
+};
+
+let totalPages: number = 0;
+  let currentItems: Item[] = [];
+
+  // pagination of items
+  if (shopData && shopData.length > 0) {
+    // Calculate pagination
+    const totalItems = shopData.length;
+    totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    currentItems = shopData.slice(startIndex, startIndex + itemsPerPage);
+  }
+
+
+
+  return (
+    <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
+      
+          {/* Mobile view filter button */}
 <div className="p-6 border w-full relative hidden xs:block sm:block md:hidden lg:hidden xl:hidden">
   <div className="flex w-full items-center mb-2 justify-around">
     <CiFilter
@@ -379,27 +361,30 @@ const SearchPage = () => {
   </div>
 </div>
 
-        {/* Products */}
-        <div className="flex flex-wrap justify-between w-[100vw]">
-          <div className="h-14  py-4 flex justify-between items-center w-[100%] mx-8">
-            <span className="hidden lg:block md:block xl:block">
-              Displaying result
-            </span>
-            <select
-              className="bg-black p-2 hidden lg:block md:block xl:block border focus:outline-none"
-              onChange={(e) => setFilter(e.target.value)}
-            >
-              <option value="default">Default sorting</option>
-              <option value="popular">Sort by popularity</option>
-              <option value="latest">Sort by latest</option>
-              <option value="rating">Sort by average rating</option>
-              <option value="low">Sort by Price: Low to high</option>
-              <option value="high">Sort by Price: High to low</option>
-            </select>
-          </div>
+      {/* Products */}
+      <div className="flex flex-wrap justify-between w-[100vw]">
+        <div className="h-14 py-4 flex justify-between items-center w-[100%] mx-8">
+          <span className="hidden lg:block md:block xl:block">
+            Displaying result
+          </span>
+          <select
+            className="bg-black p-2 hidden lg:block md:block xl:block border focus:outline-none"
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="default">Default sorting</option>
+            <option value="popular">Sort by popularity</option>
+            <option value="latest">Sort by latest</option>
+            <option value="rating">Sort by average rating</option>
+            <option value="low">Sort by Price: Low to high</option>
+            <option value="high">Sort by Price: High to low</option>
+          </select>
+        </div>
 
-          <div className="flex my-2 mx-4 flex-wrap justify-between  w-full ">
-            {searchData.map((item) => (
+        <div className="flex my-2 mx-4 flex-wrap justify-between w-full">
+          {currentItems.length === 0 ? (
+            <p>No products found</p>
+          ) : (
+            currentItems.map((item: Item) => (
               <Link
                 key={item.id}
                 href={`/products/${item.id}`}
@@ -409,7 +394,7 @@ const SearchPage = () => {
                   <img
                     src={item.images[0].url}
                     alt="image1"
-                    className="w-[100%] h-[100%] object-cover  transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0"
+                    className="w-[100%] h-[100%] object-cover transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0"
                   />
                   <img
                     src={item.images[1].url}
@@ -418,33 +403,50 @@ const SearchPage = () => {
                   />
                 </div>
                 <div className="w-full p-3 text-center">
-                  <h3 className="mb-2">
-                    {item.title} | Oversized-T-shirt | Sway Clothing
-                  </h3>
+                  <h3 className="mb-2">{item.title}</h3>
                   <p>₹{item.price}</p>
+
+                  <div className="w-full flex items-center justify-center ">
+                    {item.review > 0 && (
+                      // Calculate the average rating from the user reviews
+                      <StarRating rating={item.review} />
+                    )}
+                  </div>
                 </div>
               </Link>
-            ))}
-          </div>
+            ))
+          )}
         </div>
+    
+          {/* Pagination */}
+          <div className="flex justify-center mt-4 w-full">
+  <button
+    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+    disabled={currentPage === 1}
+    className={`px-4 py-2 rounded mr-2 ${
+      currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+    }`}
+  >
+    Previous
+  </button>
+  <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
+  <button
+    onClick={() =>
+      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+
+    }
+    disabled={currentPage === totalPages}
+    className={`px-4 py-2 rounded ml-2 ${
+      currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+    }`}
+  >
+    Next
+  </button>
+</div>
+
       </div>
-    );
-  else if (status === true)
-    return (
-      <div className="flex flex-col w-full h-screen justify-center items-center text-2xl">
-        <p className="pb-4"> Products not found ...</p>
-        <Link href="/products">
-          <p className="border p-2 rounded-md bg-gray-300 text-black">
-            {" "}
-            Back to products
-          </p>
-        </Link>
-      </div>
-    );
-  else
-    <div className="flex w-full h-screen justify-center items-center text-2xl ">
-      Loading...
-    </div>;
+    </div>
+  );
 };
 
-export default SearchPage;
+export default ProductsPage;

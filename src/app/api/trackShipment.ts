@@ -1,7 +1,7 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from 'next/server';
 
-export default async function handler(req: NextRequest, res: NextResponse) {
+export default async function handler(req: NextRequest) {
   if (req.method === "GET") {
     const { shipmentId } = await req.json();
 

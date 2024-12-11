@@ -9,133 +9,108 @@ import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { Item, itemsDataInCart } from "@/lib/features/items/items";
 import { getData } from "@/app/utils/getData";
 import { setItemsData } from "@/lib/features/items/items";
-import { StarRating } from "../components/Rating";
-import RangeSlider from "../components/RangeSlider";
+import { StarRating } from "@/app/components/Rating";
+import RangeSlider from "@/app/components/RangeSlider";
+import { useCallback } from "react";
 
 const ProductsPage = () => {
-  const dispatch = useAppDispatch();
-  const [floatSiderbar, setFloatSiderbar] = useState<boolean>(false);
-  const [filter, setFilter] = useState<string>("default");
-  const [shopData, setShopData] = useState<Item[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 12; // Number of products to show per page
+  
 
-  const data = useAppSelector(itemsDataInCart) || []; // Provide a default empty array
-  const router = useRouter();
+const dispatch = useAppDispatch();
+const router = useRouter();
 
-  const [min, setMin] = useState(100);
-  const [max, setMax] = useState(1000);
+const [floatSiderbar, setFloatSiderbar] = useState(false);
+const [filter, setFilter] = useState("default");
+const [shopData, setShopData] = useState<Item[]>([]);
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 12;
 
-  useEffect(() => {
-    if (data.length === 0) {
-      getData()
-        .then((fetchedData) => {
-          if (fetchedData && fetchedData.length > 0) {
-            dispatch(setItemsData(fetchedData)); // Properly dispatch to update the Redux state
-          } else {
-            dispatch(setItemsData([])); // Handle no fetched data case
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-          dispatch(setItemsData([])); // Handle error case by dispatching an empty array
-        });
-    } else {
-      setShopData(data); // If data exists, update shopData state
-    }
-  }, [data, dispatch]);
+const [min, setMin] = useState(100);
+const [max, setMax] = useState(1000);
 
-  // Whenever the data changes, update shopData accordingly
-  useEffect(() => {
-    if (data.length > 0) {
-      setShopData(data);
-    }
-    console.log("data is ", data);
-  }, [data]);
+const data = useAppSelector(itemsDataInCart) || [];
+const [filterRating, setFilterRating] = useState(0);
+const [filterSize, setFilterSize] = useState("all");
 
-  // Filter and sort logic
-  useEffect(() => {
-    if (filter !== "default" && data && data.length > 0) {
-      router.push(`/products?orderby=${filter}`);
-      let filteredData = [...data]; // Create a shallow copy to avoid mutating original data
+// Fetch data if not in Redux store
+useEffect(() => {
+  if (data.length === 0) {
+    getData()
+      .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        dispatch(setItemsData([]));
+      });
+  }
+}, [dispatch, data.length]);
 
-      if (filter === "popular") {
-        // Implement popular sorting logic here
-      } else if (filter === "latest") {
-        // Implement latest sorting logic here
-      } else if (filter === "rating") {
-        filteredData = filteredData.sort((a, b) => b.review - a.review); // Sort by rating
-      } else if (filter === "low") {
-        filteredData = filteredData.sort((a, b) => a.price - b.price); // Sort by low price
-      } else if (filter === "high") {
-        filteredData = filteredData.sort((a, b) => b.price - a.price); // Sort by high price
-      }
 
-      setShopData(filteredData);
-    } else {
-      router.push(`/products`);
-      if (data && data.length > 0) setShopData(data);
-    }
-    setCurrentPage(1); // Reset to page 1 when the filter changes
-  }, [filter, data, router]);
 
-  const [filterRating, setFilterRating] = useState(0);
-  const [filterSize, setFilterSize] = useState("all");
+// Apply filters and sorting
+const applyFiltersAndSorting = useCallback(() => {
+  let processedData = [...data];
 
-  const ratingFilter = (rating: number) => {
-    setFilterRating(rating);
+  // Filter by rating
+  if (filterRating > 0) {
+    processedData = processedData.filter((item) => item.review >= filterRating);
+  }
 
-    if (data) {
-      if (rating < 1) {
-        setShopData(data);
-      } else {
-        const originalData = [...data];
-        const filteredData = originalData.filter(
-          (item) => item.review >= rating
-        );
-        setShopData(filteredData);
-      }
-    }
-  };
+  // Filter by size
+  if (filterSize !== "all") {
+    const sizeIndexMap: Record<string, number> = {
+      small: 0,
+      medium: 1,
+      large: 2,
+      xl: 3,
+      xxl: 4,
+    };
+    const idx = sizeIndexMap[filterSize];
+    processedData = processedData.filter((item) => item.quantity[idx] > 0);
+  }
 
-  // filter using size
-  const sizeFilter = (size: string) => {
-    setFilterSize(size);
+  // Filter by price range
+  if (min !== 100 || max !== 1000) {
+    processedData = processedData.filter(
+      (item) => item.price >= min && item.price <= max
+    );
+  }
 
-    if (data) {
-      if (size === "all") {
-        setShopData(data);
-      } else {
-        const originalData = [...data];
+  // Sort data
+  switch (filter) {
+    case "rating":
+      processedData.sort((a, b) => b.review - a.review);
+      break;
+    case "low":
+      processedData.sort((a, b) => a.price - b.price);
+      break;
+    case "high":
+      processedData.sort((a, b) => b.price - a.price);
+      break;
+  }
 
-        let idx = 0;
-        switch (size) {
-          case "small":
-            idx = 0;
-            break;
-          case "medium":
-            idx = 1;
-            break;
-          case "large":
-            idx = 2;
-            break;
-          case "xl":
-            idx = 3;
-            break;
-          case "xxl":
-            idx = 4;
-            break;
-        }
+  setShopData(processedData);
+  setCurrentPage(1);
+  const query = filter !== "default" ? `?orderby=${filter}` : "";
+  router.push(`/products/${query}`);
+}, [data, filter, filterRating, filterSize, min, max, router]);
 
-        const filteredData = originalData.filter(
-          (item) => item.quantity[idx] > 0
-        );
-        setShopData(filteredData);
-      }
-    }
-  };
+useEffect(() => {
+  applyFiltersAndSorting();
+}, [applyFiltersAndSorting]);
 
-  let totalPages: number = 0;
+
+
+// Rating filter
+const ratingFilter = (rating: number) => {
+  setFilterRating(rating);
+};
+
+// Size filter
+const sizeFilter = (size: string) => {
+  setFilterSize(size);
+};
+
+let totalPages: number = 0;
   let currentItems: Item[] = [];
 
   // pagination of items
@@ -147,40 +122,12 @@ const ProductsPage = () => {
     currentItems = shopData.slice(startIndex, startIndex + itemsPerPage);
   }
 
-  // Handle page changes
-  // const handlePageChange = (newPage: number) => {
-  //   if (newPage >= 1 && newPage <= totalPages) {
-  //     setCurrentPage(newPage);
-  //     window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top when changing pages
-  //   }
-  // };
 
-  useEffect(() => {
-    if (data && (min !== 100 || max != 1000)) {
-      let filteredData = [...data];
-      filteredData = filteredData.filter(
-        (item) => item.price >= min && item.price <= max
-      );
-      setShopData(filteredData);
-    }
-  }, [data, shopData, min, max]);
-
-  const [mounting, setMounting] = useState(false);
-
-  useEffect(() => {
-    // Set mounting to true after the component is mounted
-    setMounting(true);
-  }, []);
-
-  // Show loading message if mounting is still false
-  if (!mounting) {
-    return <>Loading ...</>;
-  }
 
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
-     
-     {/* Mobile view filter button */}
+      
+          {/* Mobile view filter button */}
 <div className="p-6 border w-full relative hidden xs:block sm:block md:hidden lg:hidden xl:hidden">
   <div className="flex w-full items-center mb-2 justify-around">
     <CiFilter
@@ -367,7 +314,6 @@ const ProductsPage = () => {
   </div>
 </div>
 
-
       {/* Products */}
       <div className="flex flex-wrap justify-between w-[100vw]">
         <div className="h-14 py-4 flex justify-between items-center w-[100%] mx-8">
@@ -391,7 +337,7 @@ const ProductsPage = () => {
           {currentItems.length === 0 ? (
             <p>No products found</p>
           ) : (
-            currentItems.map((item) => (
+            currentItems.map((item: Item) => (
               <Link
                 key={item.id}
                 href={`/products/${item.id}`}
@@ -424,27 +370,33 @@ const ProductsPage = () => {
             ))
           )}
         </div>
+    
+          {/* Pagination */}
+          <div className="flex justify-center mt-4 w-full">
+  <button
+    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+    disabled={currentPage === 1}
+    className={`px-4 py-2 rounded mr-2 ${
+      currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+    }`}
+  >
+    Previous
+  </button>
+  <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
+  <button
+    onClick={() =>
+      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
 
-        {/* Pagination controls */}
-        <div className="flex justify-center mt-4 w-full">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 rounded mr-2 disabled:hidden"
-          >
-            Previous
-          </button>
-          <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded ml-2 disabled:hidden"
-          >
-            Next
-          </button>
-        </div>
+    }
+    disabled={currentPage === totalPages}
+    className={`px-4 py-2 rounded ml-2 ${
+      currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+    }`}
+  >
+    Next
+  </button>
+</div>
+
       </div>
     </div>
   );
