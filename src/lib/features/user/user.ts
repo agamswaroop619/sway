@@ -11,6 +11,11 @@ export interface Order {
   image: string,
   title: string,
   price: number,
+  date: string,
+  qnt: number,
+  size: string,
+  paymentMode: string,
+  expectedDate: string
 }
 
 export interface User {

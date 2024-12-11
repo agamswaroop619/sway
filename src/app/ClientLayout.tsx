@@ -8,10 +8,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [sideNav, setSideNav] = useState(false);
 
   return (
-    <>
-      <Navbar sideNav={sideNav} setSideNav={setSideNav} />
-      {sideNav && <SideNavBar setSideNav={setSideNav} />}
+    <div className="relative">
+      <Navbar sideNav={sideNav} setSideNav={setSideNav}  />
+      <div className="absolute top-0">
+      {sideNav && <SideNavBar  setSideNav={setSideNav} />}
+      </div>
       {children}
-    </>
+    </div>
   );
 }

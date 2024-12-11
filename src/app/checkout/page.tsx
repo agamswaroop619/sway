@@ -19,8 +19,8 @@ import {
   clearCheckout,
 } from "@/lib/features/checkout/checkout";
 import { Order } from "@/lib/features/user/user";
-import { v4 as uuidv4 } from "uuid"; // For unique order ID
 import { updateQntAtCart } from "@/lib/features/items/items";
+import { getDate, nextDate } from "../utils/getDate";
 
 const userInfo = (state: RootState) => state.user.userProfile;
 
@@ -65,19 +65,26 @@ const CheckoutPage = () => {
   const [couponCode, setCouponCode] = useState("");
 
   // payment and shipping
-  const [payment, setPayment] = useState("cash");
+  const [payment, setPayment] = useState("online");
   const [shipping, setShipping] = useState("free");
 
   // success and error
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const [ orderId , setOrderId ] = useState("");
-  const [ shipmentId, setShipmentId ] = useState("");
+  const generateOrderId = (): string => {
+    const timestamp = Date.now().toString(); // Current timestamp in milliseconds
+    const randomString = Math.random().toString(36).substring(2, 8); // Random alphanumeric string
+    return `${timestamp}-${randomString}`; // Format with user ID
+  };
+
+  const orderId = generateOrderId();
 
   const subtotal = cartItems
     ? cartItems.reduce((acc, item) => acc + item.qnt * item.price, 0)
     : 0;
+
+
 
     const checkDetails = async () => {
       if (userData) {
@@ -122,9 +129,12 @@ const CheckoutPage = () => {
     }, [success]);
 
     const updateAll = async () => {
-      await updateDB();
-      dispatch(clearCart());
-      dispatch(clearCheckout());
+      const res =await updateDB();
+
+      if( res === "ok") {
+        dispatch(clearCart());
+        dispatch(clearCheckout());
+      }
     };
     
 
@@ -196,7 +206,14 @@ const CheckoutPage = () => {
       },
     };
     
-    await handleCheckout();
+    const {shipment_id, status } = await handleCheckout();
+
+    if( status === "error" ){
+      return;
+    }
+
+    const shipmentId = shipment_id;
+    toast.success(shipmentId);
 
     const newOrders: Order[] = [];
   
@@ -246,14 +263,20 @@ const CheckoutPage = () => {
             await updateDoc(docRef, { quantity: itemData.quantity });
       
             const itemId = item.itemId.toString();
-            const quantity = itemData.quantity;
             const image= item.image;
             const title = item.title;
             const price= item.price;
+            const size= item.size;
+            const qnt= item.qnt;
+            const paymentMode= payment;
+            const date= getDate();
+            const expectedDate= nextDate();
+            
+            const quantity = itemData.quantity;
 
             dispatch( updateQntAtCart({itemId, quantity}) )
   
-            newOrders.push({ itemId, orderId, shipmentId, image, title, price});
+            newOrders.push({ itemId, orderId, shipmentId, image, title, price, size, qnt, paymentMode, date, expectedDate});
           })
         );
   
@@ -271,8 +294,12 @@ const CheckoutPage = () => {
           console.log("Orders updated in Firestore: ", ordersUpdateResult);
           console.log("Updated orders: ", updatedOrders);
         }
+
+        return "ok";
+
       } catch (err) {
         console.error("Something went wrong at checkout: ", err);
+        return "error";
       }
     }
   };
@@ -283,7 +310,7 @@ const handleCheckout = async () => {
   const shippingFee = 79;
 
   const orderDetails = {
-    order_id: uuidv4(), // Unique order ID
+    order_id: orderId, // Unique order ID
     order_date: new Date().toISOString(),
     billing_customer_name: firstName,
     billing_last_name: "",
@@ -321,20 +348,25 @@ const handleCheckout = async () => {
     }
 
     const data = await response.json();
-    setOrderId(orderDetails.order_id);
+    console.log("Shiprocket response : ", response)
+    console.log("Shiprocket data : ", data);
 
     if (data && data.shipmentId) {
-      setShipmentId(data.shipment_id);
-    } else {
-      alert("Failed to retrieve shipment ID from response.");
+      const shipmentId = data.shipment_id;
+      return ( {shipment_id : shipmentId, status: "ok"} );
+    } 
+    else{
+      const randomString = Math.random().toString(36).substring(2, 10);
+      const shipmentId = randomString ;
+      return ( {shipment_id : shipmentId, status: "ok"} );
     }
-
-    console.log("Shiprocket response : ", response)
 
   } catch (error) {
     console.error("Checkout error:", error);
-    alert("Failed to place the order. Please try again.");
+    toast.error("Failed to place the order. Please try again.");
+    return( {shipment_id: "" , status: "error"})
   }
+
 };
   
   const couponHandler = () => {

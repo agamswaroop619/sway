@@ -100,10 +100,10 @@ const GoogleLogin = () => {
    }
 
     return(
-        <div className="w-[100vw] flex  justify-center items-center">
+        <div className="w-[300px] flex  justify-center items-center">
 
              <Link href="#" onClick={ login}
-              className="w-[75%] flex p-2  rounded-md hover:scale-105 transition duration-300 ease-in-out border shadow"> 
+              className=" flex p-2  rounded-md hover:scale-105 transition duration-300 ease-in-out border shadow"> 
               <img
                 className="max-w-[25px] mr-1"
                 src="https://ucarecdn.com/8f25a2ba-bdcf-4ff1-b596-088f330416ef/"

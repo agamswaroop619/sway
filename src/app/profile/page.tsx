@@ -17,6 +17,8 @@ import { DocumentReference } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { Order } from "@/lib/features/user/user";
 import { MdOutlineArrowBackIosNew } from "react-icons/md";
+import { FormEvent } from "react";
+import TestPage from "../test/page";
 
 const Page = () => {
   const router = useRouter();
@@ -36,8 +38,6 @@ const Page = () => {
 
   const newOrders: Order[] = userData ? userData.orders : [];
 
-  console.log("new orders : ", newOrders);
-  console.log("USer order : ", userData?.orders);
 
   // Navigation state
   const [nav, setNav] = useState("dashboard");
@@ -54,6 +54,8 @@ const Page = () => {
   const [country, setCountry] = useState(userData?.delivery?.country);
   const [phone, setPhone] = useState(userData?.phone);
   const [apartment, setApartment] = useState(userData?.delivery?.apartment);
+
+  const [ shipmentId, SetShipmentId ] = useState("");
 
   //Redirect if not logged in
   useEffect(() => {
@@ -118,6 +120,15 @@ const Page = () => {
     // Set mounting to true after the component is mounted
     setMounting(true);
   }, []);
+
+  const submitHandler = ( e: FormEvent ) => {
+
+    e.preventDefault();
+
+    if( shipmentId.trim() !== "" )
+    router.push(`/track-orders/${shipmentId}`)
+
+  }
 
   // Show loading message if mounting is still false
   if (!mounting) {
@@ -189,7 +200,7 @@ const Page = () => {
                     transition-colors hover:text-white duration-500 ease-in-out ${
                       nav === "track-order" ? "text-white" : "text-[#7E7E7E]"
                     }`}
-                  onClick={() => setNav("track-order")}
+                  onClick={() => setNav("tracking")}
                 >
                   <MdOutlineLocalShipping /> <span>Track Order</span>
                 </div>
@@ -379,6 +390,30 @@ const Page = () => {
                     </button>
                   </div>
                 )}
+
+
+                {
+                  nav === "tracking" && (
+                    <div>
+                      <h2 className="text-xl mb-3 border-b pb-1">Order Tracking </h2>
+
+                      <form action="" className="flex-col flex"  onSubmit={ submitHandler}>
+
+                      <div className="mb-4">
+                        <label htmlFor=""> Shipment ID </label>
+                        <input type="text" onChange={ (e) => SetShipmentId(e.target.value)  }
+                         value={ shipmentId }  
+                         className="p-2 ml-3 rounded-md text-black focus:outline-none" />
+                      </div>
+
+                        <button className="bg-green-700 text-white w-[120px] p-2 rounded-full" > Track</button>
+
+                      </form>
+
+                    </div>
+                  )
+                }
+
               </div>
             </div>
           </div>
@@ -492,7 +527,7 @@ const Page = () => {
                               <p>{item.title}</p>
                               <p className="mt-3">
                                
-                                {item.shipmentId ||
+                                {item.orderId ||
                                   `${
                                     item.title.substring(0, 3) +
                                     Math.floor(Math.random() * 100000 + 1)

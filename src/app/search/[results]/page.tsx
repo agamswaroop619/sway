@@ -191,226 +191,46 @@ const SearchPage = () => {
   if (info.length > 0)
     return (
       <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
-        {/* Mobile view filter button */}
-        <div className="p-6 border w-full  relative hidden sm:block xs:block md:hidden lg:hidden xl:hidden">
-          <div className="flex w-full items-center mb-2  justify-around">
-            <CiFilter
-              className="text-white  border text-3xl p-1"
-              onClick={() => setFloatSiderbar(!floatSiderbar)}
-            />
-            <select
-              className="bg-black p-2 border focus:outline-none"
-              onChange={(e) => setFilter(e.target.value)}
-            >
-              <option value="default">Default sorting</option>
-              <option value="popular">Sort by popularity</option>
-              <option value="latest">Sort by latest</option>
-              <option value="rating">Sort by average rating</option>
-              <option value="low">Sort by Price: Low to high</option>
-              <option value="high">Sort by Price: High to low</option>
-            </select>
-          </div>
-        </div>
+        
+             {/* Mobile view filter button */}
+<div className="p-6 border w-full relative hidden xs:block sm:block md:hidden lg:hidden xl:hidden">
+  <div className="flex w-full items-center mb-2 justify-around">
+    <CiFilter
+      className="text-white border text-3xl p-1 cursor-pointer"
+      onClick={() => setFloatSiderbar(!floatSiderbar)}
+    />
+    <select
+      className="bg-black p-2 border text-white focus:outline-none"
+      onChange={(e) => setFilter(e.target.value)}
+    >
+      <option value="default">Default sorting</option>
+      <option value="popular">Sort by popularity</option>
+      <option value="latest">Sort by latest</option>
+      <option value="rating">Sort by average rating</option>
+      <option value="low">Sort by Price: Low to high</option>
+      <option value="high">Sort by Price: High to low</option>
+    </select>
+  </div>
+</div>
 
-       {/* Mobile sidebar */}
-      {floatSiderbar && (
-        <div className="absolute left-0   z-20">
-          <div className="z-20 p-2 w-[80vw] h-screen max-w-[500px] bg-black text-white">
-            <div className="flex mb-2 gap-2 items-center">
-              <input
-                type="text"
-                placeholder="Search products"
-                className="p-2 rounded-full w-full "
-              />
-              <MdOutlineClear
-                className="text-3xl "
-                onClick={() => setFloatSiderbar(!floatSiderbar)}
-              />
-            </div>
+{/* Mobile floating sidebar */}
+{floatSiderbar && (
+  <div className="fixed top-0 left-0 z-30 w-[80vw] max-w-[500px] h-screen bg-black text-white p-4 overflow-y-auto">
+    {/* Header with Close Icon */}
+    <div className="flex items-center mb-4">
+      <input
+        type="text"
+        placeholder="Search products"
+        className="p-2 rounded-full w-full bg-gray-800 text-white"
+      />
+      <MdOutlineClear
+        className="text-3xl cursor-pointer ml-2"
+        onClick={() => setFloatSiderbar(false)}
+      />
+    </div>
 
-            <div className="  relative h-28">
-              <h3 className="font-bold mb-2 ">Filter by price</h3>
-
-              <p>
-                Price: ₹{min} — ₹{max}
-              </p>
-              <div className="absolute h-28 top-13 left-[0px] ">
-                <RangeSlider
-                  min={min}
-                  setMin={setMin}
-                  max={max}
-                  setMax={setMax}
-                  onChange={({ min, max }: { min: number; max: number }) =>
-                    console.log(`min = ${min}, max = ${max}`)
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h3 className="font-bold mb-2">Filter by Rating</h3>
-
-              <div
-                className="flex gap-3"
-                onClick={() => {
-                  setFloatSiderbar(false);
-                  if (filterRating !== 4) ratingFilter(4);
-                  else ratingFilter(0);
-                }}
-              >
-                <input checked={filterRating === 4} type="checkbox" />
-                <label
-                  className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
-          `}
-                >
-                  4 ⭐ & above
-                </label>
-              </div>
-
-              <div
-                className="flex gap-3"
-                onClick={() => {
-                  setFloatSiderbar(false);
-                  if (filterRating !== 3) ratingFilter(3);
-                  else ratingFilter(0);
-                }}
-              >
-                <input checked={filterRating === 3} type="checkbox" />
-                <label
-                  className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
-          `}
-                >
-                  3 ⭐ & above
-                </label>
-              </div>
-
-              <div
-                className="flex gap-3"
-                onClick={() => {
-                  setFloatSiderbar(false);
-                  if (filterRating !== 2) ratingFilter(2);
-                  else ratingFilter(0);
-                }}
-              >
-                <input checked={filterRating === 2} type="checkbox" />
-                <label
-                  className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
-          `}
-                >
-                  2 ⭐ & above
-                </label>
-              </div>
-
-              <div
-                className="flex gap-3"
-                onClick={() => {
-                  setFloatSiderbar(false);
-                  if (filterRating !== 1) ratingFilter(1);
-                  else ratingFilter(0);
-                }}
-              >
-                <input checked={filterRating === 1} type="checkbox" />
-                <label
-                  className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
-          `}
-                >
-                  1 ⭐ & above
-                </label>{" "}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-2">Filter by Size</h3>
-              <ul>
-                <li>
-                  <button
-                    onClick={() => {
-                      setFloatSiderbar(false);
-                      if (filterSize !== "small") sizeFilter("small");
-                      else sizeFilter("all");
-                    }}
-                    className={`p-2 ${
-                      filterSize === "small" ? "text-white" : "text-[#7e7e7e]"
-                    } transition-colors hover:text-white duration-400  ease-in-out `}
-                  >
-                    Small
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setFloatSiderbar(false);
-                      if (filterSize !== "medium") sizeFilter("medium");
-                      else sizeFilter("all");
-                    }}
-                    className={`p-2 ${
-                      filterSize === "medium" ? "text-white" : "text-[#7e7e7e]"
-                    } transition-colors hover:text-white duration-400  ease-in-out `}
-                  >
-                    Medium
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setFloatSiderbar(false);
-                      if (filterSize !== "large") sizeFilter("large");
-                      else sizeFilter("all");
-                    }}
-                    className={`p-2 ${
-                      filterSize === "large" ? "text-white" : "text-[#7e7e7e]"
-                    } transition-colors hover:text-white duration-400  ease-in-out `}
-                  >
-                    Large
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setFloatSiderbar(false);
-                      if (filterSize !== "xl") sizeFilter("xl");
-                      else sizeFilter("all");
-                    }}
-                    className={`p-2 ${
-                      filterSize === "xl" ? "text-white" : "text-[#7e7e7e]"
-                    } transition-colors hover:text-white duration-400  ease-in-out `}
-                  >
-                    XL
-                  </button>
-                </li>
-
-                <li>
-                  <button
-                    onClick={() => {
-                      setFloatSiderbar(false);
-                      if (filterSize !== "xxl") sizeFilter("xxl");
-                      else sizeFilter("all");
-                    }}
-                    className={`p-2 ${
-                      filterSize === "xxl" ? "text-white" : "text-[#7e7e7e]"
-                    } transition-colors hover:text-white duration-400  ease-in-out `}
-                  >
-                    XXL
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Laptop  Sidebar */}
-      <div className="w-1/4 p-4 hidden md:block lg:block xl:block">
-        <div className="text-black mb-2 px-4 bg-white rounded-full flex border items-center">
-          <input
-            type="text"
-            placeholder="Search products"
-            className="p-2 focus:outline-none  bg-transparent"
-          />
-          <IoSearchOutline className=" text-xl" />
-        </div>
-
-        <div>
+    {/* Price Filter */}
+    <div>
           <div className="  relative h-28">
             <h3 className="font-bold mb-2 ">Filter by price</h3>
 
@@ -431,148 +251,133 @@ const SearchPage = () => {
           </div>
         </div>
 
-        <div className="mb-4">
-          <h3 className="font-bold mb-2">Filter by Rating</h3>
+        <div className="  relative h-28">
+            <h3 className="font-bold mb-2 ">Filter by price</h3>
 
-          <div
-            className="flex gap-3"
-            onClick={() => {
-             if( filterRating !== 4 ) ratingFilter(4); else ratingFilter(0)
-            }}
-          >
-            <input checked={filterRating === 4} type="checkbox" />
-            <label
-              className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
-          `}
-            >
-              4 ⭐ & above
-            </label>
+            <p>
+              Price: ₹{min} — ₹{max}
+            </p>
+            <div className="absolute mb-1 h-28 top-13 left-[0px] ">
+              <RangeSlider
+                min={min}
+                setMin={setMin}
+                max={max}
+                setMax={setMax}
+                onChange={({ min, max }: { min: number; max: number }) =>
+                  console.log(`min = ${min}, max = ${max}`)
+                }
+              />
+            </div>
           </div>
 
-          <div
-            className="flex gap-3"
-            onClick={() => {
-             if( filterRating !== 3 ) ratingFilter(3); else ratingFilter(0)
-            } }
-          >
-            <input checked={filterRating === 3} type="checkbox" />
-            <label
-              className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
-          `}
-            >
-              3 ⭐ & above
-            </label>
-          </div>
+    {/* Rating Filter */}
+    <div className="mb-6">
+      <h3 className="font-bold mb-2">Filter by Rating</h3>
+      {[4, 3, 2, 1].map((rating) => (
+        <div
+          key={rating}
+          className="flex gap-3 items-center cursor-pointer"
+          onClick={() => {
+            setFloatSiderbar(false);
+            ratingFilter(filterRating === rating ? 0 : rating);
+          }}
+        >
+          <input type="checkbox" checked={filterRating === rating} readOnly />
+          <label className="hover:text-white transition-colors duration-300">
+            {rating} ⭐ & above
+          </label>
+        </div>
+      ))}
+    </div>
 
-          <div
-            className="flex gap-3"
-            onClick={() => {
-              if( filterRating !== 2 ) ratingFilter(2); else ratingFilter(0)
-            }}
-          >
-            <input checked={filterRating === 2} type="checkbox" />
-            <label
-              className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
-          `}
-            >
-              2 ⭐ & above
-            </label>
-          </div>
+    {/* Size Filter */}
+    <div>
+      <h3 className="font-bold mb-2">Filter by Size</h3>
+      {["small", "medium", "large", "xl", "xxl"].map((size) => (
+        <button
+          key={size}
+          className={`block w-full text-left p-2 ${
+            filterSize === size ? "text-white" : "text-gray-400"
+          } hover:text-white transition-colors duration-300`}
+          onClick={() => {
+            setFloatSiderbar(false);
+            sizeFilter(filterSize === size ? "all" : size);
+          }}
+        >
+          { !(size.includes('x')) ? size.charAt(0).toUpperCase() + size.slice(1) : size.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
-          <div
-            className="flex gap-3"
-            onClick={() => {
-             if( filterRating !== 1 ) ratingFilter(1); else ratingFilter(0)
-            } }
-          >
-            <input checked={filterRating === 1} type="checkbox" />
-            <label
-              className={` hover:text-white duration-400 transition-colors ease-in-out cursor-pointer 
-          `}
-            >
-              1 ⭐ & above
-            </label>{" "}
+{/* Desktop Sidebar */}
+<div className="hidden md:block lg:block xl:block w-1/4 p-4 sticky top-0">
+  {/* Search Bar */}
+  <div className="mb-4 flex items-center bg-white rounded-full border px-4">
+    <input
+      type="text"
+      placeholder="Search products"
+      className="p-2 bg-transparent flex-grow focus:outline-none"
+    />
+    <IoSearchOutline className="text-xl" />
+  </div>
+
+  {/* Price Filter */}
+ <div>
+          <div className="  relative h-28">
+            <h3 className="font-bold mb-2 ">Filter by price</h3>
+
+            <p>
+              Price: ₹{min} — ₹{max}
+            </p>
+            <div className="absolute mb-1 h-28 top-13 left-[0px] ">
+              <RangeSlider
+                min={min}
+                setMin={setMin}
+                max={max}
+                setMax={setMax}
+                onChange={({ min, max }: { min: number; max: number }) =>
+                  console.log(`min = ${min}, max = ${max}`)
+                }
+              />
+            </div>
           </div>
         </div>
 
-        <div>
-          <h3 className="font-bold mb-2">Filter by Size</h3>
-         
-          <ul>
-
-            <li>
-              <button
-                onClick={() => {
-                  if (filterSize !== "small" )
-                     sizeFilter("small")
-                    else sizeFilter("all")
-                }}
-                className={`p-2 ${
-                  filterSize === "small" ? "text-white" : "text-[#7e7e7e]"
-                } transition-colors hover:text-white duration-400  ease-in-out `}
-              >
-                Small
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={() =>{
-                  if( filterSize !== "medium" )
-                     sizeFilter("medium");
-                    else sizeFilter("all")
-                } }
-                className={`p-2 ${
-                  filterSize === "medium" ? "text-white" : "text-[#7e7e7e]"
-                } transition-colors hover:text-white duration-400  ease-in-out `}
-              >
-                Medium
-              </button>
-            </li>
-            
-            <li>
-              <button
-                onClick={() => {
-                   if( filterSize !== "large" )
-                     sizeFilter("large");
-                    else sizeFilter("all")
-                } }
-                className={`p-2 ${
-                  filterSize === "large" ? "text-white" : "text-[#7e7e7e]"
-                } transition-colors hover:text-white duration-400  ease-in-out `}
-              >
-                Large
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={() => {
-                 if( filterSize !== "xl" ) sizeFilter("xl") ; else sizeFilter("all")
-                }}
-                className={`p-2 ${
-                  filterSize === "xl" ? "text-white" : "text-[#7e7e7e]"
-                } transition-colors hover:text-white duration-400  ease-in-out `}
-              >
-                XL
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={() => {
-                 if( filterSize !== "xxl" ) sizeFilter("xxl"); else sizeFilter("all")
-                } }
-                className={`p-2 ${
-                  filterSize === "xxl" ? "text-white" : "text-[#7e7e7e]"
-                } transition-colors hover:text-white duration-400  ease-in-out `}
-              >
-                XXL
-              </button>
-            </li>
-          </ul>
-        </div>
+  {/* Rating Filter */}
+  <div className="mb-6">
+    <h3 className="font-bold mb-2">Filter by Rating</h3>
+    {[4, 3, 2, 1].map((rating) => (
+      <div
+        key={rating}
+        className="flex gap-3 items-center cursor-pointer"
+        onClick={() => ratingFilter(filterRating === rating ? 0 : rating)}
+      >
+        <input type="checkbox" checked={filterRating === rating} readOnly />
+        <label className=" cursor-pointer">
+          {rating} ⭐ & above
+        </label>
       </div>
+    ))}
+  </div>
+
+  {/* Size Filter */}
+  <div>
+    <h3 className="font-bold mb-2">Filter by Size</h3>
+    {["small", "medium", "large", "xl", "xxl"].map((size) => (
+      <button
+        key={size}
+        className={`block w-full text-left p-2 ${
+          filterSize === size ? "text-white" : "text-gray-400"
+        } hover:text-white transition-colors duration-300`}
+        onClick={() => sizeFilter(filterSize === size ? "all" : size)}
+      >
+        {size.charAt(0).toUpperCase() + size.slice(1)}
+      </button>
+    ))}
+  </div>
+</div>
 
         {/* Products */}
         <div className="flex flex-wrap justify-between w-[100vw]">

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
  import axios from 'axios';
- import toast from 'react-hot-toast';
+
 
 // POST method for placing an order
 export async function POST( req: NextRequest) {
@@ -32,7 +32,6 @@ export async function POST( req: NextRequest) {
 
   } catch (error: unknown) {
     let errorMessage = 'Unknown error';
-    toast.error("Error aa gya");
     // Check if the error is an instance of Error
     if (error instanceof Error) {
       errorMessage = error.message;
