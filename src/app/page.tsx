@@ -13,13 +13,17 @@ export default function Home() {
           <h3 className="text-[#3fe607] text-7xl font-bold">SWAY</h3>
 
           <p className="">
-            Sway is a cool and comfy clothing brand. Our styles mix modern trends with classic vibes fir vintage yet stylish look. We ensure the quality of the fabric and comfortability of the fabric and comfortability of the product.</p>
+            Sway is a cool and comfy clothing brand. Our styles mix modern
+            trends with classic vibes fir vintage yet stylish look. We ensure
+            the quality of the fabric and comfortability of the fabric and
+            comfortability of the product.
+          </p>
 
-         <Link href="/products">
-         <button   className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">
-            Get started <FaArrowRightLong />
-          </button>
-         </Link>
+          <Link href="/products">
+            <button className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">
+              Get started <FaArrowRightLong />
+            </button>
+          </Link>
         </div>
 
         <div className="flex flex-col w-[50vw] sm:w-[100vw] xs:w-[100vw] md:w-[50vw] lg:w-[50vw] xl:w-[50vw]">
@@ -174,7 +178,10 @@ export default function Home() {
 
       <div className="my-20 w-full flex flex-col ">
         <h2 className="text-3xl font-semibold m-3">
-          Follow Us On <span className="text-green-600">@Sway.society</span>
+          Follow Us On{" "}
+          <a href="https://www.instagram.com/sway.society/" target="blank">
+            <span className="text-green-600">@Sway.society</span>
+          </a>
         </h2>
         <img
           className="w-full max-w-4xl mx-auto"
