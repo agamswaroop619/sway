@@ -25,7 +25,7 @@ export default function Home(): JSX.Element {
   return (
     <>
       <div className="flex sm:flex-col xs:flex-col lg:flow-row md:flex-row xl:flex-row w-[100vw] px-10 justify-between">
-        <div className="w-[35vw] xs:mb-4 sm:mb-6 sm:w-full xs:w-full md:w-[35vw] lg:w-[35vw] xl:w-[35vw] flex flex-col justify-center">
+        <section className="w-[35vw] xs:mb-4 sm:mb-6 sm:w-full xs:w-full md:w-[35vw] lg:w-[35vw] xl:w-[35vw] flex flex-col justify-center">
           <h3 className="text-7xl font-bold">SLAY WITH</h3>
           <h3 className="text-[#3fe607] text-7xl font-bold">SWAY</h3>
           <p>
@@ -38,52 +38,54 @@ export default function Home(): JSX.Element {
               Get started <FaArrowRightLong />
             </button>
           </Link>
-        </div>
+        </section>
+        <section>
+          <div className="flex flex-col w-[50vw] sm:w-[100vw] xs:w-[100vw] md:w-[50vw] lg:w-[50vw] xl:w-[50vw]">
+            <div className="flex gap-5 mb-3">
+              {selectedGifs.slice(0, 2).map((gifUrl, index) => (
+                <img
+                  key={index}
+                  className="h-[40vh] rounded-xl"
+                  src={gifUrl}
+                  alt={`Sway GIF ${index + 1}`}
+                />
+              ))}
+            </div>
 
-        <div className="flex flex-col w-[50vw] sm:w-[100vw] xs:w-[100vw] md:w-[50vw] lg:w-[50vw] xl:w-[50vw]">
-          <div className="flex gap-5 mb-3">
-            {selectedGifs.slice(0, 2).map((gifUrl, index) => (
-              <img
-                key={index}
-                className="h-[40vh] rounded-xl"
-                src={gifUrl}
-                alt={`Sway GIF ${index + 1}`}
-              />
-            ))}
+            <div className="flex gap-5 lg:ml-9 md:ml-9 xl:md-11">
+              {selectedGifs.slice(2, 4).map((gifUrl, index) => (
+                <img
+                  key={index}
+                  className="h-[40vh] rounded-xl"
+                  src={gifUrl}
+                  alt={`Sway GIF ${index + 3}`}
+                />
+              ))}
+            </div>
           </div>
-
-          <div className="flex gap-5 lg:ml-9 md:ml-9 xl:md-11">
-            {selectedGifs.slice(2, 4).map((gifUrl, index) => (
-              <img
-                key={index}
-                className="h-[40vh] rounded-xl"
-                src={gifUrl}
-                alt={`Sway GIF ${index + 3}`}
-              />
-            ))}
-          </div>
-        </div>
+        </section>
       </div>
 
       <CardSlider />
-
-      <div className="my-20 w-full flex flex-col">
-        <h2 className="text-3xl font-semibold m-3">
-          Follow Us On{" "}
-          <a
-            href="https://www.instagram.com/sway.society/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="text-green-600">@Sway.society</span>
-          </a>
-        </h2>
-        <img
-          className="w-full max-w-4xl mx-auto"
-          src="https://sway.club/wp-content/uploads/2024/04/sway-website-post-1536x922.jpg"
-          alt="Sway Society"
-        />
-      </div>
+      <section>
+        <div className="my-20 w-full flex flex-col">
+          <h2 className="text-3xl font-semibold m-3">
+            Follow Us On{" "}
+            <a
+              href="https://www.instagram.com/sway.society/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="text-green-600">@Sway.society</span>
+            </a>
+          </h2>
+          <img
+            className="w-full max-w-4xl mx-auto"
+            src="https://sway.club/wp-content/uploads/2024/04/sway-website-post-1536x922.jpg"
+            alt="Sway Society"
+          />
+        </div>
+      </section>
     </>
   );
 }
