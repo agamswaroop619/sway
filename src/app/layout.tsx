@@ -28,13 +28,15 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <div className="flex flex-col  overflow-x-hidden select-none relative">
+        <div className="overflow-x-hidden relative select-none ">
           <StoreProvider>
           
           <ClientLayout>{children}</ClientLayout>
             
            
-            <Footer/>
+           <div className="abolute bottom-0">
+           <Footer/>
+           </div>
             <Toaster />
           </StoreProvider>
         </div>

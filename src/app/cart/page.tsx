@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { removeFromCart , selectCartItems, updateQnt } from '@/lib/features/carts/cartSlice';
-import { itemsDataInCart } from '@/lib/features/items/items';
+import { itemsDataInCart, setItemsData } from '@/lib/features/items/items';
 import { setItems,  removeCheckoutItem, clearCheckout, selectCheckoutItems } from '@/lib/features/checkout/checkout';
 import { GoChevronDown } from "react-icons/go";
+import { getData } from '../utils/getData';
+
 
 interface cartItems {
   itemId: number;
@@ -43,13 +45,28 @@ const CartPage = () => {
 
   // Fetch cart items from Redux store
   const itemsFromStore = useAppSelector(selectCartItems);
-  const allItems = useAppSelector(itemsDataInCart);
+  const allItems = useAppSelector(itemsDataInCart) || [];
   const cartItems = useAppSelector(selectCheckoutItems);
 
   const [ outOfStock , setOutOfStock ] =useState<cartItems[]>([]);
 
   useEffect(() => {
-    const carts: cartItems[] = [];
+    if (allItems.length === 0) {
+      getData()
+        .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          dispatch(setItemsData([]));
+        });
+    }
+  }, [dispatch, allItems.length]);
+  
+  
+
+  useEffect(() => {
+    
+    if( allItems.length > 0 ) {
+      const carts: cartItems[] = [];
     const out: cartItems[] = [];
   
     dispatch(clearCheckout());
@@ -102,6 +119,8 @@ const CartPage = () => {
   
     dispatch(setItems(carts));
     setOutOfStock(out);
+    }
+
   }, [itemsFromStore, allItems]); // Dependencies
   
   const incHandler = (itemId: number, quantity: number) => {
@@ -133,6 +152,7 @@ const CartPage = () => {
 
   const total = cartItems ? cartItems.reduce((acc, item) => acc + item.price * item.qnt, 0) : 0;
 
+  if( allItems.length > 0 )
   return (
     <div className="relative">
   { itemsFromStore && itemsFromStore.length > 0 ? (
@@ -154,16 +174,17 @@ const CartPage = () => {
                 className="h-32 pt-6"
                 alt={item.title}
                 onClick={() => router.push(`/products/${item.itemId}`)}
+                loading='lazy'
               />
               <div className="p-4 w-full">
                 <div className="flex-row w-full py-1 justify-between">
                   <p className="text-xl">{item.title} | Sway Clothing</p>
-                  <span>₹{Math.ceil(item.price)}</span>
+                 <p className='text-gray-500'> <span className='line-through mr-2'>₹{Math.ceil(item.price+300)}</span> <span>₹{Math.ceil(item.price)}</span> </p>
                 </div>
 
                 <p>
                   {item.stock} items left</p>
-                <p className="border p-2 my-1 w-32">SAVE ₹300.00</p>
+                <p className="border rounded-md p-2 my-1 w-32">SAVE ₹300.00</p>
                 <p>Size: {item.size}</p>
 
                 <div className="justify-center border w-[150px] flex items-center h-[50px] rounded-lg py-2 my-3">
@@ -186,7 +207,7 @@ const CartPage = () => {
                   </button>
                 </div>
 
-                <span> true or false {item.stock - item.qnt === 0}</span>
+                <span> {item.stock - item.qnt === 0}</span>
 
                 <span
                   className="flex items-center gap-1 pb-1 underline"
@@ -213,6 +234,7 @@ const CartPage = () => {
                 className="h-32 pt-6"
                 alt={item.title}
                 onClick={() => router.push(`/products/${item.itemId}`)}
+                loading='lazy'
               />
               <div className="p-4 w-full">
                 <div className="flex-row w-full py-1 justify-between">
@@ -330,6 +352,17 @@ const CartPage = () => {
 </div>
 
   )
+  else{
+    return(
+      /* From Uiverse.io by Fresnel11 */ 
+      <div className='min-w-screen min-h-screen flex bg-slate-500 justify-center align-middle items-center'>
+        <div
+  className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"
+></div>
+      </div>
+
+    )
+  }
 };
 
 export default CartPage;

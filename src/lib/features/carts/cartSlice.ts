@@ -61,7 +61,7 @@ export const cartSlice = createSlice({
   reducers: {
 
     addToCart: (state, action: PayloadAction<Products>) => {
-      state.items.push(action.payload);
+      state.items.unshift(action.payload);
       saveToLocalStorage(state.items); // Save to localStorage after modification
     },
 

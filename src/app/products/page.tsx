@@ -19,6 +19,8 @@ const ProductsPage = () => {
 const dispatch = useAppDispatch();
 const router = useRouter();
 
+const [ mount, setMount] = useState(false);
+
 const [floatSiderbar, setFloatSiderbar] = useState(false);
 const [filter, setFilter] = useState("default");
 const [shopData, setShopData] = useState<Item[]>([]);
@@ -92,6 +94,9 @@ const applyFiltersAndSorting = useCallback(() => {
   setCurrentPage(1);
   const query = filter !== "default" ? `?orderby=${filter}` : "";
   router.push(`/products/${query}`);
+
+  setMount(true);
+
 }, [data, filter, filterRating, filterSize, min, max, router]);
 
 useEffect(() => {
@@ -116,14 +121,35 @@ let totalPages: number = 0;
   // pagination of items
   if (shopData && shopData.length > 0) {
     // Calculate pagination
+    
     const totalItems = shopData.length;
     totalPages = Math.ceil(totalItems / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     currentItems = shopData.slice(startIndex, startIndex + itemsPerPage);
   }
 
+  useEffect( () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth",
+      });
+    }
+  }, [currentPage])
 
+  if( !mount) {
+    return(
+      /* From Uiverse.io by Fresnel11 */ 
+      <div className='min-w-screen min-h-screen flex bg-slate-500 justify-center align-middle items-center'>
+        <div
+  className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"
+></div>
+      </div>
 
+    )
+  }
+  else  
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
       
@@ -346,11 +372,12 @@ let totalPages: number = 0;
                 <div className="relative group">
                   <img
                     src={item.images[0].url}
+                    loading='lazy'
                     alt="image1"
                     className="w-[100%] h-[100%] object-cover transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0"
                   />
                   <img
-                    src={item.images[1].url}
+                    src={item.images[1].url} loading='lazy'
                     alt="image2"
                     className="w-full h-full object-cover rounded-lg transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100 absolute top-0 left-0"
                   />

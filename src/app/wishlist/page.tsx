@@ -2,18 +2,19 @@
 
 import {  MdOutlineShoppingBag } from "react-icons/md";
 import { RxCross1 } from "react-icons/rx";
-
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store"; // Import the RootState type
-import { Item } from "@/lib/features/items/items";
-import { removeFromWishlist } from "@/lib/features/user/user";
+import { Item, setItemsData } from "@/lib/features/items/items";
+import { removeFromWishlist  } from "@/lib/features/user/user";
 import { firestore } from "../firebase.config";
 import { doc, updateDoc } from "firebase/firestore";
 import { arrayRemove } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { addToCart } from "@/lib/features/carts/cartSlice";
 import Link from "next/link";
+import { getData } from "../utils/getData";
 
 const userInfo = (state: RootState) => state.user.userProfile;
 const itemsData = (state: RootState) => state.items.itemsData;
@@ -22,14 +23,26 @@ const cartItem = (state: RootState) => state.cart.items;
 const WishlistPage = () => {
 
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const wishlist = useAppSelector(userInfo)?.wishlist;
-  const allItems = useAppSelector(itemsData);
+  const allItems = useAppSelector(itemsData) || [];
   const userData = useAppSelector(userInfo);
   const cart = useAppSelector(cartItem);
 
   const [products, setProducts] = useState<Item[]>([]);
 
+  useEffect(() => {
+    if (allItems.length === 0) {
+      getData()
+        .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          dispatch(setItemsData([]));
+        });
+    }
+  }, [dispatch, allItems.length]);
+  
 
   useEffect(() => {
     if (allItems?.length) {
@@ -98,25 +111,28 @@ const WishlistPage = () => {
 
   if( userData?.wishlist && userData.wishlist.length > 0 )
   return (
-    <div className="m-10">
+    <div className="my-2 mx-[10%]">
 
-     <div className="flex flex-col justify-between">
+    <h2 className="text-lg pb-3 mb-8 border-b-2">Wishlist </h2>
+
+     <div className="flex  flex-col justify-between">
      {products.map((item) => {
         return (
-         <Link key={item.id} href={`/products/${item.id}`} >
-          <div    className="flex gap-6 mb-4 w-[70vw]  pb-2 border-b-2 ">
+        
+          <div key={item.id}   className="flex cursor-pointer gap-6 mb-4 md:w-[70vw] xs:w-[80vw] sm:w-[80vw] xs:mx-0 sm:mx-0 md:mx-[5%] pb-4 border-b ">
             <img
               className="w-36"
               alt={`${item.title} image`}
               src={item.images[0].url}
+              onClick={() => router.push(`/products/${item.id}`)}
             />
             <div>
-              <p className="text-lg  font-semibold flex justify-between items-center"> 
-                {item.title} 
+              <p  className="md:text-lg  xs:text-md font-semibold flex justify-between items-center"> 
+                <span onClick={() => router.push(`/products/${item.id}`)}>{item.title} </span>
                 
                 <RxCross1 onClick={ () => removeHandler(item.id)} /> 
                 </p>
-              <p className="text-gray-500">
+              <p  onClick={() => router.push(`/products/${item.id}`)} className="text-gray-500">
                
                 <span className="line-through mr-3">
                  
@@ -124,26 +140,38 @@ const WishlistPage = () => {
                 </span>
                 ₹{item.price}
               </p>
-              <p> {item.review} ⭐ </p>
-              <p className="">
+              <p  onClick={() => router.push(`/products/${item.id}`)}> {item.review} ⭐ </p>
+              <p  onClick={() => router.push(`/products/${item.id}`)} className="xs:hidden sm:hidden md:block">
                 
                 {item.description.length > 120
                   ? item.description.substring(0, 120) + `...`
                   : item.description.substring(0, 120)}
               </p>
              
-             <button className="p-2 rounded-md border mt-2 flex gap-2 items-center" onClick={ () => cartHandler(item)}>
+             <button className="p-2 transition-all duration-500 ease-in-out hover:scale-105 hover:text-green-600 hover:border-green-700
+              rounded-md border mt-2 flex gap-2 items-center" onClick={ () => cartHandler(item)}>
               < MdOutlineShoppingBag  /> Add to Cart
              </button>
 
             </div>
           </div>
-         </Link>
+        
         );
       })}
      </div>
     </div>
   );
+
+  if( allItems.length < 1 ){
+    return(
+      <div className="min-w-screen min-h-screen flex justify-center items-center">
+        <div
+  className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"
+></div>
+      </div>
+    )
+  }
+
 };
 
 export default WishlistPage;

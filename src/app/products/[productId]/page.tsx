@@ -24,7 +24,7 @@ import { updateDoc, doc } from "firebase/firestore";
 import { updateQnt } from "@/lib/features/carts/cartSlice";
 import { getDate } from "@/app/utils/getDate";
 import { addToWishlist } from "@/lib/features/user/user";
-
+import SuggestPage from "@/app/components/Suggest";
 
 const selectCartItems = (state: RootState) => state.cart.items;
 
@@ -227,6 +227,9 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
       }
 
     }
+    else{
+      router.push('/login')
+    }
   };
 
 
@@ -241,8 +244,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
       : { exists: false, quantity: 1, size: "" };
   };
 
-  const itemExistInWishlist = () => {
-    
+  const itemExistInWishlist = () => {    
     if( itemdata ) {
       const res = userData?.wishlist.includes(itemdata.id)
       return res ? true  :  false ;
@@ -364,7 +366,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
   // Ensure `itemdata` exists before rendering
   if (!itemdata) return <div>Loading...</div>;
 
-
+  if( itemdata )
   return (
     <div className="my-2 scroll-smooth">
       <div className="flex sm:flex-col xs:flex-col md:flex-row xl:flex-row lg:flex-row 2xl:flex-row justify-between">
@@ -377,6 +379,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
                   <div key={card.imgId} className=" w-[20vw]  h-28">
                     <img
                       src={card.url}
+                      loading='lazy'
                       alt="product image"
                       className="xs:w-20 sm:w-20"
                       onClick={() => setImgSrc(card.url)}
@@ -396,6 +399,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
                     <img
                       src={card.url}
                       alt="product image"
+                      loading='lazy'
                       className={`w-14 ${imgSrc === card.url ? "border" : ""}`}
                       onClick={() => setImgSrc(card.url)}
                     />
@@ -413,7 +417,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
         {/* info */}
         <div className="md:w-[50%] lg:w-[50%] xl:w-[50%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 pr-8 tracking-wider">
           <h3 className="text-2xl ">
-            {itemdata.title} | Oversized-T-shirt | Sway Clothing
+            {itemdata.title}  | Sway Clothing
           </h3>
           <h3 className="text-2xl text-gray-500 my-2">₹{itemdata.price}.00</h3>
 
@@ -433,7 +437,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
           <div className="flex gap-2  mb-3">
             <h3>Size :</h3> {itemSize}
           </div>
-          <div className={`flex w-full gap-2 my-2} `}>
+          <div className={`flex w-full  my-2} `}>
             <div
               onClick={() => {
                  setItemSize("Small");
@@ -578,7 +582,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
             </div>
           </div>
 
-          <div className="flex md:flex-col lg:flex-row xl:flex-row w-full gap-5 sm:flex-col xs:flex-col ">
+          <div className="flex mt-2 md:flex-col lg:flex-row xl:flex-row w-full gap-5 sm:flex-col xs:flex-col ">
             <div className="bg-gray-600 justify-center w-[250px] flex items-center h-[50px]  rounded-l-full rounded-r-full py-2 my-3">
               <button
                 className=" px-4 text-xl  w-[33%]  text-center border-r-2 disabled:opacity-55"
@@ -592,18 +596,19 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
               <button
                 className="border-l-2 text-center w-[33%]  disabled:opacity-55 "
                 onClick={incHandler}
+                disabled={ itemSize === "Small" ? itemdata.quantity[0] <= num : ( itemSize === "Medium" ? itemdata.quantity[1] <= num  : (itemSize === "Large" ? itemdata.quantity[2] <= num : (itemSize === "XL" ? itemdata.quantity[3] <= num : (itemSize === "XXL" ? itemdata.quantity[4] <= num : false))) ) }
               >
                 
                 +
               </button>
             </div>
 
-            <div className="flex gap-5 md:mb-4 sm:mb-4 xs:mb-4">
+            <div className="flex gap-5 lg:my-3 md:my-3">
               {!itemInCart && (
                 <button
                   onClick={() => addHandler(itemdata)}
                   className="px-2 border-white md:px-4 lg:px-4 xl:px-4 border bg-black 
-                  h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer 
+                  h-[50px]  flex items-center justify-center rounded-xl cursor-pointer 
                   relative overflow-hidden transition-all duration-500 ease-in-out shadow-md 
                   hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full 
                   before:w-full before:h-full before:bg-gradient-to-r before:from-[#009b49]
@@ -620,7 +625,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
                 <button
                   onClick={cartItemHandler}
                   className="px-2 border-white md:px-4 lg:px-4 xl:px-4 border bg-black 
-                  h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer 
+                  h-[50px]  flex items-center justify-center rounded-xl cursor-pointer 
                   relative overflow-hidden transition-all duration-500 ease-in-out shadow-md 
                   hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full 
                   before:w-full before:h-full before:bg-gradient-to-r before:from-[#009b49]
@@ -637,7 +642,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
                 <button
                   onClick={async() => await addToWishlistHandler()}
                   className="px-2 border-white md:px-4 lg:px-4 xl:px-4 border bg-black 
-              h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer 
+              h-[50px]  flex items-center justify-center rounded-xl cursor-pointer 
               relative overflow-hidden transition-all duration-500 ease-in-out shadow-md 
               hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full 
               before:w-full before:h-full before:bg-gradient-to-r before:from-[#009b49]
@@ -654,7 +659,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
                 <button
                   onClick={ async() => await addToWishlistHandler()}
                   className="px-2 border-white md:px-4 lg:px-4 xl:px-4 border bg-black 
-                  h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer 
+                  h-[50px]  flex items-center justify-center rounded-xl cursor-pointer 
                   relative overflow-hidden transition-all duration-500 ease-in-out shadow-md 
                   hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full 
                   before:w-full before:h-full before:bg-gradient-to-r before:from-[#009b49]
@@ -669,7 +674,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
             </div>
           </div>
 
-          <p>Category: Streetwear</p>
+          <p className="my-1">Category: Streetwear</p>
           <p>SKU : </p>
         </div>
       </div>
@@ -810,8 +815,27 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
           )}
         </div>
       </div>
+
+      <div className="mx-10">
+      {
+        itemdata && <SuggestPage collection={itemdata.collection} />
+      }
+      </div>
+
     </div>
   );
+  else{
+    return(
+      /* From Uiverse.io by Fresnel11 */ 
+      <div className='min-w-screen min-h-screen flex bg-slate-500 justify-center align-middle items-center'>
+        <div
+  className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"
+></div>
+      </div>
+
+    )
+  }
+
 };
 
 export default ProductDetails;

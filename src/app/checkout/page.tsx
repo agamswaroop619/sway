@@ -627,7 +627,7 @@ const handleCheckout = async () => {
                       key={item.itemId}
                       className="flex text-sm justify-between my-5 "
                     >
-                      <img src={item.image} className="h-20" />
+                      <img src={item.image} className="h-20" loading='lazy' />
                       <div className="w-[55%]">
                         <p className="tracking-wide leading-normal mb-2">
                           {item.title} | Sway Clothing
@@ -637,7 +637,7 @@ const handleCheckout = async () => {
                           <span> ₹{item.price}</span>
                         </p>
                         <p className="p-2 border rounded-md my-2 w-28">
-                          5 left in stock
+                          {item.stock} left in stock
                         </p>
                         <p>
                           Size : <span>Medium</span>

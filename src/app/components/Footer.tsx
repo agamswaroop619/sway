@@ -2,7 +2,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-700 flex flex-col w-[100vw] mt-20  gap-y-4" >
+    <footer className="bg-gray-700 flex flex-col w-[100vw] mb-0  gap-y-4" >
       
         <div className="flex md:flex-row lg:flex-row xl:flex-row xs:flex-col sm:flex-col p-6 w-full justify-around">
           <div className="lg:w-4/12 " >
@@ -18,7 +18,7 @@ const Footer = () => {
               <li> <a href="/shop/streetwears">Streetwear Collection</a> </li>
               <li> <a href="#">Blogs</a> </li>
               <li> <a href="/carts">Cart</a> </li>
-              <li> <a href="#">Checkout</a> </li>
+              <li> <a href="/carts">Checkout</a> </li>
               <li> <a href="/wishlist">Wishlist</a> </li>
               <li> <a href="/privacy-policy">Privacy Policy</a> </li>
             </ul>
@@ -28,11 +28,11 @@ const Footer = () => {
           <h3 className="text-green-600 my-4 text-xl ">Help & Support</h3>
             <ul className="flex flex-col gap-y-4">
               <li> <a href="/about">About us</a> </li>
-              <li> <a href="#">Contact us</a> </li>
-              <li> <a href="#">My account</a> </li>
-              <li> <a href="#">Terms & Conditions</a> </li>
-              <li> <a href="#">Refund and Returns Policy</a> </li>
-              <li> <a href="#">Shipping Policy</a> </li>
+              <li> <a href="/contacts">Contact us</a> </li>
+              <li> <a href="/profile">My account</a> </li>
+              <li> <a href="/terms-conditions">Terms & Conditions</a> </li>
+              <li> <a href="/refund_returns/">Refund and Returns Policy</a> </li>
+              <li> <a href="/shipping-policy">Shipping Policy</a> </li>
             </ul>
           </div>
         </div>

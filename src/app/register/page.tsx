@@ -80,8 +80,8 @@ const RegisterPage = () => {
   return (
     <>
       {!confirmation && (
-        <div className="w-full h-full mb-10 mt-[-12px] bg-gray-300 flex justify-center ">
-          <form className="p-2 bg-white text-black flex flex-col mt-5 h-[100vh]  w-80">
+        <div className="w-full pb-10 h-full p-2 bg-gray-300 flex justify-center ">
+          <form className="p-2 pb-8 bg-white text-black flex flex-col mt-5   w-80">
             <h2 className="text-xl text-center ">Sign up</h2>
 
             <label className="" htmlFor="name">
@@ -203,7 +203,7 @@ const RegisterPage = () => {
       )}
 
       {confirmation && (
-        <div className="flex justify-center mt-20">
+        <div className="flex pb-10 justify-center mt-20">
           <p> {success} </p>
         </div>
       )}

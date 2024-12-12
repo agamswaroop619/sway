@@ -129,8 +129,17 @@ let totalPages: number = 0;
     currentItems = shopData.slice(startIndex, startIndex + itemsPerPage);
   }
 
+  useEffect( () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth",
+      });
+    }
+  }, [currentPage])
 
-
+  if( shopData.length > 0)
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
       
@@ -407,6 +416,17 @@ let totalPages: number = 0;
       </div>
     </div>
   );
+  else{
+    return(
+      /* From Uiverse.io by Fresnel11 */ 
+      <div className='min-w-screen min-h-screen flex bg-slate-500 justify-center align-middle items-center'>
+        <div
+  className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"
+></div>
+      </div>
+
+    )
+  }
 };
 
 export default ProductsPage;

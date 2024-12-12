@@ -37,7 +37,7 @@ const SideNavBar: React.FC<PropsType> = ({ setSideNav }) => {
     }`}
   >
      <li>
-        <Link className="my-4" href="/shop">Oversized Tshirts</Link>
+        <Link className="my-4" href="/shop/streetwear">Streetwear</Link>
       </li>
 
       <li>

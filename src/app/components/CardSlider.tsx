@@ -58,17 +58,17 @@ function CardSlider() {
             >
               <div className="relative group">
                 <img
-                  src={item.images[0].url}
+                  src={item.images[0].url} loading='lazy'
                   alt="image1"
                   className="w-[100%] h-[100%] object-cover rounded-lg transition-opacity duration-700 ease-in-out opacity-100 group-hover:opacity-0"
                 />
                 <img
-                  src={item.images[1].url}
+                  src={item.images[1].url} loading='lazy'
                   alt="image2"
                   className="w-full h-full object-cover rounded-lg transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100 absolute top-0 left-0"
                 />
               </div>
-              <div className="w-full p-4 text-center">
+              <div className="w-full h-28 p-4 text-center">
                 <h3 className=" mb-2 ">{item.title}</h3>
                 <p>₹{item.price}</p>
               </div>

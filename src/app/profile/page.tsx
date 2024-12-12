@@ -1,7 +1,7 @@
 "use client"; // Ensure this file is used as a client component
 
 import Link from "next/link";
-import { useAppSelector } from "@/lib/hooks";
+import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -18,8 +18,12 @@ import toast from "react-hot-toast";
 import { Order } from "@/lib/features/user/user";
 import { MdOutlineArrowBackIosNew } from "react-icons/md";
 import { FormEvent } from "react";
+import { logout } from "@/lib/features/user/user";
+import { updateProfile } from "@/lib/features/user/user";
 
 const Page = () => {
+
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const [mounting, setMounting] = useState(false);
@@ -46,13 +50,13 @@ const Page = () => {
   const [firstName, setFirstName] = useState(userData?.name);
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState(userData?.email);
-  const [address, setAddress] = useState(userData?.delivery?.address);
-  const [city, setCity] = useState(userData?.delivery?.city);
-  const [state, setState] = useState(userData?.delivery?.state);
-  const [zipCode, setZipCode] = useState(userData?.delivery?.postalCode);
-  const [country, setCountry] = useState(userData?.delivery?.country);
-  const [phone, setPhone] = useState(userData?.phone);
-  const [apartment, setApartment] = useState(userData?.delivery?.apartment);
+  const [address, setAddress] = useState(userData?.delivery?.address || "");
+  const [city, setCity] = useState(userData?.delivery?.city || "");
+  const [state, setState] = useState(userData?.delivery?.state || "");
+  const [zipCode, setZipCode] = useState(userData?.delivery?.postalCode || "");
+  const [country, setCountry] = useState(userData?.delivery?.country || "");
+  const [phone, setPhone] = useState(userData?.phone || "");
+  const [apartment, setApartment] = useState(userData?.delivery?.apartment || "");
 
   const [ shipmentId, SetShipmentId ] = useState("");
 
@@ -67,12 +71,12 @@ const Page = () => {
 
   const saveAddress = async () => {
     const accountAddress = {
-      apartment,
-      address,
-      city,
-      state,
-      postalCode: zipCode,
-      country,
+      apartment ,
+      address ,
+      city ,
+      state ,
+      postalCode: zipCode ,
+      country ,
     };
 
     if (userRef) {
@@ -81,6 +85,8 @@ const Page = () => {
       if (userData.exists()) {
         // Use updateDoc with an object specifying the field you want to update
         await updateDoc(userRef, { delivery: accountAddress });
+        dispatch( updateProfile({delivery:accountAddress} )) ;
+        toast.success("Address updated successfully");
       }
     }
   };
@@ -89,10 +95,17 @@ const Page = () => {
     if (userRef) {
       const userData = await getDoc(userRef);
 
+      const accountDetails = {
+        name: firstName,
+        email: email,
+        phone: phone
+      }
+
       if (userData.exists()) {
         try {
-          await updateDoc(userRef, { phone });
+          await updateDoc(userRef, { accountDetails });
           toast.success("Phone Updated successfully");
+          dispatch( updateProfile( accountDetails))
         } catch (error) {
           toast.error("Something went wrong while updating phone number");
 
@@ -129,13 +142,19 @@ const Page = () => {
 
   }
 
+  const logoutHandler = () => {
+    if(userData) {
+      dispatch( logout())
+    }
+  }
+
   // Show loading message if mounting is still false
   if (!mounting) {
     return <>Loading ...</>;
   }
 
   return (
-    <div>
+    <div className="mb-20">
       {isLoggedIn ? (
         <div>
           {/* For large screen (Laptop, Tablet) */}
@@ -205,6 +224,7 @@ const Page = () => {
                 </div>
 
                 <div
+                onClick={ logoutHandler}
                   className={`flex items-center w-[20vw] gap-4 cursor-pointer transition-colors hover:text-white duration-500 ease-in-out ${
                     nav === "log out" ? "text-white" : "text-[#7E7E7E]"
                   }`}
@@ -237,7 +257,7 @@ const Page = () => {
                     {newOrders && newOrders.length > 0 ? (
                       newOrders.map((item: Order) => (
                         <div key={item.itemId} className="flex mb-2 justify-between">
-                          <img src={item.image} alt="image" className="h-20" />
+                          <img src={item.image} alt="image" loading='lazy' className="h-20" />
                       
                            <p className="text-lg ">{item.title}</p>
                            
