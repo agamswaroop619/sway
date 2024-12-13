@@ -37,7 +37,10 @@ const WishlistPage = () => {
       getData()
         .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
         .catch((error) => {
-          console.error("Error fetching data:", error);
+         // console.error("Error fetching data:", error);
+         if(error instanceof Error){
+          console.error("");
+        }
           dispatch(setItemsData([]));
         });
     }
@@ -66,7 +69,10 @@ const WishlistPage = () => {
     }
 
    } catch (error) {
-    console.log("Something went wrong : ",error);
+   // console.log("Something went wrong : ",error);
+   if(error instanceof Error){
+    console.error("");
+  }
    }
 
   }

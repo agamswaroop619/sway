@@ -93,9 +93,9 @@ const GoogleLogin = () => {
             router.push("/profile");
 
         } catch (error) {
-            
-            if( error instanceof Error)
-           console.log("error has occured ")
+            throw new Error(`Google authentication failed : ${error}`)
+            //if( error instanceof Error)
+           //console.log("error has occured ")
         }
    }
 

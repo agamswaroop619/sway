@@ -30,7 +30,10 @@ export default async function handler(req: NextRequest) {
 
       return NextResponse.json( response.data, { status: 200 });
     } catch (error) {
-      console.error("Error tracking shipment:", error);
+     // console.error("Error tracking shipment:", error);
+     if(error instanceof Error){
+      console.error("");
+    }
       return NextResponse.json({ error: "Failed to track shipment"  }, { status: 500 });
     }
   } else {

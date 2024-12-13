@@ -40,7 +40,10 @@ useEffect(() => {
     getData()
       .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
       .catch((error) => {
-        console.error("Error fetching data:", error);
+        //console.error("Error fetching data:", error);
+        if(error instanceof Error){
+          console.error("");
+        }
         dispatch(setItemsData([]));
       });
   }
@@ -94,7 +97,13 @@ const applyFiltersAndSorting = useCallback(() => {
       break;
   }
 
-  setShopData(processedData);
+  // Avoid redundant updates
+  setShopData((prevData) => {
+    if (JSON.stringify(prevData) !== JSON.stringify(processedData)) {
+      return processedData;
+    }
+    return prevData;
+  });
   setCurrentPage(1);
   const query = filter !== "default" ? `?orderby=${filter}` : "";
   router.push(`/shop/${params.category}${query}`);

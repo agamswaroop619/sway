@@ -49,7 +49,7 @@ const Navbar =({ sideNav, setSideNav }: NavbarProps) => {
 
   const keyHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      console.log(search);
+      //console.log(search);
       router.push(`/search/${search}`);
       setSearch("");
     }

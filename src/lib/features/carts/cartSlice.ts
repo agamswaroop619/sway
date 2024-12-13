@@ -31,7 +31,10 @@ const loadFromLocalStorage = (): Products[] => {
     }
     return JSON.parse(serializedCart);
   } catch (e) {
-    console.warn("Failed to load cart from localStorage", e);
+    //console.warn("Failed to load cart from localStorage", e);
+    if(e instanceof Error){
+      console.error("");
+    }
     return [];
   }
 };
@@ -46,7 +49,10 @@ const saveToLocalStorage = (state: Products[]) => {
     const serializedCart = JSON.stringify(state);
     localStorage.setItem("cartItems", serializedCart);
   } catch (e) {
-    console.warn("Failed to save cart to localStorage", e);
+    //console.warn("Failed to save cart to localStorage", e);
+    if(e instanceof Error){
+      console.error("");
+    }
   }
 };
 

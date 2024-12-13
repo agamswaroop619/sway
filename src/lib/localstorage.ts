@@ -11,7 +11,11 @@ export const saveToLocalStorage = (key: string, value: UserDetails) => {
       const serializedState = JSON.stringify(value);
       localStorage.setItem(key, serializedState);
     } catch (e) {
-      console.error("Could not save state to localStorage", e);
+     // console.error("Could not save state to localStorage", e);
+    if(e instanceof Error){
+      console.error("");
+    }
+     
     }
   };
   
@@ -21,7 +25,10 @@ export const saveToLocalStorage = (key: string, value: UserDetails) => {
       if (serializedState === null) return undefined;
       return JSON.parse(serializedState);
     } catch (e) {
-      console.error("Could not load state from localStorage", e);
+      //console.error("Could not load state from localStorage", e);
+      if(e instanceof Error){
+        console.error("");
+      }
       return undefined;
     }
   };
@@ -30,7 +37,10 @@ export const saveToLocalStorage = (key: string, value: UserDetails) => {
     try {
       localStorage.removeItem(key);
     } catch (e) {
-      console.error("Could not remove state from localStorage", e);
+     // console.error("Could not remove state from localStorage", e);
+     if(e instanceof Error){
+      console.error("");
+    }
     }
   };
   

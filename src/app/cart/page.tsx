@@ -55,7 +55,10 @@ const CartPage = () => {
       getData()
         .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
         .catch((error) => {
-          console.error("Error fetching data:", error);
+         // console.error("Error fetching data:", error);
+         if(error instanceof Error){
+          console.error("");
+        }
           dispatch(setItemsData([]));
         });
     }
@@ -70,7 +73,7 @@ const CartPage = () => {
     const out: cartItems[] = [];
   
     dispatch(clearCheckout());
-    console.log("at the starting phase");
+    //console.log("at the starting phase");
   
     itemsFromStore.forEach((item) => {
       const itemData = allItems?.find((card) => Number(card.id) === item.itemId); // changed filter to find

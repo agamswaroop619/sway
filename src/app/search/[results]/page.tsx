@@ -21,7 +21,7 @@ const ProductsPage = () => {
   const params = useParams();
   const query = params.results;
   const input = String(query).replace(/%20/g, " ");
-  console.log(" params : ", params)
+ // console.log(" params : ", params)
  
 const dispatch = useAppDispatch();
 const router = useRouter();
@@ -48,7 +48,10 @@ useEffect(() => {
     getData()
       .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
       .catch((error) => {
-        console.error("Error fetching data:", error);
+       // console.error("Error fetching data:", error);
+       if(error instanceof Error){
+        console.error("");
+      }
         dispatch(setItemsData([]));
       });
   }

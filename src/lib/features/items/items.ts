@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "@/lib/store";
-import toast from "react-hot-toast";
+
 
 interface Image {
   url: string;
@@ -49,7 +49,7 @@ export interface Item {
 
         setItemsData: (state, action: PayloadAction<Item[]>) => {
             state.itemsData = action.payload; // Expecting an array of items
-            console.log(" Data in redux : ",state.itemsData);
+           // console.log(" Data in redux : ",state.itemsData);
           },
 
          updateItem : ( state, action: PayloadAction<Item > ) => {
@@ -94,25 +94,20 @@ export interface Item {
                 }, ...(item.userReview || [])];
 
 
-                console.log("item match for update review");
+               // console.log("item match for update review");
               } else {
-                console.log(`item not match for update review -> ${item.id } ${action.payload.itemId}`);
+               // console.log(`item not match for update review -> ${item.id } ${action.payload.itemId}`);
               }
         
               // Return the unchanged item if the id doesn't match
               return item;
             });
           } else {
-            console.log("itemsData not found");
+           // console.log("itemsData not found");
           }
         },
         
-        
-          testReview : ( state ) => {
-            toast.success("Test function called");
-            console.log("state item data ",state.itemsData)
-          },
-      
+       
          updateQntAtCart: (state, action: PayloadAction<{ itemId: string; quantity: number[] }>) => {
           if (state.itemsData) {
             state.itemsData = state.itemsData.map((item) => 
@@ -126,7 +121,7 @@ export interface Item {
     }
   });
 
-  export const { setItemsData, updateItem, updateReview, updateQntAtCart, testReview } = itemSlice.actions;
+  export const { setItemsData, updateItem, updateReview, updateQntAtCart } = itemSlice.actions;
 
   export const itemsDataInCart = ( state : RootState ) => state.items.itemsData;
 

@@ -95,7 +95,10 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
           }
         })
         .catch((error) => {
-          console.error("Error fetching data:", error);
+        //  console.error("Error fetching data:", error);
+        if(error instanceof Error){
+          console.error("");
+        }
           dispatch(setItemsData([])); // Handle error by dispatching empty array
         });
     }
@@ -105,9 +108,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
   const itemsFromStore = useAppSelector(selectCartItems);
   const cartItems = itemsFromStore;
 
-  useEffect(() => {
-    console.log("Item data : ", itemdata);
-  }, [itemdata]);
+ 
 
   const addHandler = (product: Item) => {
     if (itemSize === "") {
@@ -221,7 +222,10 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
 
       await updateDoc(userRef, { wishlist: updatedWishlist})
       } catch (error) {
-        console.log("Something went wrong ", error);
+       // console.log("Something went wrong ", error);
+       if(error instanceof Error){
+        console.error("");
+      }
       }
       
       }
@@ -234,10 +238,10 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
 
 
   const itemExists = (id: number) => {
-    console.log("cart items:", cartItems);
+    //console.log("cart items:", cartItems);
     const res = cartItems.find((item) => item.itemId === id);
 
-    console.log("res:", res);
+   
 
     return res
       ? { exists: true, quantity: res.qnt, size: res.size }
@@ -266,7 +270,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
       const productData =
         data.find((item): item is Item => Number(item.id) === numberId) || null;
 
-      console.log("Product data : ", productData);
+      //console.log("Product data : ", productData);
 
       setItemdata(productData);
 
@@ -306,7 +310,7 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
         // Round the clamped rating to the nearest 0.5
         clampedRating = Math.round(clampedRating * 2) / 2;
 
-        toast.success(`review calculated : ${clampedRating}`);
+        //toast.success(`review calculated : ${clampedRating}`);
 
         const commentId = generateUniqueString(itemdata.title);
 
@@ -343,20 +347,21 @@ if (itemdata?.userReview && itemdata.userReview.length > 0) {
         });
 
         try {
-          const res = await updateDoc(docRef, {
+           await updateDoc(docRef, {
             review: clampedRating, // Assuming review is an overall rating
             userReview: updatedUserReviews, // Use the updated userReviews array here
           });
-          console.log("Review successfully updated:", res);
+          //console.log("Review successfully updated:", res);
         } catch (error) {
-          console.error("Error updating Firestore:", error);
-          toast.error("Failed to update review in Firestore");
+          //console.error("Error updating Firestore:", error);
+          if(error instanceof Error){
+            console.error("");
+          }
+          toast.error("Failed to update review ");
         }
 
         setReviewMessage("");
         setRating(0);
-      } else {
-        toast.error("itemdata is empty");
       }
     } else {
       toast.error("user is not logged in");

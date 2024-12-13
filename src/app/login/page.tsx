@@ -49,12 +49,9 @@ const LoginPage = () => {
 
       if (user.emailVerified) {
         const registrationData = localStorage.getItem("registrationData");
-        const { name = "", email: storedEmail = "", phone = "" } = registrationData ? JSON.parse(registrationData) : {};
+        const { name = "", phone = "" } = registrationData ? JSON.parse(registrationData) : {};
 
-// Optional check to log or compare storedEmail
-if (storedEmail && storedEmail !== user.email) {
-  console.log("Stored email doesn't match the current user email.");
-}
+
 
       
         // Check if user data exists in Firestore

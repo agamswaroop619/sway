@@ -30,11 +30,13 @@ export async function POST(req: NextRequest) {
       orderDetails,
       {
         headers: {
+
           "Authorization": `Bearer ${token}`,
         },
       }
     );
 
+   // console.log("order details : ", orderResponse);
 
     // Step 4: Return a success response with order details
     return NextResponse.json(

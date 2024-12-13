@@ -104,10 +104,10 @@ const Page = () => {
       if (userData.exists()) {
         try {
           await updateDoc(userRef, { accountDetails });
-          toast.success("Phone Updated successfully");
+          toast.success("Account details updated successfully");
           dispatch( updateProfile( accountDetails))
         } catch (error) {
-          toast.error("Something went wrong while updating phone number");
+          toast.error("Something went wrong ");
 
           if (error instanceof Error) {
             console.log("Error : ", error);

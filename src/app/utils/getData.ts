@@ -24,13 +24,16 @@ export async function getData(): Promise<Item[] | null> {
       if (Array.isArray(res) && res.length > 0)  {
           return res as Item[]; // Type assertion once confirmed
         } else {
-          console.error('Data fetched does not match the expected Item structure.');
+          //console.error('Data fetched does not match the expected Item structure.');
           return null;
         }
   
       
     } catch (error) {
-      console.error('Error fetching data from Firestore:', error);
+      //console.error('Error fetching data from Firestore:', error);
+      if(error instanceof Error){
+        console.error("");
+      }
       return null;
     }
   }

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { GoArrowLeft } from "react-icons/go";
 import toast from "react-hot-toast";
 import { firestore } from "@/app/firebase.config";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, writeBatch } from "firebase/firestore";
 import { clearCart } from "@/lib/features/carts/cartSlice";
 import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
@@ -69,8 +69,9 @@ const CheckoutPage = () => {
   const [shipping, setShipping] = useState("free");
 
   // success and error
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  const [ orderPlaced, setorderPlaced ] = useState(false);
 
   const generateOrderId = (): string => {
     const timestamp = Date.now().toString(); // Current timestamp in milliseconds
@@ -85,243 +86,23 @@ const CheckoutPage = () => {
     : 0;
 
 
-
-    const checkDetails = async () => {
-      if (userData) {
-        const requiredFields = {
-          firstName,
-          phone,
-          address,
-          zipCode,
-          state,
-          country,
-          city,
-        };
-    
-        for (const [key, value] of Object.entries(requiredFields)) {
-          if (!value?.trim()) {
-            toast.error(`${key.replace(/([A-Z])/g, ' $1')} can't be empty`);
-            return;
-          }
-        }
-
-
-        try {
-
-          if( payment === "online") {
-            await createOrder();
-          }
-          else{
-            setSuccess(true);
-          }
-
-        } catch (error) {
-          console.log("Something went wrong ", error);
-        }
-        
-      }
-    };
-    
-    useEffect(() => {
-      if (success) {
-        updateAll();
-      }
-    }, [success]);
-
-    const updateAll = async () => {
-      const res =await updateDB();
-
-      if( res === "ok") {
-        dispatch(clearCart());
-        dispatch(clearCheckout());
-      }
-    };
-    
-
-  // 1. Make paymeyt and verify
-  //  2. Mark success true for update the database
-  const createOrder = async () => {
-    try {
-      const res = await fetch("/api/create-order", {
-        method: "POST",
-        body: JSON.stringify({ amount: (subtotal + 79) * 100 }),
-      });
-      const data = await res.json();
-
-      const paymentData = {
-        key: process.env.PUBLIC_RAZORPAY_KEY_ID,
-        order_id: data.id,
-        prefill: {
-          name: `${firstName}`,
-          contact: "1234567890",
-        },
-        handler: async function (response: RazorpayResponse) {
-          try {
-            // Verify payment
-            const res = await fetch("/api/verify-payment", {
-              method: "POST",
-              body: JSON.stringify({
-                orderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-              }),
-            });
-            const verificationData = await res.json();
-            if (verificationData.isOk) {
-              setSuccess(true);
-            } else {
-              toast.error("Something went wrong.");
-              setError("SOmething went wrong at creating order for razorpay")
-            }
-          } catch (error) {
-            console.error("Payment verification error:", error);
-          }
-        },
-      };
-
-      const payment = new window.Razorpay(paymentData);
-      payment.open();
-    } catch (error) {
-      console.error("Order creation error:", error);
-    }
-  };
-
-
-   // Function that use itemsupdate for update the database
-  // 1. Push item of itemsUpdate in user order section
-  // 2. Reduce the quantity of each item that placed for order
-  const updateDB = async () => {
-    const ref = {
-      data: {
-        docId: "demoId",
-        id: 12000,
-        title: "Test Item to prevent undefined",
-        images: [],
-        quantity: [8, 8, 8, 4, 4],
-        price: 499.0,
-        category: "",
-        descImg: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
-        color: "Black",
-        review: 3.5,
-      },
-    };
-    
-    const {shipment_id, status } = await handleCheckout();
-
-    if( status === "error" ){
-      return;
-    }
-
-    const shipmentId = shipment_id;
-    toast.success(shipmentId);
-
-    const newOrders: Order[] = [];
-  
-    if (cartItems) {
-      try {
-        // Process cart items
-        await Promise.all(
-          cartItems.map(async (item) => {
-            const docRef = doc(firestore, "products", item.docId);
-            const docData = await getDoc(docRef);
-            const itemData = docData.exists() ? docData.data() : ref.data;
-  
-            switch (item.size) {
-              case "Small":
-                if (item.qnt > itemData.quantity[0]) {
-                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
-                }
-                itemData.quantity[0] -= item.qnt;
-                break;
-              case "Medium":
-                if (item.qnt > itemData.quantity[1]) {
-                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
-                }
-                itemData.quantity[1] -= item.qnt;
-                break;
-              case "Large":
-                if (item.qnt > itemData.quantity[2]) {
-                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
-                }
-                itemData.quantity[2] -= item.qnt;
-                break;
-              case "XL":
-                if (item.qnt > itemData.quantity[3]) {
-                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
-                }
-                itemData.quantity[3] -= item.qnt;
-                break;
-              case "XXL":
-                if (item.qnt > itemData.quantity[4]) {
-                  throw new Error(`Quantity of ${item.title} exceeds available stock.`);
-                }
-                itemData.quantity[4] -= item.qnt;
-                break;
-            }
-  
-            // Update product stock in Firestore
-            await updateDoc(docRef, { quantity: itemData.quantity });
-      
-            const itemId = item.itemId.toString();
-            const image= item.image;
-            const title = item.title;
-            const price= item.price;
-            const size= item.size;
-            const qnt= item.qnt;
-            const paymentMode= payment;
-            const date= getDate();
-            const expectedDate= nextDate();
-            
-            const quantity = itemData.quantity;
-
-            dispatch( updateQntAtCart({itemId, quantity}) )
-  
-            newOrders.push({ itemId, orderId, shipmentId, image, title, price, size, qnt, paymentMode, date, expectedDate});
-          })
-        );
-  
-        // Update user orders in Firestore
-        const userRef = doc(firestore, "users", userData?.userId || "");
-  
-        if (userData) {
-          const updatedOrders = [...newOrders, ...userData.orders];
-          const ordersUpdateResult = await updateDoc(userRef, { orders: updatedOrders });
-  
-          // Ensure that user state in Redux is updated correctly
-          const updatedUser = { ...userData, orders: updatedOrders };
-          dispatch(setUser(updatedUser));
-  
-          console.log("Orders updated in Firestore: ", ordersUpdateResult);
-          console.log("Updated orders: ", updatedOrders);
-        }
-
-        return "ok";
-
-      } catch (err) {
-        console.error("Something went wrong at checkout: ", err);
-        return "error";
-      }
-    }
-  };
-
-
 const handleCheckout = async () => {
 
   const shippingFee = 79;
 
   const orderDetails = {
     order_id: orderId, // Unique order ID
-    order_date: new Date().toISOString(),
+    order_date: getDate(),
     billing_customer_name: firstName,
-    billing_last_name: "",
+    billing_last_name: lastName,
     billing_address: apartment || "N/A",
-    billing_address_2: address || "N/A",
-    billing_city: city || "N/A",
-    billing_pincode: zipCode || "000000",
-    billing_state: state || "N/A",
-    billing_country: country || "N/A",
-    billing_email: userData?.email || "N/A",
-    billing_phone: phone || "N/A",
+    billing_address_2: address ,
+    billing_city: city ,
+    billing_pincode: zipCode ,
+    billing_state: state ,
+    billing_country: country ,
+    billing_email:  email || userData?.email,
+    billing_phone: phone ,
     shipping_is_billing: true,
     order_items: cartItems,
     payment_method: payment === "cash" ? "COD" : "Prepaid",
@@ -344,31 +125,257 @@ const handleCheckout = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      return ( {shipment_id : "", status: "error", message: `Failed to place the order.`} );
     }
 
     const data = await response.json();
     console.log("Shiprocket response : ", response)
     console.log("Shiprocket data : ", data);
 
-    if (data && data.shipmentId) {
-      const shipmentId = data.shipment_id;
-      return ( {shipment_id : shipmentId, status: "ok"} );
-    } 
-    else{
-      const randomString = Math.random().toString(36).substring(2, 10);
-      const shipmentId = randomString ;
-      return ( {shipment_id : shipmentId, status: "ok"} );
-    }
+    
+      const shipmentId = data.shipment_id || orderId;
+      return ( {shipment_id : shipmentId, status: "ok", message: "order created successfully"} );
+    // } 
+    // else{
+    //   const randomString = Math.random().toString(36).substring(2, 10);
+    //   const shipmentId = randomString ;
+    //   return ( {shipment_id : shipmentId, status: "ok"} );
+    // }
 
   } catch (error) {
     console.error("Checkout error:", error);
     toast.error("Failed to place the order. Please try again.");
-    return( {shipment_id: "" , status: "error"})
+    return( {shipment_id: "" , status: "error", message: 'Failed to place the order.'})
   }
 
+
 };
+
+
+
+const updateDB = async () => {
+  // const ref = {
+  //   data: {
+  //     docId: "demoId",
+  //     id: 12000,
+  //     title: "Test Item to prevent undefined",
+  //     images: [],
+  //     quantity: [8, 8, 8, 4, 4],
+  //     price: 499.0,
+  //     category: "",
+  //     descImg: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
+  //     color: "Black",
+  //     review: 3.5,
+  //   },
+  // };
   
+  const {shipment_id, status, message } = await handleCheckout();
+
+ 
+
+  if( status === "error" ){
+   // toast.error("order is not cretaed")
+    return ({status : "error", message});
+  }
+
+  const shipmentId = shipment_id;
+
+  const newOrders: Order[] = [];
+  const batch = writeBatch(firestore);
+
+  if (cartItems) {
+    try {
+      // Process cart items
+      await Promise.all(
+        cartItems.map(async (item) => {
+          
+        const docRef = doc(firestore, "products", item.docId);
+        const docData = await getDoc(docRef);
+        const itemData = docData.exists() ? docData.data() : {};
+
+      // Reduce quantity based on size
+      const sizeIndex = ["Small", "Medium", "Large", "XL", "XXL"].indexOf(item.size);
+      if (sizeIndex === -1 || item.qnt > itemData.quantity[sizeIndex]) {
+        throw new Error(`Insufficient stock for ${item.title}`);
+      }
+
+      itemData.quantity[sizeIndex] -= item.qnt;
+      batch.update(docRef, { quantity: itemData.quantity });
+
+    
+          const itemId = item.itemId.toString();
+          const image= item.image;
+          const title = item.title;
+          const price= item.price;
+          const size= item.size;
+          const qnt= item.qnt;
+          const paymentMode= payment;
+          const date= getDate();
+          const expectedDate= nextDate();
+          
+          const quantity = itemData.quantity;
+
+          dispatch( updateQntAtCart({itemId, quantity}) )
+
+          newOrders.push({ itemId, orderId, shipmentId, image, title, price, size, qnt, paymentMode, date, expectedDate});
+        })
+      );
+
+      // Commit batch updates
+    await batch.commit();
+
+      // Update user orders in Firestore
+      const userRef = doc(firestore, "users", userData?.userId || "");
+
+      if (userData) {
+        const updatedOrders = [...newOrders, ...userData.orders];
+        const ordersUpdateResult = await updateDoc(userRef, { orders: updatedOrders });
+
+        // Ensure that user state in Redux is updated correctly
+        const updatedUser = { ...userData, orders: updatedOrders };
+        dispatch(setUser(updatedUser));
+
+        console.log("Orders updated in Firestore: ", ordersUpdateResult);
+        console.log("Updated orders: ", updatedOrders);
+      }
+
+      return ({status: "ok", message: "Order placed successfully"});
+
+    } catch (err) {
+      console.error("Something went wrong at checkout: ", err);
+      return ({status: "error", message: "Failed to create order"});
+    }
+  }
+
+  return ({status: "ok", message})
+};
+
+
+const requiredFields = {
+  firstName,
+  phone,
+  address,
+  zipCode,
+  state,
+  country,
+  city,
+  lastName,
+  email,
+  payment,
+  
+};
+
+const checkDetails = async () => {
+  try {
+    // Validate required fields
+    for (const [key, value] of Object.entries(requiredFields)) {
+      if (!value?.trim()) {
+        throw new Error(`${key.replace(/([A-Z])/g, " $1")} can't be empty`);
+      }
+      console.log("key " + key + ", value "+value)
+    }
+
+    if (payment === "online") {
+      await createOrder();
+    } else {
+      setSuccess(true);
+    }
+  } catch (err) {
+    if( err instanceof Error)
+   // toast.error(err.message);
+  throw new Error('Something went wrong')
+  }
+};
+
+useEffect(() => {
+  if (success) {
+    updateAll();
+  }
+}, [success]);
+
+const createOrder = async () => {
+  try {
+    const res = await fetch("/api/create-order", {
+      method: "POST",
+      body: JSON.stringify({ amount: (subtotal + 79) * 100 }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to create order. Status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    const paymentData = {
+      key: process.env.PUBLIC_RAZORPAY_KEY_ID,
+      order_id: data.id,
+      prefill: {
+        name: firstName,
+        contact: phone,
+      },
+      handler: async function (response: RazorpayResponse) {
+        try {
+          const verifyRes = await fetch("/api/verify-payment", {
+            method: "POST",
+            body: JSON.stringify({
+              orderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+            }),
+          });
+
+          if (!verifyRes.ok) {
+            throw new Error(`Payment verification failed. Status: ${verifyRes.status}`);
+          }
+
+          const verificationData = await verifyRes.json();
+          if (verificationData.isOk) {
+            setSuccess(true);
+          } else {
+            throw new Error("Payment verification failed. Try again.");
+          }
+        } catch (err) {
+          //if(err instanceof Error)
+         // toast.error(err.message);
+          if(err instanceof Error){
+            console.error("");
+          }
+        }
+      },
+    };
+
+    const paymentInstance = new window.Razorpay(paymentData);
+    paymentInstance.open();
+  } catch (err) {
+    if( err instanceof Error)
+    toast.error(`Order creation error: ${err.message}`);
+    throw new Error("Order is not created")
+  }
+};
+
+const updateAll = async () => {
+  try {
+    const result = await updateDB();
+
+    if (result.status === "ok") {
+      dispatch(clearCart());
+      dispatch(clearCheckout());
+      setorderPlaced(true);
+      toast.success("Order placed successfully!");
+    } else {
+      toast.error(result.message)
+    }
+  } catch (err) {
+    if( err instanceof Error)
+    toast.error(err.message);
+  throw new Error("order is not created. something went wrong")
+  }
+
+  console.log("at the end : ", cartItems)
+
+};
+
+
+
   const couponHandler = () => {
     if (couponCode === "") {
       setCouponErr("Please enter a valid coupon code");
@@ -387,11 +394,11 @@ const handleCheckout = async () => {
     <div>
       <Script
         type="text/javascript"
-        src="https://checkout.razorpay.com/v1/checkout.js"
+         src="https://checkout.razorpay.com/v1/checkout.js"
       />
 
-      {error === "" ? (
-        <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row mx-7 justify-between">
+      {  !orderPlaced && (
+        <div className="flex sm:flex-col-reverse xs:flex-col-reverse md:flex-row lg:flex-row xl:flex-row mx-7 justify-between">
           <div className="w-[56vw] xl:w-[56vw] lg:w-[56vw] md:w-[56vw] sm:w-[90vw] xs:w-[90vw]">
             <div className="w-full mt-10 mb-4">
               <h3 className="text-xl">Contact Information</h3>
@@ -461,7 +468,7 @@ const handleCheckout = async () => {
                 <span className="text-[#7E7E7E]">Address</span>
                 <input
                   type="text"
-                  rounded-md
+                 
                   className="w-full bg-transparent focus:outline-none"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -508,7 +515,13 @@ const handleCheckout = async () => {
                     type="text"
                     className=" w-full bg-transparent focus:outline-none"
                     value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value)}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      // Allow only digits using a regular expression
+                      if (/^\d*$/.test(inputValue)) {
+                        setZipCode(inputValue);
+                      }
+                    }}
                   />
                 </div>
                 <div className="bg-white w-[49%] rounded-md px-2 text-black">
@@ -517,7 +530,13 @@ const handleCheckout = async () => {
                     type="text"
                     className="w-full bg-transparent focus:outline-none"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      // Allow only digits using a regular expression
+                      if (/^\d*$/.test(inputValue)) {
+                        setPhone(inputValue);
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -566,7 +585,7 @@ const handleCheckout = async () => {
                 </label>
                 <p className="flex items-center mt-6 mb-1">
                   {payment === "cash" && (
-                    <span>Pay with cash upon delivery.</span>
+                    <span className="xs:hidden sm:hidden md:block lg:block xl:block">Pay with cash upon delivery.</span>
                   )}
                 </p>
               </button>
@@ -589,7 +608,7 @@ const handleCheckout = async () => {
                 </label>
                 <p className="flex items-center mt-6 mb-1">
                   {payment === "online" && (
-                    <span>
+                    <span className="xs:hidden sm:hidden md:block lg:block xl:block">
                       Pay securely by Credit or Debit card or Internet Banking
                       through Razorpay.
                     </span>
@@ -610,7 +629,7 @@ const handleCheckout = async () => {
               <Link
                 href="#"
                 onClick={checkDetails}
-                className="border flex justify-center items-center  px-28 "
+                className="border flex justify-center items-center  lg:px-28 md:px-20 xs:px-10 sm: px-10"
               >
                 Place Order
               </Link>
@@ -707,15 +726,11 @@ const handleCheckout = async () => {
             </div>
           </div>
         </div>
-      ) : (
-        <div>
-          <p className="text-lg font-bold my-4">Your Cart is Empty</p>
-          <p> {error} </p>
-        </div>
-      )}
+      )
+    }
 
-      {success && (
-        <div className="flex w-full h-full justify-center items-center">
+      { orderPlaced  && (
+        <div className="flex min-h-screen min-w-screen h-full justify-center items-center">
           <p className="text-lg font-bold my-4">Order Placed Successfully</p>
         </div>
       )}

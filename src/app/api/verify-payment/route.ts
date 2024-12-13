@@ -46,7 +46,10 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error during payment verification:", error);
+   // console.error("Error during payment verification:", error);
+   if(error instanceof Error){
+    console.error("");
+  }
     return NextResponse.json(
       { message: "Server error during payment verification", isOk: false },
       { status: 500 }
