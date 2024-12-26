@@ -35,6 +35,8 @@ const itemsPerPage = 12;
 const [min, setMin] = useState(100);
 const [max, setMax] = useState(1000);
 
+const [ mount, setMount] = useState(false);
+
 const data = useAppSelector(itemsDataInCart) || [];
 const [filterRating, setFilterRating] = useState(0);
 const [filterSize, setFilterSize] = useState("all");
@@ -117,6 +119,8 @@ const applyFiltersAndSorting = useCallback(() => {
       break;
   }
 
+  setMount(true)
+
   // Update state
   setShopData((prevData) => {
     if (JSON.stringify(prevData) !== JSON.stringify(processedData)) {
@@ -182,7 +186,19 @@ let totalPages: number = 0;
     }
   }, [currentPage])
 
-  if( shopData.length > 0 )
+  if(!mount) {
+    return(
+      /* From Uiverse.io by Fresnel11 */ 
+      <div className='min-w-screen min-h-screen flex  justify-center align-middle items-center'>
+        <div
+  className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"
+  ></div>
+      </div>
+  
+    )
+  }
+
+  if( shopData)
   return (
     <div className="flex sm:flex-col xs:flex-col md:flex-row lg:flex-row xl:flex-row relative">
       
@@ -461,17 +477,7 @@ let totalPages: number = 0;
       </div>
     </div>
   );
-  else{
-    return(
-      /* From Uiverse.io by Fresnel11 */ 
-      <div className='min-w-screen min-h-screen flex bg-slate-500 justify-center align-middle items-center'>
-        <div
-  className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"
-></div>
-      </div>
-
-    )
-  }
+  
 };
 
 export default ProductsPage;

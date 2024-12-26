@@ -85,14 +85,14 @@ const Navbar =({ sideNav, setSideNav }: NavbarProps) => {
 
             <li className="relative" onMouseLeave={() => setDropDown(false)} onMouseEnter={ () => setDropDown(true) }  >
               <Link href="/products" 
-            
+              onClick={()=> setDropDown(false) }
               >Collections</Link>
 
 <ul  className={`z-10 text-white bg-black duration-400 ease-in-out absolute ${dropDown ? "block" : "hidden"} transition-all`}>
-   <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "0ms" }}>  <Link href={`/shop/streetwear`} > Streetwear </Link> </li>
-        <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "150ms" }}> <Link href={`/shop/polo`} > Polo </Link> </li>
-        <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "300ms" }}> <Link href={`/shop/hoodies`} > Hoodies </Link> </li>
-        <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "450ms" }}> <Link href={`/shop/oversized`} > Oversized </Link> </li>
+   <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "0ms" }}>  <Link href={`/shop/streetwear`}  onClick={()=> setDropDown(false) } > Streetwear </Link> </li>
+        <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "150ms" }}> <Link href={`/shop/polo`}  onClick={()=> setDropDown(false) } > Polo </Link> </li>
+        <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "300ms" }}> <Link href={`/shop/hoodies`}  onClick={()=> setDropDown(false) } > Hoodies </Link> </li>
+        <li className="p-1 opacity-0 animate-fade-in-item" style={{ animationDelay: "450ms" }}> <Link href={`/shop/oversized`}  onClick={()=> setDropDown(false) } > Oversized </Link> </li>
       
 </ul>
 

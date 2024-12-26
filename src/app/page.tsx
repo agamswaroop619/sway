@@ -6,12 +6,12 @@ import Link from "next/link";
 
 export default function Home(): JSX.Element {
   const gifUrls: string[] = [
-    "https://drive.google.com/uc?export=view&id=GIF_ID_1",
-    "https://drive.google.com/uc?export=view&id=GIF_ID_2",
-    "https://drive.google.com/uc?export=view&id=GIF_ID_3",
-    "https://drive.google.com/uc?export=view&id=GIF_ID_4",
-    "https://drive.google.com/uc?export=view&id=GIF_ID_5",
-    "https://drive.google.com/uc?export=view&id=GIF_ID_6",
+    "https://drive.google.com/uc?export=view&id=1aSBYLeIVFbTaiR4OLuwQVrzsy8Vc134y",
+    "https://drive.google.com/uc?export=view&id=1YSXSIYoLIA3buGr6oOIn0sdwXhDsnD4C",
+    "https://drive.google.com/uc?export=view&id=1aN2dsYw08k5wt1xaWfLmpLTFKZ1eHsY-",
+    "https://drive.google.com/uc?export=view&id=1a5GO3ef43_mnJTOsIVPxkYdiHZfKEoL8",
+    "https://drive.google.com/uc?export=view&id=1a5oFYwDil1wK67rgBTwg1OyRBR0EaRr5",
+    "https://drive.google.com/uc?export=view&id=1a24L5pmbigei4oSj9nXb4l4681ItO5qf",
   ];
 
   const [selectedGifs, setSelectedGifs] = useState<string[]>([]);
@@ -51,6 +51,7 @@ export default function Home(): JSX.Element {
                 />
               ))}
             </div>
+            
 
             <div className="flex gap-5 lg:ml-9 md:ml-9 xl:md-11">
               {selectedGifs.slice(2, 4).map((gifUrl, index) => (
@@ -65,6 +66,7 @@ export default function Home(): JSX.Element {
           </div>
         </section>
       </div>
+
 
       <CardSlider />
       <section>
