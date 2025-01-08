@@ -31,7 +31,6 @@ interface RazorpayResponse {
 }
 
 const CheckoutPage = () => {
-  
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -71,7 +70,7 @@ const CheckoutPage = () => {
   // success and error
   const [success, setSuccess] = useState(false);
 
-  const [ orderPlaced, setorderPlaced ] = useState(false);
+  const [orderPlaced, setorderPlaced] = useState(false);
 
   const generateOrderId = (): string => {
     const timestamp = Date.now().toString(); // Current timestamp in milliseconds
@@ -85,296 +84,307 @@ const CheckoutPage = () => {
     ? cartItems.reduce((acc, item) => acc + item.qnt * item.price, 0)
     : 0;
 
+  const handleCheckout = async () => {
+    const shippingFee = 79;
 
-const handleCheckout = async () => {
-
-  const shippingFee = 79;
-
-  const orderDetails = {
-    order_id: orderId, // Unique order ID
-    order_date: getDate(),
-    billing_customer_name: firstName,
-    billing_last_name: lastName,
-    billing_address: apartment || "N/A",
-    billing_address_2: address ,
-    billing_city: city ,
-    billing_pincode: zipCode ,
-    billing_state: state ,
-    billing_country: country ,
-    billing_email:  email || userData?.email,
-    billing_phone: phone ,
-    shipping_is_billing: true,
-    order_items: cartItems,
-    payment_method: payment === "cash" ? "COD" : "Prepaid",
-    sub_total: subtotal + shippingFee, // Use a variable for fees
-    length: 35,
-    breadth: 28,
-    height: 10,
-    weight: 0.2,
-  };
-
-  console.log("Order details:", orderDetails);
-
-  try {
-    const response = await fetch("/api/place-order", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ orderDetails }),
-    });
-
-    if (!response.ok) {
-      return ( {shipment_id : "", status: "error", message: `Failed to place the order.`} );
-    }
-
-    const data = await response.json();
-    console.log("Shiprocket response : ", response)
-    console.log("Shiprocket data : ", data);
-
-    
-      const shipmentId = data.shipment_id || orderId;
-      return ( {shipment_id : shipmentId, status: "ok", message: "order created successfully"} );
-    // } 
-    // else{
-    //   const randomString = Math.random().toString(36).substring(2, 10);
-    //   const shipmentId = randomString ;
-    //   return ( {shipment_id : shipmentId, status: "ok"} );
-    // }
-
-  } catch (error) {
-    console.error("Checkout error:", error);
-    toast.error("Failed to place the order. Please try again.");
-    return( {shipment_id: "" , status: "error", message: 'Failed to place the order.'})
-  }
-
-
-};
-
-
-
-const updateDB = async () => {
-  // const ref = {
-  //   data: {
-  //     docId: "demoId",
-  //     id: 12000,
-  //     title: "Test Item to prevent undefined",
-  //     images: [],
-  //     quantity: [8, 8, 8, 4, 4],
-  //     price: 499.0,
-  //     category: "",
-  //     descImg: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
-  //     color: "Black",
-  //     review: 3.5,
-  //   },
-  // };
-  
-  const {shipment_id, status, message } = await handleCheckout();
-
- 
-
-  if( status === "error" ){
-   // toast.error("order is not cretaed")
-    return ({status : "error", message});
-  }
-
-  const shipmentId = shipment_id;
-
-  const newOrders: Order[] = [];
-  const batch = writeBatch(firestore);
-
-  if (cartItems) {
-    try {
-      // Process cart items
-      await Promise.all(
-        cartItems.map(async (item) => {
-          
-        const docRef = doc(firestore, "products", item.docId);
-        const docData = await getDoc(docRef);
-        const itemData = docData.exists() ? docData.data() : {};
-
-      // Reduce quantity based on size
-      const sizeIndex = ["Small", "Medium", "Large", "XL", "XXL"].indexOf(item.size);
-      if (sizeIndex === -1 || item.qnt > itemData.quantity[sizeIndex]) {
-        throw new Error(`Insufficient stock for ${item.title}`);
-      }
-
-      itemData.quantity[sizeIndex] -= item.qnt;
-      batch.update(docRef, { quantity: itemData.quantity });
-
-    
-          const itemId = item.itemId.toString();
-          const image= item.image;
-          const title = item.title;
-          const price= item.price;
-          const size= item.size;
-          const qnt= item.qnt;
-          const paymentMode= payment;
-          const date= getDate();
-          const expectedDate= nextDate();
-          
-          const quantity = itemData.quantity;
-
-          dispatch( updateQntAtCart({itemId, quantity}) )
-
-          newOrders.push({ itemId, orderId, shipmentId, image, title, price, size, qnt, paymentMode, date, expectedDate});
-        })
-      );
-
-      // Commit batch updates
-    await batch.commit();
-
-      // Update user orders in Firestore
-      const userRef = doc(firestore, "users", userData?.userId || "");
-
-      if (userData) {
-        const updatedOrders = [...newOrders, ...userData.orders];
-        const ordersUpdateResult = await updateDoc(userRef, { orders: updatedOrders });
-
-        // Ensure that user state in Redux is updated correctly
-        const updatedUser = { ...userData, orders: updatedOrders };
-        dispatch(setUser(updatedUser));
-
-        console.log("Orders updated in Firestore: ", ordersUpdateResult);
-        console.log("Updated orders: ", updatedOrders);
-      }
-
-      return ({status: "ok", message: "Order placed successfully"});
-
-    } catch (err) {
-      console.error("Something went wrong at checkout: ", err);
-      return ({status: "error", message: "Failed to create order"});
-    }
-  }
-
-  return ({status: "ok", message})
-};
-
-
-const requiredFields = {
-  firstName,
-  phone,
-  address,
-  zipCode,
-  state,
-  country,
-  city,
-  lastName,
-  email,
-  payment,
-  
-};
-
-const checkDetails = async () => {
-  try {
-    // Validate required fields
-    for (const [key, value] of Object.entries(requiredFields)) {
-      if (!value?.trim()) {
-        throw new Error(`${key.replace(/([A-Z])/g, " $1")} can't be empty`);
-      }
-      console.log("key " + key + ", value "+value)
-    }
-
-    if (payment === "online") {
-      await createOrder();
-    } else {
-      setSuccess(true);
-    }
-  } catch (err) {
-    if( err instanceof Error)
-   // toast.error(err.message);
-  throw new Error('Something went wrong')
-  }
-};
-
-useEffect(() => {
-  if (success) {
-    updateAll();
-  }
-}, [success]);
-
-const createOrder = async () => {
-  try {
-    const res = await fetch("/api/create-order", {
-      method: "POST",
-      body: JSON.stringify({ amount: (subtotal + 79) * 100 }),
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to create order. Status: ${res.status}`);
-    }
-
-    const data = await res.json();
-    const paymentData = {
-      key: process.env.PUBLIC_RAZORPAY_KEY_ID,
-      order_id: data.id,
-      prefill: {
-        name: firstName,
-        contact: phone,
-      },
-      handler: async function (response: RazorpayResponse) {
-        try {
-          const verifyRes = await fetch("/api/verify-payment", {
-            method: "POST",
-            body: JSON.stringify({
-              orderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-            }),
-          });
-
-          if (!verifyRes.ok) {
-            throw new Error(`Payment verification failed. Status: ${verifyRes.status}`);
-          }
-
-          const verificationData = await verifyRes.json();
-          if (verificationData.isOk) {
-            setSuccess(true);
-          } else {
-            throw new Error("Payment verification failed. Try again.");
-          }
-        } catch (err) {
-          //if(err instanceof Error)
-         // toast.error(err.message);
-          if(err instanceof Error){
-            console.error("");
-          }
-        }
-      },
+    const orderDetails = {
+      order_id: orderId, // Unique order ID
+      order_date: getDate(),
+      billing_customer_name: firstName,
+      billing_last_name: lastName,
+      billing_address: apartment || "N/A",
+      billing_address_2: address,
+      billing_city: city,
+      billing_pincode: zipCode,
+      billing_state: state,
+      billing_country: country,
+      billing_email: email || userData?.email,
+      billing_phone: phone,
+      shipping_is_billing: true,
+      order_items: cartItems,
+      payment_method: payment === "cash" ? "COD" : "Prepaid",
+      sub_total: subtotal + shippingFee, // Use a variable for fees
+      length: 35,
+      breadth: 28,
+      height: 10,
+      weight: 0.2,
     };
 
-    const paymentInstance = new window.Razorpay(paymentData);
-    paymentInstance.open();
-  } catch (err) {
-    if( err instanceof Error)
-    toast.error(`Order creation error: ${err.message}`);
-    throw new Error("Order is not created")
-  }
-};
+    console.log("Order details:", orderDetails);
 
-const updateAll = async () => {
-  try {
-    const result = await updateDB();
+    try {
+      const response = await fetch("/api/place-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderDetails }),
+      });
 
-    if (result.status === "ok") {
-      dispatch(clearCart());
-      dispatch(clearCheckout());
-      setorderPlaced(true);
-      toast.success("Order placed successfully!");
-    } else {
-      toast.error(result.message)
+      if (!response.ok) {
+        return {
+          shipment_id: "",
+          status: "error",
+          message: `Failed to place the order.`,
+        };
+      }
+
+      const data = await response.json();
+      console.log("Shiprocket response : ", response);
+      console.log("Shiprocket data : ", data);
+
+      const shipmentId = data.shipment_id || orderId;
+      return {
+        shipment_id: shipmentId,
+        status: "ok",
+        message: "order created successfully",
+      };
+      // }
+      // else{
+      //   const randomString = Math.random().toString(36).substring(2, 10);
+      //   const shipmentId = randomString ;
+      //   return ( {shipment_id : shipmentId, status: "ok"} );
+      // }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Failed to place the order. Please try again.");
+      return {
+        shipment_id: "",
+        status: "error",
+        message: "Failed to place the order.",
+      };
     }
-  } catch (err) {
-    if( err instanceof Error)
-    toast.error(err.message);
-  throw new Error("order is not created. something went wrong")
-  }
+  };
 
-  console.log("at the end : ", cartItems)
+  const updateDB = async () => {
+    // const ref = {
+    //   data: {
+    //     docId: "demoId",
+    //     id: 12000,
+    //     title: "Test Item to prevent undefined",
+    //     images: [],
+    //     quantity: [8, 8, 8, 4, 4],
+    //     price: 499.0,
+    //     category: "",
+    //     descImg: "https://res.cloudinary.com/dbkiysdeh/image/upload/v1727074581/Take_The_High_Road_jm1cy3.jpg",
+    //     color: "Black",
+    //     review: 3.5,
+    //   },
+    // };
 
-};
+    const { shipment_id, status, message } = await handleCheckout();
 
+    if (status === "error") {
+      // toast.error("order is not cretaed")
+      return { status: "error", message };
+    }
 
+    const shipmentId = shipment_id;
+
+    const newOrders: Order[] = [];
+    const batch = writeBatch(firestore);
+
+    if (cartItems) {
+      try {
+        // Process cart items
+        await Promise.all(
+          cartItems.map(async (item) => {
+            const docRef = doc(firestore, "products", item.docId);
+            const docData = await getDoc(docRef);
+            const itemData = docData.exists() ? docData.data() : {};
+
+            // Reduce quantity based on size
+            const sizeIndex = ["Small", "Medium", "Large", "XL", "XXL"].indexOf(
+              item.size
+            );
+            if (sizeIndex === -1 || item.qnt > itemData.quantity[sizeIndex]) {
+              throw new Error(`Insufficient stock for ${item.title}`);
+            }
+
+            itemData.quantity[sizeIndex] -= item.qnt;
+            batch.update(docRef, { quantity: itemData.quantity });
+
+            const itemId = item.itemId.toString();
+            const image = item.image;
+            const title = item.title;
+            const price = item.price;
+            const size = item.size;
+            const qnt = item.qnt;
+            const paymentMode = payment;
+            const date = getDate();
+            const expectedDate = nextDate();
+
+            const quantity = itemData.quantity;
+
+            dispatch(updateQntAtCart({ itemId, quantity }));
+
+            newOrders.push({
+              itemId,
+              orderId,
+              shipmentId,
+              image,
+              title,
+              price,
+              size,
+              qnt,
+              paymentMode,
+              date,
+              expectedDate,
+            });
+          })
+        );
+
+        // Commit batch updates
+        await batch.commit();
+
+        // Update user orders in Firestore
+        const userRef = doc(firestore, "users", userData?.userId || "");
+
+        if (userData) {
+          const updatedOrders = [...newOrders, ...userData.orders];
+          const ordersUpdateResult = await updateDoc(userRef, {
+            orders: updatedOrders,
+          });
+
+          // Ensure that user state in Redux is updated correctly
+          const updatedUser = { ...userData, orders: updatedOrders };
+          dispatch(setUser(updatedUser));
+
+          console.log("Orders updated in Firestore: ", ordersUpdateResult);
+          console.log("Updated orders: ", updatedOrders);
+        }
+
+        return { status: "ok", message: "Order placed successfully" };
+      } catch (err) {
+        console.error("Something went wrong at checkout: ", err);
+        return { status: "error", message: "Failed to create order" };
+      }
+    }
+
+    return { status: "ok", message };
+  };
+
+  const requiredFields = {
+    firstName,
+    phone,
+    address,
+    zipCode,
+    state,
+    country,
+    city,
+    lastName,
+    email,
+    payment,
+  };
+
+  const checkDetails = async () => {
+    try {
+      // Validate required fields
+      for (const [key, value] of Object.entries(requiredFields)) {
+        if (!value?.trim()) {
+          throw new Error(`${key.replace(/([A-Z])/g, " $1")} can't be empty`);
+        }
+        console.log("key " + key + ", value " + value);
+      }
+
+      if (payment === "online") {
+        await createOrder();
+      } else {
+        setSuccess(true);
+      }
+    } catch (err) {
+      if (err instanceof Error)
+        // toast.error(err.message);
+        throw new Error("Something went wrong");
+    }
+  };
+
+  useEffect(() => {
+    if (success) {
+      updateAll();
+    }
+  }, [success]);
+
+  const createOrder = async () => {
+    try {
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        body: JSON.stringify({ amount: (subtotal + 79) * 100 }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to create order. Status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      const paymentData = {
+        key: process.env.PUBLIC_RAZORPAY_KEY_ID,
+        order_id: data.id,
+        prefill: {
+          name: firstName,
+          contact: phone,
+        },
+        handler: async function (response: RazorpayResponse) {
+          try {
+            const verifyRes = await fetch("/api/verify-payment", {
+              method: "POST",
+              body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }),
+            });
+
+            if (!verifyRes.ok) {
+              throw new Error(
+                `Payment verification failed. Status: ${verifyRes.status}`
+              );
+            }
+
+            const verificationData = await verifyRes.json();
+            if (verificationData.isOk) {
+              setSuccess(true);
+            } else {
+              throw new Error("Payment verification failed. Try again.");
+            }
+          } catch (err) {
+            //if(err instanceof Error)
+            // toast.error(err.message);
+            if (err instanceof Error) {
+              console.error("");
+            }
+          }
+        },
+      };
+
+      const paymentInstance = new window.Razorpay(paymentData);
+      paymentInstance.open();
+    } catch (err) {
+      if (err instanceof Error)
+        toast.error(`Order creation error: ${err.message}`);
+      throw new Error("Order is not created");
+    }
+  };
+
+  const updateAll = async () => {
+    try {
+      const result = await updateDB();
+
+      if (result.status === "ok") {
+        dispatch(clearCart());
+        dispatch(clearCheckout());
+        setorderPlaced(true);
+        toast.success("Order placed successfully!");
+      } else {
+        toast.error(result.message);
+      }
+    } catch (err) {
+      if (err instanceof Error) toast.error(err.message);
+      throw new Error("order is not created. something went wrong");
+    }
+
+    console.log("at the end : ", cartItems);
+  };
 
   const couponHandler = () => {
     if (couponCode === "") {
@@ -384,20 +394,18 @@ const updateAll = async () => {
     return;
   };
 
-  
-
   if (!cartItems) {
     return <div>Your cart is empty</div>;
   }
 
   return (
-    <div>
+    <div className=" bg-gradient-to-b from-black to-green-950">
       <Script
         type="text/javascript"
-         src="https://checkout.razorpay.com/v1/checkout.js"
+        src="https://checkout.razorpay.com/v1/checkout.js"
       />
 
-      {  !orderPlaced && (
+      {!orderPlaced && (
         <div className="flex sm:flex-col-reverse xs:flex-col-reverse md:flex-row lg:flex-row xl:flex-row mx-7 justify-between">
           <div className="w-[56vw] xl:w-[56vw] lg:w-[56vw] md:w-[56vw] sm:w-[90vw] xs:w-[90vw]">
             <div className="w-full mt-10 mb-4">
@@ -468,7 +476,6 @@ const updateAll = async () => {
                 <span className="text-[#7E7E7E]">Address</span>
                 <input
                   type="text"
-                 
                   className="w-full bg-transparent focus:outline-none"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -585,7 +592,9 @@ const updateAll = async () => {
                 </label>
                 <p className="flex items-center mt-6 mb-1">
                   {payment === "cash" && (
-                    <span className="xs:hidden sm:hidden md:block lg:block xl:block">Pay with cash upon delivery.</span>
+                    <span className="xs:hidden sm:hidden md:block lg:block xl:block">
+                      Pay with cash upon delivery.
+                    </span>
                   )}
                 </p>
               </button>
@@ -646,7 +655,7 @@ const updateAll = async () => {
                       key={item.itemId}
                       className="flex text-sm justify-between my-5 "
                     >
-                      <img src={item.image} className="h-20" loading='lazy' />
+                      <img src={item.image} className="h-20" loading="lazy" />
                       <div className="w-[55%]">
                         <p className="tracking-wide leading-normal mb-2">
                           {item.title} | Sway Clothing
@@ -726,11 +735,10 @@ const updateAll = async () => {
             </div>
           </div>
         </div>
-      )
-    }
+      )}
 
-      { orderPlaced  && (
-        <div className="flex min-h-screen min-w-screen h-full justify-center items-center">
+      {orderPlaced && (
+        <div className="flex min-h-screen min-w-screen h-full justify-center items-center  bg-gradient-to-b from-black to-green-900">
           <p className="text-lg font-bold my-4">Order Placed Successfully</p>
         </div>
       )}
@@ -739,4 +747,3 @@ const updateAll = async () => {
 };
 
 export default CheckoutPage;
-
