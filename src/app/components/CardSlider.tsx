@@ -9,12 +9,14 @@ import { data } from "../data";
 
 function CardSlider() {
   const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 2,
+    dots: true, // Shows dots for navigation
+    infinite: true, // Enables infinite looping of slides
+    speed: 500, // Speed of the swipe animation
+    slidesToShow: 4, // Number of slides visible at once
+    slidesToScroll: 2, // Number of slides to scroll at a time
     initialSlide: 0,
+    arrows: false, // Hides navigation arrows
+    swipe: true, // Enables swipe functionality
     responsive: [
       {
         breakpoint: 1024,
@@ -54,22 +56,24 @@ function CardSlider() {
             <Link
               key={item.id}
               href={`/products/${item.id}`}
-              className="w-[22%]  flex flex-col items-center border-b my-2 p-2"
+              className="w-[22%] flex flex-col items-center border-b my-2 p-2"
             >
               <div className="relative group">
                 <img
-                  src={item.images[0].url} loading='lazy'
+                  src={item.images[0].url}
+                  loading="lazy"
                   alt="image1"
                   className="w-[100%] h-[100%] object-cover rounded-lg transition-opacity duration-700 ease-in-out opacity-100 group-hover:opacity-0"
                 />
                 <img
-                  src={item.images[1].url} loading='lazy'
+                  src={item.images[1].url}
+                  loading="lazy"
                   alt="image2"
                   className="w-full h-full object-cover rounded-lg transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100 absolute top-0 left-0"
                 />
               </div>
               <div className="w-full h-28 p-4 text-center">
-                <h3 className=" mb-2 ">{item.title}</h3>
+                <h3 className="mb-2">{item.title}</h3>
                 <p>₹{item.price}</p>
               </div>
             </Link>
