@@ -15,7 +15,7 @@ function CardSlider() {
     slidesToShow: 4, // Number of slides visible at once
     slidesToScroll: 2, // Number of slides to scroll at a time
     initialSlide: 0,
-    arrows: false, // Hides navigation arrows
+    // Hides navigation arrows
     swipe: true, // Enables swipe functionality
     responsive: [
       {
@@ -24,7 +24,6 @@ function CardSlider() {
           slidesToShow: 4,
           slidesToScroll: 3,
           infinite: true,
-          dots: false,
         },
       },
       {
@@ -34,6 +33,7 @@ function CardSlider() {
           slidesToScroll: 2,
           infinite: true,
           initialSlide: 0,
+          arrows: false,
         },
       },
       {
@@ -43,6 +43,7 @@ function CardSlider() {
           slidesToScroll: 1,
           infinite: true,
           initialSlide: 0,
+          arrows: false,
         },
       },
     ],

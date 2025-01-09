@@ -62,7 +62,7 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
           <h2 className="text-2xl items-center  flex">
             <img
               className="h-10 mix-blend-lighten"
-              src="https://res.cloudinary.com/dbkiysdeh/image/upload/v1729970708/Untitled_Project_5_d2qnlz.jpg"
+              src="https://res.cloudinary.com/dfyfsmu84/image/upload/e_improve:outdoor/xw7ycjxay8kos34rnolf"
               alt=""
             />
             Sway
