@@ -24,7 +24,7 @@ export default function Home(): JSX.Element {
 
   return (
     <>
-      <div className="flex sm:flex-col xs:flex-col lg:flow-row md:flex-row xl:flex-row w-[100vw] px-10 justify-between">
+      <div className="flex sm:flex-col xs:flex-col lg:flow-row md:flex-row xl:flex-row w-[100vw] px-10 justify-between bg-gradient-to-b from-black to-green-950">
         <section className="w-[35vw] xs:mb-4 sm:mb-6 sm:w-full xs:w-full md:w-[35vw] lg:w-[35vw] xl:w-[35vw] flex flex-col justify-center">
           <h3 className="text-7xl font-bold">SLAY WITH</h3>
           <h3 className="text-[#3fe607] text-7xl font-bold">SWAY</h3>
@@ -51,7 +51,6 @@ export default function Home(): JSX.Element {
                 />
               ))}
             </div>
-            
 
             <div className="flex gap-5 lg:ml-9 md:ml-9 xl:md-11">
               {selectedGifs.slice(2, 4).map((gifUrl, index) => (
@@ -67,9 +66,8 @@ export default function Home(): JSX.Element {
         </section>
       </div>
 
-
       <CardSlider />
-      <section>
+      <section className=" bg-gradient-to-b from-black to-green-950">
         <div className="my-20 w-full flex flex-col">
           <h2 className="text-3xl font-semibold m-3">
             Follow Us On{" "}

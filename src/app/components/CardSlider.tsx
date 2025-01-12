@@ -50,7 +50,7 @@ function CardSlider() {
   };
 
   return (
-    <div className="w-[100vw] px-10">
+    <div className="w-[100vw] px-10  bg-gradient-to-b from-green-950 to-black">
       <Slider {...settings}>
         {data.map((item) => {
           return (
