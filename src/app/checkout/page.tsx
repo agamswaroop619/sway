@@ -416,7 +416,7 @@ const CheckoutPage = () => {
                 your order.
               </p>
 
-              <div className="bg-white mt-3 rounded-md w-full px-2 text-black">
+              <div className="bg-[#262626] bg-opacity-35 mt-3 rounded-md w-full px-2 text- white">
                 <span className="text-[#7E7E7E]">Email address</span>
                 <input
                   type="text"
@@ -441,7 +441,7 @@ const CheckoutPage = () => {
                 Enter the address where you want your order delivered.
               </p>
 
-              <div className="bg-white my-3 w-full px-2 rounded-md text-black">
+              <div className="bg-[#262626] bg-opacity-35 my-3 w-full px-2 rounded-md text- white">
                 <span className="text-[#7E7E7E]">County/Region</span>
                 <input
                   type="text"
@@ -452,7 +452,7 @@ const CheckoutPage = () => {
               </div>
 
               <div className="flex my-3 justify-between">
-                <div className="bg-white w-[49%] rounded-md px-2 text-black">
+                <div className="bg-[#262626] bg-opacity-35 w-[49%] rounded-md px-2 text- white">
                   <span className="text-[#7E7E7E]">First Name</span>
                   <input
                     type="text"
@@ -461,7 +461,7 @@ const CheckoutPage = () => {
                     value={firstName}
                   />
                 </div>
-                <div className="bg-white w-[49%]  rounded-md px-2 text-black">
+                <div className="bg-[#262626] bg-opacity-35 w-[49%]  rounded-md px-2 text- white">
                   <span className="text-[#7E7E7E]">Last Name</span>
                   <input
                     type="text"
@@ -472,7 +472,7 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              <div className="bg-white my-3 rounded-md w-full px-2 text-black">
+              <div className="bg-[#262626] bg-opacity-35 my-3 rounded-md w-full px-2 text- white">
                 <span className="text-[#7E7E7E]">Address</span>
                 <input
                   type="text"
@@ -482,7 +482,7 @@ const CheckoutPage = () => {
                 />
               </div>
 
-              <div className="bg-white my-3 w-full rounded-md px-2 text-black">
+              <div className="bg-[#262626] bg-opacity-35 my-3 w-full rounded-md px-2 text- white">
                 <span className="text-[#7E7E7E]">
                   Apartment, suite, etc. (optional)
                 </span>
@@ -495,7 +495,7 @@ const CheckoutPage = () => {
               </div>
 
               <div className="flex my-3 justify-between">
-                <div className="bg-white w-[49%] rounded-md  px-2 text-black">
+                <div className="bg-[#262626] bg-opacity-35 w-[49%] rounded-md  px-2 text- white">
                   <span className="text-[#7E7E7E]">City</span>
                   <input
                     type="text"
@@ -504,7 +504,7 @@ const CheckoutPage = () => {
                     onChange={(e) => setCity(e.target.value)}
                   />
                 </div>
-                <div className="bg-white w-[49%] rounded-md px-2 text-black">
+                <div className="bg-[#262626] bg-opacity-35 w-[49%] rounded-md px-2 text- white">
                   <span className="text-[#7E7E7E]">State</span>
                   <input
                     type="text"
@@ -516,7 +516,7 @@ const CheckoutPage = () => {
               </div>
 
               <div className="flex my-3 justify-between">
-                <div className="bg-white w-[49%] rounded-md px-2 text-black">
+                <div className="bg-[#262626] bg-opacity-35 w-[49%] rounded-md px-2 text- white">
                   <span className="text-[#7E7E7E]">Postal Code</span>
                   <input
                     type="text"
@@ -531,7 +531,7 @@ const CheckoutPage = () => {
                     }}
                   />
                 </div>
-                <div className="bg-white w-[49%] rounded-md px-2 text-black">
+                <div className="bg-[#262626] bg-opacity-35 w-[49%] rounded-md px-2 text- white">
                   <span className="text-[#7E7E7E]">Phone</span>
                   <input
                     type="text"
