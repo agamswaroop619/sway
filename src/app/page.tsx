@@ -81,7 +81,7 @@ export default function Home(): JSX.Element {
           </h2>
           <img
             className="w-full max-w-4xl mx-auto"
-            src="https://sway.club/wp-content/uploads/2024/04/sway-website-post-1536x922.jpg"
+            src="https://res.cloudinary.com/dfyfsmu84/image/upload/v1738652759/zaxxajsx7tuvzciaxjuw.jpg"
             alt="Sway Society"
           />
         </div>
