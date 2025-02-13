@@ -1,87 +1,107 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import { RiCloseLargeFill } from "react-icons/ri";
 import { GoChevronDown } from "react-icons/go";
-import Link from "next/link";
 
-interface PropsType {
+type NavItem = {
+  label: string;
+  href: string;
+};
+
+type CollectionItem = NavItem;
+
+interface SideNavBarProps {
   setSideNav: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SideNavBar: React.FC<PropsType> = ({ setSideNav }) => {
-  const [open, setOpen] = useState(false);
+const collections: CollectionItem[] = [
+  { label: "Streetwear", href: "/shop/streetwear" },
+  { label: "Regular Tshirts", href: "/shop/regular" },
+  { label: "Polo", href: "/shop/polo" },
+  { label: "Psychedelics Tshirts", href: "/shop/psychedelics" },
+];
+
+const navLinks: NavItem[] = [
+  { label: "About us", href: "/" },
+  { label: "Contact us", href: "/contacts" },
+  { label: "Login/Sign up", href: "/login" },
+];
+
+const SideNavBar: React.FC<SideNavBarProps> = ({ setSideNav }) => {
+  const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
+
+  const handleClose = () => setSideNav(false);
 
   return (
-    <div className="z-30 w-screen flex fixed">
-      <div className="text-lg lg:w-0 md:w-0 xl:w-0 sm:w-[60vw] xs:w-[70vw]  w-[100vw] py-10 px-5 bg-black h-[100vh] flex flex-col text-white">
-        <div className="full mb-6 relative">
-          <RiCloseLargeFill
-            className="absolute right-4"
-            onClick={() => setSideNav(false)}
-          />
-        </div>
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 animate-fadeIn">
+      <div className="fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out translate-x-0 animate-slideIn">
+        <div className="p-4">
+          <button
+            onClick={handleClose}
+            className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition-transform duration-300 animate-slideIn"
+            aria-label="Close navigation"
+          >
+            <RiCloseLargeFill className="w-6 h-6" />
+          </button>
 
-        <Link href="/">Home</Link>
-
-        <div>
-          <div className="flex gap-4 mt-2" onClick={() => setOpen(!open)}>
-            <span>Collections</span>
-            <GoChevronDown
-              className={`  ${
-                open === true
-                  ? " transition duration-500 ease rotate-180"
-                  : "transition duration-500 ease rotate-0"
-              }`}
-            />
-          </div>
-
-          {open ? (
-            <ul
-              className={`mx-3 px-2 border-l-2 border-slate-400 transition-all duration-500 ease ${
-                open
-                  ? "opacity-100 max-h-[500px]"
-                  : "opacity-0 max-h-0 overflow-hidden"
-              }`}
+          <nav className="mt-8 space-y-6">
+            <Link
+              href="/"
+              className="block text-lg font-medium text-gray-900 hover:text-gray-600 transition-transform duration-300 animate-slideIn"
             >
-              <li>
-                <Link className="my-4" href="/shop/streetwear">
-                  Streetwear
-                </Link>
-              </li>
+              Home
+            </Link>
 
-              <li>
-                <Link className="my-4" href="/shop/regular">
-                  Regular Tshirts
-                </Link>
-              </li>
+            <div className="transition-transform duration-300 animate-slideIn">
+              <button
+                className="flex items-center justify-between w-full text-lg font-medium text-gray-900 hover:text-gray-600"
+                onClick={() => setIsCollectionsOpen(!isCollectionsOpen)}
+                aria-expanded={isCollectionsOpen}
+                aria-controls="collections-menu"
+              >
+                Collections
+                <GoChevronDown
+                  className={`w-5 h-5 transform transition-transform duration-200 ${
+                    isCollectionsOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
 
-              <li>
-                <Link className="my-4" href="/shop/polo">
-                  Polo
-                </Link>
-              </li>
+              <div
+                id="collections-menu"
+                className={`mt-2 ml-4 space-y-2 transition-all duration-300 ${
+                  isCollectionsOpen
+                    ? "max-h-96 opacity-100"
+                    : "max-h-0 opacity-0 overflow-hidden"
+                }`}
+              >
+                {collections.map((item, index) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="block text-gray-600 hover:text-gray-900 transition-transform duration-300 animate-slideIn"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
 
-              <li>
-                <Link className="my-4" href="/shop/psychedelics">
-                  Psychedelics Tshirts
-                </Link>
-              </li>
-            </ul>
-          ) : null}
-        </div>
-
-        <div className="flex flex-col my-2 gap-y-2">
-          <Link href="/">Abouts us</Link>
-          <Link href="/contacts">Contact us</Link>
-          <Link href="/track-order">Track order</Link>
-          <Link href="/login">Login/Sign up</Link>
+            {navLinks.map((item, index) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="block text-lg font-medium text-gray-900 hover:text-gray-600 transition-transform duration-300 animate-slideIn"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </div>
-
-      <div
-        className="flex-grow bg-[#e5e5e5] opacity-45"
-        onClick={() => setSideNav(false)}
-      ></div>
     </div>
   );
 };
