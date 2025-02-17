@@ -6,12 +6,12 @@ import Link from "next/link";
 
 export default function Home(): JSX.Element {
   const gifUrls: string[] = [
-    "https://drive.google.com/uc?export=view&id=1aSBYLeIVFbTaiR4OLuwQVrzsy8Vc134y",
-    "https://drive.google.com/uc?export=view&id=1YSXSIYoLIA3buGr6oOIn0sdwXhDsnD4C",
-    "https://drive.google.com/uc?export=view&id=1aN2dsYw08k5wt1xaWfLmpLTFKZ1eHsY-",
-    "https://drive.google.com/uc?export=view&id=1a5GO3ef43_mnJTOsIVPxkYdiHZfKEoL8",
-    "https://drive.google.com/uc?export=view&id=1a5oFYwDil1wK67rgBTwg1OyRBR0EaRr5",
-    "https://drive.google.com/uc?export=view&id=1a24L5pmbigei4oSj9nXb4l4681ItO5qf",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
   ];
 
   const [selectedGifs, setSelectedGifs] = useState<string[]>([]);
