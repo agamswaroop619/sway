@@ -74,7 +74,6 @@ const CheckoutPage = () => {
   const total = subtotal + getShippingFee();
 
   const handleCheckout = async () => {
-    const shippingFee = getShippingFee();
     const orderDetails = {
       order_id: orderId,
       order_date: getDate(),
@@ -337,8 +336,8 @@ const CheckoutPage = () => {
             <div className="w-full mt-10 mb-4">
               <h3 className="text-xl">Contact Information</h3>
               <p className="text-gray-500">
-                We'll use this email to send you details and updates about your
-                order.
+                We will use this email to send you details and updates about
+                your order.
               </p>
 
               <div className="bg-[#262626] bg-opacity-35 mt-3 rounded-md w-full px-2 text-white">
