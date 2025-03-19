@@ -6,16 +6,10 @@ import { Products } from '../carts/cartSlice';
 
 export interface Order {
   itemId: string,
-  orderId: string,
   shipmentId: string,
   image: string,
   title: string,
   price: number,
-  date: string,
-  qnt: number,
-  size: string,
-  paymentMode: string,
-  expectedDate: string
 }
 
 export interface User {

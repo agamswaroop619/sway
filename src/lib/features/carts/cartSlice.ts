@@ -1,6 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'; 
 import { RootState } from "@/lib/store";
-
 
 // Define the Products type
 export interface Products {
@@ -9,8 +8,8 @@ export interface Products {
   price: number;
   title: string;
   image: string;
-  size: string,
-  docId: string,
+  size: string;
+  docId: string;
 }
 
 // Define the CartState
@@ -18,93 +17,64 @@ export interface CartState {
   items: Products[];
 }
 
-// Helper function to load from localStorage (only on the client)
-const loadFromLocalStorage = (): Products[] => {
-  if (typeof window === "undefined") {
-    // Return an empty array if SSR (no localStorage)
-    return [];
+// Function to load cart from localStorage
+const loadCartFromLocalStorage = (): CartState => {
+  if (typeof window !== 'undefined') {
+    const storedCart = localStorage.getItem('cart');
+    return storedCart ? JSON.parse(storedCart) : { items: [] };
   }
-  try {
-    const serializedCart = localStorage.getItem("cartItems");
-    if (serializedCart === null) {
-      return [];
-    }
-    return JSON.parse(serializedCart);
-  } catch (e) {
-    //console.warn("Failed to load cart from localStorage", e);
-    if(e instanceof Error){
-      console.error("");
-    }
-    return [];
+  return { items: [] };
+};
+
+// Function to save cart to localStorage
+const saveCartToLocalStorage = (cart: CartState) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('cart', JSON.stringify(cart));
   }
 };
 
-// Helper function to save to localStorage (only on the client)
-const saveToLocalStorage = (state: Products[]) => {
-  if (typeof window === "undefined") {
-    // Don't attempt to save during SSR
-    return;
-  }
-  try {
-    const serializedCart = JSON.stringify(state);
-    localStorage.setItem("cartItems", serializedCart);
-  } catch (e) {
-    //console.warn("Failed to save cart to localStorage", e);
-    if(e instanceof Error){
-      console.error("");
-    }
-  }
-};
-
-// Initialize state from localStorage (only on client)
-const initialState: CartState = {
-  items: typeof window !== "undefined" ? loadFromLocalStorage() : [], // Only load if in the browser
-};
+// Initialize state
+const initialState: CartState = loadCartFromLocalStorage();
 
 export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-
     addToCart: (state, action: PayloadAction<Products>) => {
       state.items.unshift(action.payload);
-      saveToLocalStorage(state.items); // Save to localStorage after modification
+      saveCartToLocalStorage(state); // Save to localStorage
     },
 
     removeFromCart: (state, action: PayloadAction<number>) => {
       state.items = state.items.filter(item => item.itemId !== action.payload);
-      saveToLocalStorage(state.items); // Save to localStorage after modification
+      saveCartToLocalStorage(state);
     },
 
-    // update quantity of each product
     updateQnt: (state, action: PayloadAction<{ itemId: number; quantity: number }>) => {
       const item = state.items.find(item => item.itemId === action.payload.itemId);
       if (item) {
         item.qnt = action.payload.quantity;
-        saveToLocalStorage(state.items); // Save to localStorage after modification
       }
+      saveCartToLocalStorage(state);
     },
     
-    // Optional: Clear cart entirely
     clearCart: (state) => {
       state.items = [];
-      saveToLocalStorage(state.items); // Clear from localStorage too
+      saveCartToLocalStorage(state);
     },
 
-    filterCart : ( state, action: PayloadAction<string[]> ) => {
-     if( state.items) {
-      state.items = state.items.filter(item => !action.payload.includes(item.itemId.toString()))
-     }
+    filterCart: (state, action: PayloadAction<string[]>) => {
+      state.items = state.items.filter(item => !action.payload.includes(item.itemId.toString()));
+      saveCartToLocalStorage(state);
     }
   },
 });
 
 // Export actions
-export const { addToCart, removeFromCart, clearCart, updateQnt } = cartSlice.actions;
+export const { addToCart, removeFromCart, clearCart, updateQnt, filterCart } = cartSlice.actions;
 
 // Selector to access cart items
 export const selectCartItems = (state: RootState) => state.cart.items;
 
 // Export reducer
 export default cartSlice.reducer;
-

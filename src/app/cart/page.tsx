@@ -51,9 +51,14 @@ const CartPage = () => {
   const [ outOfStock , setOutOfStock ] =useState<cartItems[]>([]);
 
   useEffect(() => {
+
     if (allItems.length === 0) {
       getData()
-        .then((fetchedData) => dispatch(setItemsData(fetchedData || [])))
+        .then( (fetchedData) => {
+          if (allItems.length === 0)
+           dispatch(setItemsData(fetchedData || []))
+          }
+          )
         .catch((error) => {
          // console.error("Error fetching data:", error);
          if(error instanceof Error){
@@ -62,10 +67,9 @@ const CartPage = () => {
           dispatch(setItemsData([]));
         });
     }
-  }, [dispatch, allItems.length]);
+  }, [dispatch, allItems.length] );
   
   
-
   useEffect(() => {
     
     if( allItems.length > 0 ) {
