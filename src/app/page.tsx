@@ -7,13 +7,11 @@ import Link from "next/link";
 export default function Home(): JSX.Element {
   const gifUrls: string[] = [
     "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
-    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
-    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
-    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
-    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
-    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1739832831/hf4dv0ofuzd5lxy7q52w.gif",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1742472218/kxcohqxaantib4olg9rx.gif",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1742472223/gyvuwe4tb7t50trzurot.gif",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1742472223/xbuv32uuaraskc86lmkj.gif",
+    "https://res.cloudinary.com/dfyfsmu84/image/upload/v1742472224/oifeojhddpo9xqtlh33f.gif",
   ];
-
   const [selectedGifs, setSelectedGifs] = useState<string[]>([]);
 
   useEffect(() => {
