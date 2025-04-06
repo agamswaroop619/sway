@@ -13,14 +13,14 @@ import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { GoChevronDown } from "react-icons/go";
-import { setUser, setOrder } from "@/lib/features/user/user";
+import { setOrder } from "@/lib/features/user/user";
 import {
   selectCheckoutItems,
   clearCheckout,
 } from "@/lib/features/checkout/checkout";
 import { Order } from "@/lib/features/user/user";
 import { updateQntAtCart } from "@/lib/features/items/items";
-import { getDate, nextDate } from "../utils/getDate";
+import { getDate } from "../utils/getDate";
 
 const userInfo = (state: RootState) => state.user.userProfile;
 
@@ -31,39 +31,37 @@ interface RazorpayResponse {
 }
 
 interface orderType {
-  name: string,
-  sku: string,
-  units: number,
-  selling_price: string,
-  discount: string,
-  tax: string,
-  hsn: number
-    
+  name: string;
+  sku: string;
+  units: number;
+  selling_price: string;
+  discount: string;
+  tax: string;
+  hsn: number;
 }
 
 const CheckoutPage = () => {
-
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   // items that will be placed
   const cartItems = useAppSelector(selectCheckoutItems);
 
-  let orders : orderType[] | [] = [];
+  let orders: orderType[] | [] = [];
 
   // orders in json format
-  if( cartItems ) {
+  if (cartItems) {
     orders = cartItems.map((item) => {
       return {
-        "name": `${item.title}`,
-      "sku": `${item.itemId}`,
-      "units": item.qnt,
-      "selling_price": `${item.price}`,
-      "discount": "",
-      "tax": "",
-      "hsn": 441122
-        };
-        });    
+        name: `${item.title}`,
+        sku: `${item.itemId}`,
+        units: item.qnt,
+        selling_price: `${item.price}`,
+        discount: "",
+        tax: "",
+        hsn: 441122,
+      };
+    });
   }
 
   // data of user
@@ -115,42 +113,41 @@ const CheckoutPage = () => {
     : 0;
 
   const handleCheckout = async () => {
-
     const orderDetails = {
-      "order_id": `${orderId}`, // Unique order ID
-      "order_date": `${getDate()}`,
-      "billing_customer_name": `${firstName}`,
-      "billing_last_name": `${lastName}`,
-      "billing_address": `${apartment}` || "N/A",
-      "billing_address_2": `${address}`,
-      "billing_city": `${city}`,
-      "billing_pincode": `${zipCode}`,
-      "billing_state": `${state}`,
-      "billing_country": `${country}`,
-      "billing_email": `${email}` || `${userData?.email}`,
-      "billing_phone": `${phone}`,
-      "shipping_is_billing": true,
-      "shipping_customer_name": "",
-  "shipping_last_name": "",
-  "shipping_address": "",
-  "shipping_address_2": "",
-  "shipping_city": "",
-  "shipping_pincode": "",
-  "shipping_country": "",
-  "shipping_state": "",
-  "shipping_email": "",
-  "shipping_phone": "",
-      "order_items": orders,
-      "payment_method": payment === "cash" ? "COD" : "Prepaid",
-      "shipping_charges": shippingFee,
-      "giftwrap_charges": 0,
-      "transaction_charges": 0,
-      "total_discount": 0,
-      "sub_total": subtotal ,
-      "length": 10,
-      "breadth": 15,
-      "height": 20,
-      "weight": 2.5
+      order_id: `${orderId}`, // Unique order ID
+      order_date: `${getDate()}`,
+      billing_customer_name: `${firstName}`,
+      billing_last_name: `${lastName}`,
+      billing_address: `${apartment}` || "N/A",
+      billing_address_2: `${address}`,
+      billing_city: `${city}`,
+      billing_pincode: `${zipCode}`,
+      billing_state: `${state}`,
+      billing_country: `${country}`,
+      billing_email: `${email}` || `${userData?.email}`,
+      billing_phone: `${phone}`,
+      shipping_is_billing: true,
+      shipping_customer_name: "",
+      shipping_last_name: "",
+      shipping_address: "",
+      shipping_address_2: "",
+      shipping_city: "",
+      shipping_pincode: "",
+      shipping_country: "",
+      shipping_state: "",
+      shipping_email: "",
+      shipping_phone: "",
+      order_items: orders,
+      payment_method: payment === "cash" ? "COD" : "Prepaid",
+      shipping_charges: shippingFee,
+      giftwrap_charges: 0,
+      transaction_charges: 0,
+      total_discount: 0,
+      sub_total: subtotal,
+      length: 10,
+      breadth: 15,
+      height: 20,
+      weight: 2.5,
     };
 
     try {
@@ -162,10 +159,9 @@ const CheckoutPage = () => {
         body: JSON.stringify({ orderDetails }),
       });
 
-      console.log("Shiprocket responce : ", response)
+      console.log("Shiprocket responce : ", response);
 
       if (!response.ok) {
-
         return {
           shipment_id: "",
           status: "error",
@@ -176,13 +172,12 @@ const CheckoutPage = () => {
       const data = await response.json();
       console.log("Shiprocket data : ", data);
 
-      const shipmentId = data.shipment_id ;
+      const shipmentId = data.shipment_id;
       return {
         shipment_id: shipmentId,
         status: "ok",
         message: "order created successfully",
       };
-     
     } catch (error) {
       console.error("Checkout error:", error);
       toast.error("Failed to place the order. Please try again.");
@@ -195,7 +190,6 @@ const CheckoutPage = () => {
   };
 
   const updateDB = async () => {
-
     const { shipment_id, status, message } = await handleCheckout();
 
     if (status === "error") {
@@ -227,7 +221,6 @@ const CheckoutPage = () => {
 
             itemData.quantity[sizeIndex] -= item.qnt;
             batch.update(docRef, { quantity: itemData.quantity });
-            
 
             const itemId = item.itemId.toString();
             const image = item.image;
@@ -238,32 +231,28 @@ const CheckoutPage = () => {
             const quantity = itemData.quantity;
 
             dispatch(updateQntAtCart({ itemId, quantity }));
-
+            console.log(updateQntAtCart);
             newOrders.push({
               itemId,
               shipmentId,
               image,
               title,
               price,
-             
             });
           })
         );
-
-       
 
         // Update user orders in Firestore
         const userRef = doc(firestore, "users", userData?.userId || "");
 
         if (userData && userRef) {
-
           const updatedOrders = [...newOrders, ...userData.orders];
-          await updateDoc(userRef, { orders: updatedOrders  });
+          await updateDoc(userRef, { orders: updatedOrders });
 
           // Ensure that user state in Redux is updated correctly
-          const updatedUser = { ...userData, orders: updatedOrders };
+          // const updatedUser = { ...userData, orders: updatedOrders };
           //dispatch(setUser(updatedUser));
-          dispatch( setOrder(updatedOrders))
+          dispatch(setOrder(updatedOrders));
 
           //console.log("Orders updated in Firestore: ", ordersUpdateResult);
           console.log("Updated orders: ", updatedOrders);
@@ -293,21 +282,19 @@ const CheckoutPage = () => {
   };
 
   const checkDetails = async () => {
-   
-      // Validate required fields
-      for (const [key, value] of Object.entries(requiredFields)) {
-        if (!value?.trim()) {
-          toast.error(`${key.replace(/([A-Z])/g, " $1")} can't be empty`);
-          return ;
-        }
+    // Validate required fields
+    for (const [key, value] of Object.entries(requiredFields)) {
+      if (!value?.trim()) {
+        toast.error(`${key.replace(/([A-Z])/g, " $1")} can't be empty`);
+        return;
       }
+    }
 
-      if (payment === "online") {
-        await createOrder();
-      } else {
-        setSuccess(true);
-      }
-   
+    if (payment === "online") {
+      await createOrder();
+    } else {
+      setSuccess(true);
+    }
   };
 
   useEffect(() => {
@@ -328,7 +315,7 @@ const CheckoutPage = () => {
       }
 
       const data = await res.json();
-      
+
       const paymentData = {
         key: process.env.PUBLIC_RAZORPAY_KEY_ID,
         order_id: data.id,
@@ -383,7 +370,6 @@ const CheckoutPage = () => {
       const result = await updateDB();
 
       if (result.status === "ok") {
-
         dispatch(clearCart());
         dispatch(clearCheckout());
         setorderPlaced(true);
@@ -410,7 +396,6 @@ const CheckoutPage = () => {
   if (!cartItems) {
     return <div>Your cart is empty</div>;
   }
-
 
   return (
     <div className=" bg-gradient-to-b from-black to-green-950">
@@ -713,8 +698,7 @@ const CheckoutPage = () => {
                       placeholder="Enter Coupon Code"
                     />
 
-                    <button className="p-2 ml-4 border" onClick={couponHandler}
-                    >
+                    <button className="p-2 ml-4 border" onClick={couponHandler}>
                       Apply
                     </button>
                   </div>

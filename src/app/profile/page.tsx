@@ -22,13 +22,12 @@ import { logout } from "@/lib/features/user/user";
 import { updateProfile } from "@/lib/features/user/user";
 
 const Page = () => {
-
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   const [mounting, setMounting] = useState(false);
 
-  //Selecting state from Redux
+  // Selecting state from Redux
   const isLoggedIn = useAppSelector(
     (state: RootState) => state.user.isLoggedIn
   );
@@ -40,7 +39,6 @@ const Page = () => {
   const userData = useAppSelector((state: RootState) => state.user.userProfile);
 
   const newOrders: Order[] = userData ? userData.orders : [];
-
 
   // Navigation state
   const [nav, setNav] = useState("dashboard");
@@ -56,11 +54,13 @@ const Page = () => {
   const [zipCode, setZipCode] = useState(userData?.delivery?.postalCode || "");
   const [country, setCountry] = useState(userData?.delivery?.country || "");
   const [phone, setPhone] = useState(userData?.phone || "");
-  const [apartment, setApartment] = useState(userData?.delivery?.apartment || "");
+  const [apartment, setApartment] = useState(
+    userData?.delivery?.apartment || ""
+  );
 
-  const [ shipmentId, SetShipmentId ] = useState("");
+  const [shipmentId, SetShipmentId] = useState("");
 
-  //Redirect if not logged in
+  // Redirect if not logged in
   useEffect(() => {
     if (!isLoggedIn) {
       router.push("/login");
@@ -71,12 +71,12 @@ const Page = () => {
 
   const saveAddress = async () => {
     const accountAddress = {
-      apartment ,
-      address ,
-      city ,
-      state ,
-      postalCode: zipCode ,
-      country ,
+      apartment,
+      address,
+      city,
+      state,
+      postalCode: zipCode,
+      country,
     };
 
     if (userRef) {
@@ -85,7 +85,7 @@ const Page = () => {
       if (userData.exists()) {
         // Use updateDoc with an object specifying the field you want to update
         await updateDoc(userRef, { delivery: accountAddress });
-        dispatch( updateProfile({delivery:accountAddress} )) ;
+        dispatch(updateProfile({ delivery: accountAddress }));
         toast.success("Address updated successfully");
       }
     }
@@ -98,14 +98,14 @@ const Page = () => {
       const accountDetails = {
         name: firstName,
         email: email,
-        phone: phone
-      }
+        phone: phone,
+      };
 
       if (userData.exists()) {
         try {
           await updateDoc(userRef, { accountDetails });
           toast.success("Account details updated successfully");
-          dispatch( updateProfile( accountDetails))
+          dispatch(updateProfile(accountDetails));
         } catch (error) {
           toast.error("Something went wrong ");
 
@@ -133,20 +133,17 @@ const Page = () => {
     setMounting(true);
   }, []);
 
-  const submitHandler = ( e: FormEvent ) => {
-
+  const submitHandler = (e: FormEvent) => {
     e.preventDefault();
 
-    if( shipmentId.trim() !== "" )
-    router.push(`/track-orders/${shipmentId}`)
-
-  }
+    if (shipmentId.trim() !== "") router.push(`/track-orders/${shipmentId}`);
+  };
 
   const logoutHandler = () => {
-    if(userData) {
-      dispatch( logout())
+    if (userData) {
+      dispatch(logout());
     }
-  }
+  };
 
   // Show loading message if mounting is still false
   if (!mounting) {
@@ -158,11 +155,9 @@ const Page = () => {
       {isLoggedIn ? (
         <div>
           {/* For large screen (Laptop, Tablet) */}
-          <div className="hidden  px-10 md:block xl:block lg:block">
-            <div className="flex ">
-
+          <div className="hidden px-10 md:block xl:block lg:block">
+            <div className="flex">
               <div className="flex flex-col h-[75vh] w-[20vw] justify-between border-r-[1px]">
-                
                 <div
                   className={`flex items-center w-[20vw] gap-4 cursor-pointer 
                     transition-colors hover:text-white duration-500 ease-in-out ${
@@ -195,8 +190,8 @@ const Page = () => {
                 <div
                   className={`flex items-center w-[20vw] gap-4 cursor-pointer 
                     transition-colors hover:text-white duration-500 ease-in-out ${
-                    nav === "address" ? "text-white" : "text-[#7E7E7E]"
-                  }`}
+                      nav === "address" ? "text-white" : "text-[#7E7E7E]"
+                    }`}
                   onClick={() => setNav("address")}
                 >
                   <SlDirection /> <span>Address</span>
@@ -224,10 +219,11 @@ const Page = () => {
                 </div>
 
                 <div
-                onClick={ logoutHandler}
-                  className={`flex items-center w-[20vw] gap-4 cursor-pointer transition-colors hover:text-white duration-500 ease-in-out ${
-                    nav === "log out" ? "text-white" : "text-[#7E7E7E]"
-                  }`}
+                  onClick={logoutHandler}
+                  className={`flex items-center w-[20vw] gap-4 cursor-pointer 
+                    transition-colors hover:text-white duration-500 ease-in-out ${
+                      nav === "log out" ? "text-white" : "text-[#7E7E7E]"
+                    }`}
                 >
                   <LuLogOut /> <span>Log out</span>
                 </div>
@@ -246,7 +242,7 @@ const Page = () => {
 
                 {nav === "orders" && (
                   <div>
-                    <h2 className="text-xl mb-3  pb-2">Orders </h2>
+                    <h2 className="text-xl mb-3 pb-2">Orders </h2>
 
                     <div className="flex justify-between pb-2 border-b mb-4">
                       <span className="">Product</span>
@@ -256,22 +252,27 @@ const Page = () => {
 
                     {newOrders && newOrders.length > 0 ? (
                       newOrders.map((item: Order) => (
-                        <div key={item.itemId} className="flex mb-2 justify-between">
-                          <img src={item.image} alt="image" loading='lazy' className="h-20" />
-                      
-                           <p className="text-lg ">{item.title}</p>
-                           
-                           <p> {item.shipmentId ||
-                                  `${
-                                    item.title.substring(0, 5) +
-                                    Math.floor(Math.random() * 100000 + 1)
-                                  }`}
-                                  
-                                  ...
-                                   </p>
+                        <div
+                          key={item.itemId}
+                          className="flex mb-2 justify-between"
+                        >
+                          <img
+                            src={item.image}
+                            alt="image"
+                            loading="lazy"
+                            className="h-20"
+                          />
 
-                          
-                        
+                          <p className="text-lg ">{item.title}</p>
+
+                          <p>
+                            {item.shipmentId ||
+                              `${
+                                item.title.substring(0, 5) +
+                                Math.floor(Math.random() * 100000 + 1)
+                              }`}
+                            ...
+                          </p>
                         </div>
                       ))
                     ) : (
@@ -410,29 +411,33 @@ const Page = () => {
                   </div>
                 )}
 
+                {nav === "tracking" && (
+                  <div>
+                    <h2 className="text-xl mb-3 border-b pb-1">
+                      Order Tracking{" "}
+                    </h2>
 
-                {
-                  nav === "tracking" && (
-                    <div>
-                      <h2 className="text-xl mb-3 border-b pb-1">Order Tracking </h2>
-
-                      <form action="" className="flex-col flex"  onSubmit={ submitHandler}>
-
+                    <form
+                      action=""
+                      className="flex-col flex"
+                      onSubmit={submitHandler}
+                    >
                       <div className="mb-4">
                         <label htmlFor=""> Shipment ID </label>
-                        <input type="text" onChange={ (e) => SetShipmentId(e.target.value)  }
-                         value={ shipmentId }  
-                         className="p-2 ml-3 rounded-md text-black focus:outline-none" />
+                        <input
+                          type="text"
+                          onChange={(e) => SetShipmentId(e.target.value)}
+                          value={shipmentId}
+                          className="p-2 ml-3 rounded-md text-black focus:outline-none"
+                        />
                       </div>
 
-                        <button className="bg-green-700 text-white w-[120px] p-2 rounded-full" > Track</button>
-
-                      </form>
-
-                    </div>
-                  )
-                }
-
+                      <button className="bg-green-700 text-white w-[120px] p-2 rounded-full">
+                        Track
+                      </button>
+                    </form>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -440,7 +445,7 @@ const Page = () => {
           {/* For small screen ( Mobile ) */}
           <div className="md:hidden lg:hidden xl:hidden mb-2 sm:block xs:block">
             {sidebar && (
-              <div className="flex flex-col  h-[40vh] w-[60vw] justify-between  z-10">
+              <div className="flex flex-col h-[40vh] w-[60vw] justify-between z-10">
                 <div
                   className={`flex items-center w-[60vw] gap-4 cursor-pointer`}
                   onClick={() => {
@@ -498,6 +503,7 @@ const Page = () => {
 
                 <div
                   className={`flex items-center w-[60vw] gap-4 cursor-pointer`}
+                  onClick={logoutHandler}
                 >
                   <LuLogOut /> <span>Log out</span>
                 </div>
@@ -533,7 +539,6 @@ const Page = () => {
                     </div>
 
                     <div className="px-10">
-                      
                       {newOrders && newOrders.length > 0 ? (
                         newOrders.map((item: Order) => (
                           <div key={item.itemId} className="flex mb-4 gap-4">
@@ -542,13 +547,12 @@ const Page = () => {
                               src={item.image}
                               alt={`${item.title} image`}
                             />
-                            <div className="flex-row  ">
+                            <div className="flex-row">
                               <p>{item.title}</p>
                               <p className="mt-3">
-                               
-                                {item.orderId ||
+                                {item.shipmentId ||
                                   `${
-                                    item.title.substring(0, 3) +
+                                    item.title.substring(0, 5) +
                                     Math.floor(Math.random() * 100000 + 1)
                                   }`}
                               </p>
@@ -571,7 +575,7 @@ const Page = () => {
                       <h2 className="text-xl ">Account </h2>
                     </div>
 
-                    <form className="flex px-10 flex-col justify-between gap-y-4 ">
+                    <form className="flex px-10 flex-col justify-between gap-y-4">
                       <div className="flex flex-col">
                         <label>First Name</label>
                         <input
