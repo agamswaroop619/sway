@@ -50,9 +50,6 @@ const LoginPage = () => {
       if (user.emailVerified) {
         const registrationData = localStorage.getItem("registrationData");
         const { name = "", phone = "" } = registrationData ? JSON.parse(registrationData) : {};
-
-
-
       
         // Check if user data exists in Firestore
         const userDoc = await getDoc(doc(firestore, "users", user.uid));
@@ -64,8 +61,9 @@ const LoginPage = () => {
             email: user.email,
             address: "",
             phone ,
+            lastName: "",
             orders: [],
-
+            userId: user.uid,
           });
 
           // Save user data in Redux store
@@ -73,6 +71,7 @@ const LoginPage = () => {
           name: name || user.displayName || "",
           email: user.email || "",
           userId: user.uid,
+          lastName: "",
           
           refreshToken: user.refreshToken || "",
           accessToken: "",
@@ -96,24 +95,27 @@ const LoginPage = () => {
         }
         else {
           // If user data exists, update Redux store with existing data
+          const userInfo= userDoc.data();
+
           const userData = {
-            name: userDoc.data().name ,
-            email: userDoc.data().email ,
-            userId: userDoc.data().uid,
+            name: userInfo.name ,
+            email: userInfo.email ,
+            lastName: userInfo?.lastName || "",
+            userId: userInfo.userId,
             refreshToken: "",
             accessToken: "",
-            phone: userDoc.data().phone,
-            orders: [],
+            phone: userInfo?.phone || "",
+            orders: (userInfo?.orders || []),
 
             delivery: {
-              address: "",
-              apartment: "",
-              city: "",
-              postalCode: "",
-              state: "",
-              country: ""
+              address: userInfo?.delivery?.address ||"",
+              apartment: userInfo?.delivery?.apartment || "",
+              city: userInfo?.delivery?.city || "",
+              postalCode: userInfo?.delivery?.postalCode ||"",
+              state: userInfo?.delivery?.state ||"",
+              country: userInfo?.delivery?.country || ""
             },
-            wishlist: [],
+            wishlist: userInfo?.wishlist || [],
             cart: [],
           }
 

@@ -23,6 +23,9 @@ const GoogleLogin = () => {
             const uid = result.user.uid;
 
             const userDoc = await getDoc(doc(firestore, "users", uid));
+
+            const userData= userDoc.data();
+
             if (!userDoc.exists()) {
             
                 // Save user data to Firestore
@@ -39,6 +42,7 @@ const GoogleLogin = () => {
                         country: ""
                       },
                     phone: "" ,
+                    lastName: "",
                     orders: [],
                     wishlist: []
                 });
@@ -47,6 +51,7 @@ const GoogleLogin = () => {
                     userId: result.user.uid,
                     name: result.user.displayName || "",
                     email: result.user.email || "",
+                    lastName: "",
                     delivery: {
                         address: "",
                         apartment: "",
@@ -69,21 +74,22 @@ const GoogleLogin = () => {
             
                 const user = {
                     userId: result.user.uid,
-                    name: userDoc.data().name,
-                    email: userDoc.data().email,
+                    name: userData?.name || "",
+                    email: userData?.email || "",
                     delivery: {
-                        address: userDoc.data().address,
-                        apartment: userDoc.data().apartment,
-                        city: userDoc.data().apartment,
-                        postalCode: userDoc.data().postalCode,
-                        state: userDoc.data().state,
-                        country: userDoc.data().country
+                        address: userData?.delivery?.address || "",
+                        apartment: userData?.delivery?.apartment || "",
+                        city: userData?.delivery?.apartment || "",
+                        postalCode: userData?.delivery?.postalCode || "",
+                        state: userData?.delivery?.state || "",
+                        country: userData?.delivery?.country || ""
                       },
-                    phone: userDoc.data().phone,
-                    orders: userDoc.data().orders,
+                    phone: userData?.phone || "",
+                    orders: userData?.orders || [],
                     refreshToken: result.user.refreshToken || "",
+                    lastName: userData?.lastName || "",
                     accessToken: "",
-                    wishlist: [],
+                    wishlist: userData?.wishlist || [],
                     cart: []
                 };     
                 dispatch(setUser(user)); // You may want to add this dispatch for consistency

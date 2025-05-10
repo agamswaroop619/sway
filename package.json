@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "rm -rf .next/cache && rm -rf node_modules/.cache"
   },
   "dependencies": {
     "@ant-design/react-slick": "^1.1.2",

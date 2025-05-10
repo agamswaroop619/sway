@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
-import { saveToLocalStorage, loadFromLocalStorage, removeFromLocalStorage } from '@/lib/localstorage'
+import { saveToLocalStorage, loadFromLocalStorage } from '@/lib/localstorage'
 import { Products } from '../carts/cartSlice';
 
 
@@ -14,6 +14,7 @@ export interface Order {
 
 export interface User {
     name: string;
+    lastName: string;
     email: string ;
     userId: string;
     refreshToken: string;
@@ -69,7 +70,7 @@ export const userSlice = createSlice({
       state.userProfile = null;
       state.isLoggedIn = false;
       // Remove from localStorage
-      removeFromLocalStorage('user');
+      localStorage.removeItem('user');    
     },
 
     setOrder: (state, action: PayloadAction<Order[]>) => {

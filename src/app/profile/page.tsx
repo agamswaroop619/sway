@@ -46,7 +46,7 @@ const Page = () => {
   // Profile information state
   // Address field
   const [firstName, setFirstName] = useState(userData?.name);
-  const [lastName, setLastName] = useState("");
+  const [lastName, setLastName] = useState(userData?.lastName);
   const [email, setEmail] = useState(userData?.email);
   const [address, setAddress] = useState(userData?.delivery?.address || "");
   const [city, setCity] = useState(userData?.delivery?.city || "");
@@ -99,11 +99,12 @@ const Page = () => {
         name: firstName,
         email: email,
         phone: phone,
+        lastName: lastName
       };
 
       if (userData.exists()) {
         try {
-          await updateDoc(userRef, { accountDetails });
+          await updateDoc(userRef, { name: firstName, lastName, phone, email });
           toast.success("Account details updated successfully");
           dispatch(updateProfile(accountDetails));
         } catch (error) {
@@ -251,9 +252,9 @@ const Page = () => {
                     </div>
 
                     {newOrders && newOrders.length > 0 ? (
-                      newOrders.map((item: Order) => (
+                      newOrders.map((item: Order, index: number) => (
                         <div
-                          key={item.itemId}
+                          key={index}
                           className="flex mb-2 justify-between"
                         >
                           <img
@@ -266,12 +267,8 @@ const Page = () => {
                           <p className="text-lg ">{item.title}</p>
 
                           <p>
-                            {item.shipmentId ||
-                              `${
-                                item.title.substring(0, 5) +
-                                Math.floor(Math.random() * 100000 + 1)
-                              }`}
-                            ...
+                            {item.shipmentId }
+
                           </p>
                         </div>
                       ))
@@ -540,8 +537,8 @@ const Page = () => {
 
                     <div className="px-10">
                       {newOrders && newOrders.length > 0 ? (
-                        newOrders.map((item: Order) => (
-                          <div key={item.itemId} className="flex mb-4 gap-4">
+                        newOrders.map((item: Order, index: number) => (
+                          <div key={index} className="flex mb-4 gap-4">
                             <img
                               className="w-20"
                               src={item.image}
