@@ -2,7 +2,7 @@
 
 import { useAppSelector } from "@/lib/hooks";
 import Script from "next/script";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { GoArrowLeft } from "react-icons/go";
 import toast from "react-hot-toast";
@@ -138,7 +138,14 @@ const CheckoutPage = () => {
     if (payment === "online") {
       await createOrder();
     } else {
-      const res= await handleCheckout();
+     const res = await toast.promise(
+          handleCheckout(),
+          {
+            loading: "Placing order...",
+            success: "Order placed successfully!",
+            error: "Order placement failed.",
+          }
+        );
       if( res.status) {
         console.log("shipment id : ", shipmentId)
         setSuccess(true)
@@ -208,7 +215,7 @@ const CheckoutPage = () => {
       paymentInstance.open();
     } catch (err) {
       if (err instanceof Error)
-        toast.error(`Order creation error: ${err.message}`);
+        console.error("",);
       throw new Error("Order is not created");
     }
   };
@@ -279,7 +286,7 @@ const CheckoutPage = () => {
       };
     } catch (error) {
       console.error("Checkout error:", error);
-      toast.error("Failed to place the order. Please try again.");
+    
       return {
         shipment_id: "",
         status: false,
@@ -312,10 +319,11 @@ const CheckoutPage = () => {
         dispatch(clearCart());
         dispatch(clearCheckout());
         dispatch(setOrder(data?.orders));
-        toast.success("Order placed successfully!");
+      
       } 
     } catch (err) {
-      if (err instanceof Error) toast.error(err.message);
+      if (err instanceof Error) 
+       console.error("");
       throw new Error("order is not created. something went wrong");
     }
     // if even update-db failed, order must be delivered to user
