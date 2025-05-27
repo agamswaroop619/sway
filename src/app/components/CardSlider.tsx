@@ -51,6 +51,7 @@ function CardSlider() {
 
   return (
     <div className="w-[100vw] px-10  bg-gradient-to-b from-green-950 to-black">
+      <h2>Swipe for Top Picks in our Collection!</h2>
       <Slider {...settings}>
         {data.map((item) => {
           return (
