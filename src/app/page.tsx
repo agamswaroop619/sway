@@ -63,7 +63,7 @@ export default function Home(): JSX.Element {
           </div>
         </section>
       </div>
-
+      <h2>Swipe for Top Picks in our Collection!</h2>
       <CardSlider />
       <section className=" bg-gradient-to-b from-black to-green-950">
         <div className="my-20 w-full flex flex-col">

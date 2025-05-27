@@ -410,7 +410,7 @@ const ProductsPage = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-center mt-4 w-full">
+          {/* <div className="flex justify-center mt-4 w-full">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
@@ -434,7 +434,7 @@ const ProductsPage = () => {
             >
               Next
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     );
