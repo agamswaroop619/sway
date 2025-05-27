@@ -2,7 +2,7 @@
 
 import { useAppSelector } from "@/lib/hooks";
 import Script from "next/script";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { GoArrowLeft } from "react-icons/go";
 import toast from "react-hot-toast";
