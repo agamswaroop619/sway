@@ -784,23 +784,27 @@ const ProductDetails = () => {
                   })}
 
                 {/* Pagination controls */}
-                {/* <div className="flex justify-center mt-4 w-full">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 rounded mr-2 disabled:hidden"
-          >
-            Previous
-          </button>
-          <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded ml-2 disabled:hidden"
-          >
-            Next
-          </button>
-        </div> */}
+                <div className="flex justify-center mt-4 w-full">
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded mr-2 disabled:hidden"
+                  >
+                    Previous
+                  </button>
+                  <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded ml-2 disabled:hidden"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
           </div>
