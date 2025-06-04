@@ -99,7 +99,6 @@ const CheckoutPage = () => {
   // success and error
   const [success, setSuccess] = useState(false);
 
-  const [orderPlaced, setorderPlaced] = useState(false);
 
   const generateOrderId = (): string => {
     const timestamp = Date.now().toString(); // Current timestamp in milliseconds
@@ -333,8 +332,6 @@ const CheckoutPage = () => {
        console.error("");
       throw new Error("order is not created. something went wrong");
     }
-    // if even update-db failed, order must be delivered to user
-    setorderPlaced(true);
   };
 
   if (!cartItems) {
