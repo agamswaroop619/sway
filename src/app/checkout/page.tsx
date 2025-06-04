@@ -136,14 +136,21 @@ const CheckoutPage = () => {
     }
 
     if (payment === "online") {
-      await createOrder();
+      await toast.promise( 
+        createOrder(),
+        {
+          loading: "Placing order",
+          success: "Order placed successfully ✅✅",
+          error: "Order placement failed ❌❌"
+        }
+      );
     } else {
      const res = await toast.promise(
           handleCheckout(),
           {
-            loading: "Placing order...",
-            success: "Order placed successfully!",
-            error: "Order placement failed.",
+            loading: "Placing order",
+            success: "Order placed successfully ✅✅",
+            error: "Order placement failed ❌❌"
           }
         );
       if( res.status) {
@@ -297,7 +304,7 @@ const CheckoutPage = () => {
 
   // 6. update db
   useEffect(() => {
-    if (success ) {
+    if ( success ) {
       updateAll();
     }
   }, [shipmentId]);
@@ -355,7 +362,7 @@ const CheckoutPage = () => {
         src="https://checkout.razorpay.com/v1/checkout.js"
       />
 
-      {!orderPlaced && (
+      {!success && (
         <div className="flex sm:flex-col-reverse xs:flex-col-reverse md:flex-row lg:flex-row xl:flex-row mx-7 justify-between">
           <div className="w-[56vw] xl:w-[56vw] lg:w-[56vw] md:w-[56vw] sm:w-[90vw] xs:w-[90vw]">
             <div className="w-full mt-10 mb-4">
@@ -687,7 +694,7 @@ const CheckoutPage = () => {
         </div>
       )}
 
-      {orderPlaced && (
+      {success && (
         <div className="flex min-h-screen min-w-screen h-full justify-center items-center  bg-gradient-to-b from-black to-green-900">
           <p className="text-lg font-bold my-4">Order Placed Successfully</p>
         </div>
