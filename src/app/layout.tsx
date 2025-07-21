@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import "./globals.css";
 import React from "react";
@@ -6,6 +5,7 @@ import StoreProvider from "./StoreProvider";
 import { Toaster } from "react-hot-toast";
 import Footer from "./components/Footer";
 import ClientLayout from "./ClientLayout";
+import CursorEffect from "./components/CursorEffect";
 
 export const metadata: Metadata = {
   title: "Sway Club",
@@ -17,8 +17,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
- 
   return (
     <html lang="en">
       <head>
@@ -28,15 +26,14 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <CursorEffect />
         <div className="overflow-x-hidden relative select-none ">
           <StoreProvider>
-          
-          <ClientLayout>{children}</ClientLayout>
-            
-           
-           <div className="abolute bottom-0">
-           <Footer/>
-           </div>
+            <ClientLayout>{children}</ClientLayout>
+
+            <div className="abolute bottom-0">
+              <Footer />
+            </div>
             <Toaster />
           </StoreProvider>
         </div>
@@ -44,7 +41,5 @@ export default function RootLayout({
     </html>
   );
 }
-
-
 
 // npx @next/codemod@latest built-in-next-font
