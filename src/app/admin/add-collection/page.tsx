@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { firestore, storage } from "../../firebase.config";
+import { firestore } from "../../firebase.config";
 import {
   addDoc,
   collection as firestoreCollection,
@@ -12,18 +12,18 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const bgMain =
   "bg-gradient-to-b from-green-900 via-black to-black min-h-screen";
 const cardBg = "bg-gray-900";
 const textMain = "text-white";
-const textSecondary = "text-gray-300";
 
 export default function AddCollectionPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [collections, setCollections] = useState<any[]>([]);
+  const [collections, setCollections] = useState<
+    Array<{ id: string; name: string; description: string }>
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -36,7 +36,11 @@ export default function AddCollectionPage() {
         firestoreCollection(firestore, "collections")
       );
       setCollections(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name || "",
+          description: doc.data().description || "",
+        }))
       );
       setLoading(false);
     };
@@ -72,7 +76,11 @@ export default function AddCollectionPage() {
         firestoreCollection(firestore, "collections")
       );
       setCollections(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name || "",
+          description: doc.data().description || "",
+        }))
       );
       setError("");
     } catch (err) {
@@ -117,7 +125,11 @@ export default function AddCollectionPage() {
         firestoreCollection(firestore, "collections")
       );
       setCollections(
-        allCollections.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        allCollections.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name || "",
+          description: doc.data().description || "",
+        }))
       );
     } catch (err) {
       setError("Failed to delete collection. Check console for details.");
