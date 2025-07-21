@@ -2,16 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { firestore } from "../firebase.config";
-import {
-  collection as firestoreCollection,
-  getDocs,
-  updateDoc,
-  doc,
-  writeBatch,
-  addDoc,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection as firestoreCollection, getDocs } from "firebase/firestore";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
@@ -46,7 +37,7 @@ export default function AdminAnalyticsPage() {
   );
   // const [collections, setCollections] = useState<any[]>([]); // Removed unused variable
   const router = useRouter();
-  const [addStatus, setAddStatus] = useState("");
+  // Removed unused addStatus state
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -116,9 +107,6 @@ export default function AdminAnalyticsPage() {
   useEffect(() => {
     // Fetch collections from Firestore
     const fetchCollections = async () => {
-      const snapshot = await getDocs(
-        firestoreCollection(firestore, "collections")
-      );
       // setCollections( // Removed unused variable
       //   snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
       // );
@@ -145,7 +133,7 @@ export default function AdminAnalyticsPage() {
     collectionMap[col].totalSold += p.totalSold ?? 0;
     collectionMap[col].revenue += p.revenue ?? 0;
   });
-  const collectionNames = Object.keys(collectionMap);
+  // Removed unused collectionNames
   // const collectionSold = collectionNames.map( // Removed unused variable
   //   (col) => collectionMap[col].totalSold
   // );
@@ -308,11 +296,7 @@ export default function AdminAnalyticsPage() {
           </button>
         </div>
       </div>
-      {addStatus && (
-        <div className="mb-4 text-center text-lg font-semibold text-pink-400">
-          {addStatus}
-        </div>
-      )}
+      {/* Removed addStatus display */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         <div className={`${cardBg} p-4 rounded shadow`}>
           <ApexChart

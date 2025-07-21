@@ -14,7 +14,6 @@ const bgMain =
   "bg-gradient-to-b from-green-900 via-black to-black min-h-screen";
 const cardBg = "bg-gray-900";
 const textMain = "text-white";
-const textSecondary = "text-gray-300";
 
 export default function AddTShirtPage() {
   const [name, setName] = useState("");
@@ -22,7 +21,9 @@ export default function AddTShirtPage() {
   const [price, setPrice] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [collections, setCollections] = useState<any[]>([]);
+  const [collections, setCollections] = useState<
+    Array<{ id: string; name: string }>
+  >([]);
   const [selectedCollection, setSelectedCollection] = useState("");
   const router = useRouter();
 
@@ -43,18 +44,6 @@ export default function AddTShirtPage() {
     const files = Array.from(e.target.files || []);
     setImages(files);
     setImagePreviews(files.map((file) => URL.createObjectURL(file)));
-  };
-
-  const handleCollectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (e.target.value === "__add_new__") {
-      // This state is no longer needed for the dropdown, but keeping it for now
-      // as it might be used elsewhere or for future features.
-      // setAddingNewCollection(true);
-      setSelectedCollection("");
-    } else {
-      // setAddingNewCollection(false); // This state is no longer needed
-      setSelectedCollection(e.target.value);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
