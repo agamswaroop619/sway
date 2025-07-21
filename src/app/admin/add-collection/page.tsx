@@ -15,39 +15,22 @@ const textSecondary = "text-gray-300";
 export default function AddCollectionPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  // Removed images and imagePreviews state
   const router = useRouter();
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setImages(files);
-    setImagePreviews(files.map((file) => URL.createObjectURL(file)));
-  };
+  // Removed handleImageChange
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !description || images.length === 0) {
-      alert("Please fill all fields and select at least one image.");
+    if (!name || !description) {
+      alert("Please fill all fields.");
       return;
     }
     try {
-      // 1. Upload images to Firebase Storage
-      const imageUrls: string[] = [];
-      for (const file of images) {
-        const storageRef = ref(
-          storage,
-          `collections/${name}/${file.name}_${Date.now()}`
-        );
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
-        imageUrls.push(url);
-      }
-      // 2. Add collection to Firestore
+      // 2. Add collection to Firestore (no images)
       await addDoc(firestoreCollection(firestore, "collections"), {
         name,
         description,
-        images: imageUrls,
         createdAt: new Date().toISOString(),
       });
       alert("Collection added successfully!");
@@ -96,28 +79,6 @@ export default function AddCollectionPage() {
               placeholder="Describe this collection..."
               rows={3}
             />
-          </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>
-              Collection Images
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="w-full text-white"
-            />
-            <div className="flex flex-wrap gap-4 mt-4">
-              {imagePreviews.map((src, idx) => (
-                <img
-                  key={idx}
-                  src={src}
-                  alt={`Preview ${idx + 1}`}
-                  className="rounded shadow max-h-32 border border-gray-700"
-                />
-              ))}
-            </div>
           </div>
           <button
             type="submit"

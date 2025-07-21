@@ -24,9 +24,6 @@ export default function AddTShirtPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [collections, setCollections] = useState<any[]>([]);
   const [selectedCollection, setSelectedCollection] = useState("");
-  const [addingNewCollection, setAddingNewCollection] = useState(false);
-  const [newCollectionName, setNewCollectionName] = useState("");
-  const [newCollectionDescription, setNewCollectionDescription] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -50,39 +47,23 @@ export default function AddTShirtPage() {
 
   const handleCollectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (e.target.value === "__add_new__") {
-      setAddingNewCollection(true);
+      // This state is no longer needed for the dropdown, but keeping it for now
+      // as it might be used elsewhere or for future features.
+      // setAddingNewCollection(true);
       setSelectedCollection("");
     } else {
-      setAddingNewCollection(false);
+      // setAddingNewCollection(false); // This state is no longer needed
       setSelectedCollection(e.target.value);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let collectionId = selectedCollection;
-    // If adding a new collection, create it first
-    if (addingNewCollection) {
-      if (!newCollectionName || !newCollectionDescription) {
-        alert("Please enter a name and description for the new collection.");
-        return;
-      }
-      const colDoc = await addDoc(
-        firestoreCollection(firestore, "collections"),
-        {
-          name: newCollectionName,
-          description: newCollectionDescription,
-          images: [],
-          createdAt: new Date().toISOString(),
-        }
-      );
-      collectionId = colDoc.id;
-    }
     if (
       !name ||
       !description ||
       !price ||
-      !collectionId ||
+      !selectedCollection ||
       images.length === 0
     ) {
       alert("Please fill all fields and select at least one image.");
@@ -104,7 +85,9 @@ export default function AddTShirtPage() {
         description,
         price: parseFloat(price),
         images: imageUrls,
-        collectionId,
+        collection:
+          collections.find((col) => col.id === selectedCollection)?.name || "",
+        collectionId: selectedCollection,
         createdAt: new Date().toISOString(),
       });
       alert("Product added successfully!");
@@ -173,46 +156,22 @@ export default function AddTShirtPage() {
           <div>
             <label className={`block mb-2 ${textMain}`}>Collection</label>
             <select
-              value={addingNewCollection ? "__add_new__" : selectedCollection}
-              onChange={handleCollectionChange}
+              value={selectedCollection}
+              onChange={(e) => setSelectedCollection(e.target.value)}
               required
               className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
             >
               <option value="">Select a collection</option>
-              <option value="__add_new__">+ Add New Collection</option>
               {collections.map((col) => (
                 <option key={col.id} value={col.id}>
                   {col.name}
                 </option>
               ))}
             </select>
-            {addingNewCollection && (
-              <div className="mt-4 bg-gray-800 p-4 rounded">
-                <input
-                  type="text"
-                  value={newCollectionName}
-                  onChange={(e) => setNewCollectionName(e.target.value)}
-                  placeholder="New collection name"
-                  className="w-full mb-2 px-4 py-2 rounded bg-gray-900 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
-                />
-                <textarea
-                  value={newCollectionDescription}
-                  onChange={(e) => setNewCollectionDescription(e.target.value)}
-                  placeholder="New collection description"
-                  className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
-                  rows={2}
-                />
-              </div>
-            )}
-            {!addingNewCollection && selectedCollection && (
+            {selectedCollection && (
               <div className="mt-2 text-green-400 font-semibold">
                 Current Collection:{" "}
                 {collections.find((col) => col.id === selectedCollection)?.name}
-              </div>
-            )}
-            {addingNewCollection && newCollectionName && (
-              <div className="mt-2 text-green-400 font-semibold">
-                New Collection: {newCollectionName}
               </div>
             )}
           </div>

@@ -27,7 +27,7 @@ const bgMain =
   "bg-gradient-to-b from-green-900 via-black to-black min-h-screen";
 const cardBg = "bg-gray-900";
 const textMain = "text-white";
-const textSecondary = "text-gray-300";
+// const textSecondary = "text-gray-300"; // Removed unused variable
 
 export default function AdminAnalyticsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -35,7 +35,7 @@ export default function AdminAnalyticsPage() {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(
     null
   );
-  const [collections, setCollections] = useState<any[]>([]);
+  // const [collections, setCollections] = useState<any[]>([]); // Removed unused variable
   const router = useRouter();
 
   useEffect(() => {
@@ -109,9 +109,9 @@ export default function AdminAnalyticsPage() {
       const snapshot = await getDocs(
         firestoreCollection(firestore, "collections")
       );
-      setCollections(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
+      // setCollections( // Removed unused variable
+      //   snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      // );
     };
     fetchCollections();
   }, []);
@@ -136,12 +136,12 @@ export default function AdminAnalyticsPage() {
     collectionMap[col].revenue += p.revenue ?? 0;
   });
   const collectionNames = Object.keys(collectionMap);
-  const collectionSold = collectionNames.map(
-    (col) => collectionMap[col].totalSold
-  );
-  const collectionRevenue = collectionNames.map(
-    (col) => collectionMap[col].revenue
-  );
+  // const collectionSold = collectionNames.map( // Removed unused variable
+  //   (col) => collectionMap[col].totalSold
+  // );
+  // const collectionRevenue = collectionNames.map( // Removed unused variable
+  //   (col) => collectionMap[col].revenue
+  // );
 
   // Dummy data for charts
   const dummyCollectionNames = [
@@ -194,7 +194,11 @@ export default function AdminAnalyticsPage() {
     chart: {
       type: "bar" as const,
       events: {
-        dataPointSelection: (event: any, chartContext: any, config: any) => {
+        dataPointSelection: (
+          event: React.MouseEvent<HTMLElement>,
+          chartContext: unknown,
+          config: { dataPointIndex: number }
+        ) => {
           setSelectedCollection(dummyCollectionNames[config.dataPointIndex]);
         },
       },
@@ -229,7 +233,11 @@ export default function AdminAnalyticsPage() {
     tooltip: { theme: "dark" },
     chart: {
       events: {
-        dataPointSelection: (event: any, chartContext: any, config: any) => {
+        dataPointSelection: (
+          event: React.MouseEvent<HTMLElement>,
+          chartContext: unknown,
+          config: { dataPointIndex: number }
+        ) => {
           setSelectedCollection(dummyCollectionNames[config.dataPointIndex]);
         },
       },
@@ -275,12 +283,20 @@ export default function AdminAnalyticsPage() {
         <h1 className={`text-2xl font-bold ${textMain}`}>
           Product Sales Analytics
         </h1>
-        <button
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
-          onClick={() => router.push("/admin/add-tshirt")}
-        >
-          + Add Product
-        </button>
+        <div className="flex gap-4">
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
+            onClick={() => router.push("/admin/add-tshirt")}
+          >
+            + Add Product
+          </button>
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
+            onClick={() => router.push("/admin/add-collection")}
+          >
+            + Add Collection
+          </button>
+        </div>
       </div>
       {/* Show collections from Firestore */}
       {/* <div className="mb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
