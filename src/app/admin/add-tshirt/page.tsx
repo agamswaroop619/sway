@@ -86,7 +86,8 @@ export default function AddTShirtPage() {
         price: parseFloat(price),
         images: imageUrls,
         collection:
-          collections.find((col) => col.id === selectedCollection)?.name || "",
+          collections.find((col) => col.name === selectedCollection)?.name ||
+          "",
         collectionId: selectedCollection,
         createdAt: new Date().toISOString(),
       });
@@ -163,15 +164,14 @@ export default function AddTShirtPage() {
             >
               <option value="">Select a collection</option>
               {collections.map((col) => (
-                <option key={col.id} value={col.id}>
+                <option key={col.id} value={col.name}>
                   {col.name}
                 </option>
               ))}
             </select>
             {selectedCollection && (
               <div className="mt-2 text-green-400 font-semibold">
-                Current Collection:{" "}
-                {collections.find((col) => col.id === selectedCollection)?.name}
+                Current Collection: {selectedCollection}
               </div>
             )}
           </div>
