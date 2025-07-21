@@ -1,8 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { RiCloseLargeFill } from "react-icons/ri";
 import { GoChevronDown } from "react-icons/go";
+import { getDocs, collection as firestoreCollection } from "firebase/firestore";
+import { firestore } from "@/app/firebase.config";
 
 type NavItem = {
   label: string;
@@ -15,13 +17,6 @@ interface SideNavBarProps {
   setSideNav: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const collections: CollectionItem[] = [
-  { label: "Streetwear", href: "/shop/streetwear" },
-  { label: "Regular Tshirts", href: "/shop/regular" },
-  { label: "Polo", href: "/shop/polo" },
-  { label: "Psychedelics Tshirts", href: "/shop/psychedelics" },
-];
-
 const navLinks: NavItem[] = [
   { label: "About us", href: "/" },
   { label: "Contact us", href: "/contacts" },
@@ -30,6 +25,22 @@ const navLinks: NavItem[] = [
 
 const SideNavBar: React.FC<SideNavBarProps> = ({ setSideNav }) => {
   const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
+  const [collections, setCollections] = useState<CollectionItem[]>([]);
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      const snapshot = await getDocs(
+        firestoreCollection(firestore, "collections")
+      );
+      setCollections(
+        snapshot.docs.map((doc) => ({
+          label: doc.data().name,
+          href: `/shop/${doc.data().name.toLowerCase().replace(/\s+/g, "")}`,
+        }))
+      );
+    };
+    fetchCollections();
+  }, []);
 
   const handleClose = () => setSideNav(false);
 

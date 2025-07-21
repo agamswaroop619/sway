@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store"; // Import the RootState type
 import { RiMenu2Fill } from "react-icons/ri";
+import { getDocs, collection as firestoreCollection } from "firebase/firestore";
+import { firestore } from "@/app/firebase.config";
 
 const selectCartItems = (state: RootState) => state.cart.items;
 const userInfo = (state: RootState) => state.user.userProfile;
@@ -24,6 +26,9 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
   const [wish, setWish] = useState(0); // 'wish' to store
 
   const [dropDown, setDropDown] = useState(false);
+  const [collections, setCollections] = useState<
+    { label: string; href: string }[]
+  >([]);
 
   const itemsFromStore = useAppSelector(selectCartItems);
   const itemsFromWish = useAppSelector(userInfo)?.wishlist || [];
@@ -40,6 +45,21 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
   useEffect(() => {
     setNot(itemsFromStore.length); // Set the count based on the cart items length
   }, [itemsFromStore]); // This ensures it updates when `itemsFromStore` changes
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      const snapshot = await getDocs(
+        firestoreCollection(firestore, "collections")
+      );
+      setCollections(
+        snapshot.docs.map((doc) => ({
+          label: doc.data().name,
+          href: `/shop/${doc.data().name.toLowerCase().replace(/\s+/g, "")}`,
+        }))
+      );
+    };
+    fetchCollections();
+  }, []);
 
   const router = useRouter();
 
@@ -89,55 +109,17 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
                   dropDown ? "block" : "hidden"
                 } transition-all`}
               >
-                <li
-                  className="p-1 opacity-0 animate-fade-in-item"
-                  style={{ animationDelay: "0ms" }}
-                >
-                  {" "}
-                  <Link
-                    href={`/shop/streetwear`}
-                    onClick={() => setDropDown(false)}
+                {collections.map((col, idx) => (
+                  <li
+                    key={col.href}
+                    className="p-1 opacity-0 animate-fade-in-item"
+                    style={{ animationDelay: `${idx * 120}ms` }}
                   >
-                    {" "}
-                    Streetwear{" "}
-                  </Link>{" "}
-                </li>
-                <li
-                  className="p-1 opacity-0 animate-fade-in-item"
-                  style={{ animationDelay: "150ms" }}
-                >
-                  {" "}
-                  <Link href={`/shop/polo`} onClick={() => setDropDown(false)}>
-                    {" "}
-                    Polo{" "}
-                  </Link>{" "}
-                </li>
-                <li
-                  className="p-1 opacity-0 animate-fade-in-item"
-                  style={{ animationDelay: "300ms" }}
-                >
-                  {" "}
-                  <Link
-                    href={`/shop/hoodies`}
-                    onClick={() => setDropDown(false)}
-                  >
-                    {" "}
-                    Hoodies{" "}
-                  </Link>{" "}
-                </li>
-                <li
-                  className="p-1 opacity-0 animate-fade-in-item"
-                  style={{ animationDelay: "450ms" }}
-                >
-                  {" "}
-                  <Link
-                    href={`/shop/oversized`}
-                    onClick={() => setDropDown(false)}
-                  >
-                    {" "}
-                    Oversized{" "}
-                  </Link>{" "}
-                </li>
+                    <Link href={col.href} onClick={() => setDropDown(false)}>
+                      {col.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </li>
 
