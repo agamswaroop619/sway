@@ -9,6 +9,8 @@ import {
   getDocs,
   deleteDoc,
   doc,
+  query,
+  where,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -21,21 +23,26 @@ const textSecondary = "text-gray-300";
 export default function AddCollectionPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [collections, setCollections] = useState<any[]>([]);
+  const [collections, setCollections] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
 
-  // Fetch all collections
+  // Fetch all unique collection names from products
   useEffect(() => {
     const fetchCollections = async () => {
       setLoading(true);
       const snapshot = await getDocs(
-        firestoreCollection(firestore, "collections")
+        firestoreCollection(firestore, "products")
       );
-      setCollections(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
+      const uniqueNames = new Set<string>();
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.collection) {
+          uniqueNames.add(data.collection);
+        }
+      });
+      setCollections(Array.from(uniqueNames));
       setLoading(false);
     };
     fetchCollections();
@@ -43,7 +50,7 @@ export default function AddCollectionPage() {
 
   // Check for duplicate name
   const isDuplicateName = collections.some(
-    (col) => col.name?.trim().toLowerCase() === name.trim().toLowerCase()
+    (col) => col.trim().toLowerCase() === name.trim().toLowerCase()
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,11 +74,16 @@ export default function AddCollectionPage() {
       setDescription("");
       // Refresh collections
       const snapshot = await getDocs(
-        firestoreCollection(firestore, "collections")
+        firestoreCollection(firestore, "products")
       );
-      setCollections(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
+      const uniqueNames = new Set<string>();
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.collection) {
+          uniqueNames.add(data.collection);
+        }
+      });
+      setCollections(Array.from(uniqueNames));
       setError("");
     } catch (err) {
       setError("Failed to add collection. Check console for details.");
@@ -79,12 +91,49 @@ export default function AddCollectionPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this collection?"))
+  // Remove all products in a collection and remove the collection doc if it exists
+  const handleDelete = async (colName: string) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete all products in the '${colName}' collection?`
+      )
+    )
       return;
+    setError("");
     try {
-      await deleteDoc(doc(firestore, "collections", id));
-      setCollections(collections.filter((col) => col.id !== id));
+      // Delete all products in this collection
+      const q = query(
+        firestoreCollection(firestore, "products"),
+        where("collection", "==", colName)
+      );
+      const snapshot = await getDocs(q);
+      const batch = (await import("firebase/firestore")).writeBatch(firestore);
+      snapshot.forEach((docSnap) => {
+        batch.delete(doc(firestore, "products", docSnap.id));
+      });
+      await batch.commit();
+      // Remove from collections collection if exists
+      const colSnapshot = await getDocs(
+        query(
+          firestoreCollection(firestore, "collections"),
+          where("name", "==", colName)
+        )
+      );
+      colSnapshot.forEach((docSnap) => {
+        deleteDoc(doc(firestore, "collections", docSnap.id));
+      });
+      // Refresh collections
+      const allProducts = await getDocs(
+        firestoreCollection(firestore, "products")
+      );
+      const uniqueNames = new Set<string>();
+      allProducts.forEach((doc) => {
+        const data = doc.data();
+        if (data.collection) {
+          uniqueNames.add(data.collection);
+        }
+      });
+      setCollections(Array.from(uniqueNames));
     } catch (err) {
       setError("Failed to delete collection. Check console for details.");
       console.error(err);
@@ -152,16 +201,21 @@ export default function AddCollectionPage() {
           <ul className="space-y-4">
             {collections.map((col) => (
               <li
-                key={col.id}
-                className="flex justify-between items-center bg-gray-800 rounded px-4 py-2"
+                key={col}
+                className="flex justify-between items-center bg-gray-800 rounded px-4 py-2 cursor-pointer hover:bg-green-900 transition"
+                onClick={() =>
+                  router.push(`/products?collection=${encodeURIComponent(col)}`)
+                }
               >
                 <div>
-                  <div className="text-white font-semibold">{col.name}</div>
-                  <div className="text-gray-400 text-sm">{col.description}</div>
+                  <div className="text-white font-semibold">{col}</div>
                 </div>
                 <button
                   className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1 rounded shadow ml-4"
-                  onClick={() => handleDelete(col.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(col);
+                  }}
                 >
                   Delete
                 </button>
