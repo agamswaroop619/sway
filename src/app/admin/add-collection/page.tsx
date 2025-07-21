@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { firestore, storage } from "../../firebase.config";
-import { addDoc, collection as firestoreCollection } from "firebase/firestore";
+import {
+  addDoc,
+  collection as firestoreCollection,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const bgMain =
@@ -15,28 +21,72 @@ const textSecondary = "text-gray-300";
 export default function AddCollectionPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  // Removed images and imagePreviews state
+  const [collections, setCollections] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  // Removed handleImageChange
+  // Fetch all collections
+  useEffect(() => {
+    const fetchCollections = async () => {
+      setLoading(true);
+      const snapshot = await getDocs(
+        firestoreCollection(firestore, "collections")
+      );
+      setCollections(
+        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      );
+      setLoading(false);
+    };
+    fetchCollections();
+  }, []);
+
+  // Check for duplicate name
+  const isDuplicateName = collections.some(
+    (col) => col.name?.trim().toLowerCase() === name.trim().toLowerCase()
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     if (!name || !description) {
-      alert("Please fill all fields.");
+      setError("Please fill all fields.");
+      return;
+    }
+    if (isDuplicateName) {
+      setError("Collection name already exists.");
       return;
     }
     try {
-      // 2. Add collection to Firestore (no images)
       await addDoc(firestoreCollection(firestore, "collections"), {
         name,
         description,
         createdAt: new Date().toISOString(),
       });
-      alert("Collection added successfully!");
-      router.push("/admin");
+      setName("");
+      setDescription("");
+      // Refresh collections
+      const snapshot = await getDocs(
+        firestoreCollection(firestore, "collections")
+      );
+      setCollections(
+        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      );
+      setError("");
     } catch (err) {
-      alert("Failed to add collection. Check console for details.");
+      setError("Failed to add collection. Check console for details.");
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this collection?"))
+      return;
+    try {
+      await deleteDoc(doc(firestore, "collections", id));
+      setCollections(collections.filter((col) => col.id !== id));
+    } catch (err) {
+      setError("Failed to delete collection. Check console for details.");
       console.error(err);
     }
   };
@@ -80,13 +130,45 @@ export default function AddCollectionPage() {
               rows={3}
             />
           </div>
+          {error && <div className="text-red-400 font-semibold">{error}</div>}
           <button
             type="submit"
             className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow mt-4"
+            disabled={isDuplicateName}
           >
             Add Collection
           </button>
         </form>
+      </div>
+      <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg mt-8`}>
+        <h3 className={`text-xl font-bold mb-4 ${textMain}`}>
+          All Collections
+        </h3>
+        {loading ? (
+          <div className="text-white">Loading...</div>
+        ) : collections.length === 0 ? (
+          <div className="text-gray-400">No collections found.</div>
+        ) : (
+          <ul className="space-y-4">
+            {collections.map((col) => (
+              <li
+                key={col.id}
+                className="flex justify-between items-center bg-gray-800 rounded px-4 py-2"
+              >
+                <div>
+                  <div className="text-white font-semibold">{col.name}</div>
+                  <div className="text-gray-400 text-sm">{col.description}</div>
+                </div>
+                <button
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1 rounded shadow ml-4"
+                  onClick={() => handleDelete(col.id)}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { firestore } from "../firebase.config";
-import { collection as firestoreCollection, getDocs } from "firebase/firestore";
+import {
+  collection as firestoreCollection,
+  getDocs,
+  updateDoc,
+  doc,
+  writeBatch,
+} from "firebase/firestore";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
@@ -298,29 +304,6 @@ export default function AdminAnalyticsPage() {
           </button>
         </div>
       </div>
-      {/* Show collections from Firestore */}
-      {/* <div className="mb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {collections.map((col) => (
-          <div
-            key={col.id}
-            className={`${cardBg} rounded shadow p-4 flex flex-col gap-2`}
-          >
-            <h3 className="text-xl font-bold text-white mb-2">{col.name}</h3>
-            <p className="text-gray-300 mb-2">{col.description}</p>
-            <div className="flex flex-wrap gap-2">
-              {col.images &&
-                col.images.map((img: string, idx: number) => (
-                  <img
-                    key={idx}
-                    src={img}
-                    alt={col.name + " image " + (idx + 1)}
-                    className="rounded shadow max-h-24 border border-gray-700"
-                  />
-                ))}
-            </div>
-          </div>
-        ))}
-      </div> */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         <div className={`${cardBg} p-4 rounded shadow`}>
           <ApexChart

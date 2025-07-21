@@ -33,7 +33,7 @@ export default function AddTShirtPage() {
         firestoreCollection(firestore, "collections")
       );
       setCollections(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        snapshot.docs.map((doc) => ({ id: doc.id, name: doc.data().name }))
       );
     };
     fetchCollections();
