@@ -37,9 +37,8 @@ interface orderType {
 }
 
 const CheckoutPage = () => {
-
   // 1. fetch details from cartItems and store in orders
-  // 2. fill the details 
+  // 2. fill the details
   // 3. validate details ( checkfield function )
   // 4. payment maker
   // 5. shiprocket call
@@ -49,7 +48,7 @@ const CheckoutPage = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const [shipmentId, setShipmentId]= useState("");
+  const [shipmentId, setShipmentId] = useState("");
 
   // 1.  items that will be placed
   const cartItems = useAppSelector(selectCheckoutItems);
@@ -99,7 +98,6 @@ const CheckoutPage = () => {
   // success and error
   const [success, setSuccess] = useState(false);
 
-
   const generateOrderId = (): string => {
     const timestamp = Date.now().toString(); // Current timestamp in milliseconds
     const randomString = Math.random().toString(36).substring(2, 8); // Random alphanumeric string
@@ -135,37 +133,30 @@ const CheckoutPage = () => {
     }
 
     if (payment === "online") {
-      await toast.promise( 
-        createOrder(),
-        {
-          loading: "Placing order",
-          success: "Order placed successfully ✅✅",
-          error: "Order placement failed ❌❌"
-        }
-      );
+      await toast.promise(createOrder(), {
+        loading: "Placing order",
+        success: "Order placed successfully ✅✅",
+        error: "Order placement failed ❌❌",
+      });
     } else {
-     const res = await toast.promise(
-          handleCheckout(),
-          {
-            loading: "Placing order",
-            success: "Order placed successfully ✅✅",
-            error: "Order placement failed ❌❌"
-          }
-        );
-      if( res.status) {
-        console.log("shipment id : ", shipmentId)
-        setSuccess(true)
+      const res = await toast.promise(handleCheckout(), {
+        loading: "Placing order",
+        success: "Order placed successfully ✅✅",
+        error: "Order placement failed ❌❌",
+      });
+      if (res.status) {
+        console.log("shipment id : ", shipmentId);
+        setSuccess(true);
       }
     }
   };
 
   // 4. payment maker
   const createOrder = async () => {
-
     try {
       const res = await fetch("/api/create-order", {
         method: "POST",
-        body: JSON.stringify({ amount: (subtotal ) * 100 }),
+        body: JSON.stringify({ amount: subtotal * 100 }),
       });
 
       if (!res.ok) {
@@ -200,12 +191,10 @@ const CheckoutPage = () => {
 
             const verificationData = await verifyRes.json();
             if (verificationData.isOk) {
-
-              const res= await handleCheckout();
-              if( res.status) {
+              const res = await handleCheckout();
+              if (res.status) {
                 setSuccess(true);
               }
-              
             } else {
               throw new Error("Payment verification failed. Try again.");
             }
@@ -220,8 +209,7 @@ const CheckoutPage = () => {
       const paymentInstance = new window.Razorpay(paymentData);
       paymentInstance.open();
     } catch (err) {
-      if (err instanceof Error)
-        console.error("",);
+      if (err instanceof Error) console.error("");
       throw new Error("Order is not created");
     }
   };
@@ -238,7 +226,7 @@ const CheckoutPage = () => {
       billing_city: `${city}`,
       billing_pincode: `${zipCode}`,
       billing_state: `${state}`,
-      billing_country:  "India",
+      billing_country: "India",
       billing_email: `${email}` || `${userData?.email}`,
       billing_phone: `${userData?.phone}` || `${phone}`,
       shipping_is_billing: true,
@@ -258,7 +246,7 @@ const CheckoutPage = () => {
       giftwrap_charges: 0,
       transaction_charges: 0,
       total_discount: 0,
-      sub_total: payment === "cash" ? subtotal+shippingFee : subtotal,
+      sub_total: payment === "cash" ? subtotal + shippingFee : subtotal,
       length: 10,
       breadth: 15,
       height: 20,
@@ -274,15 +262,21 @@ const CheckoutPage = () => {
         body: JSON.stringify({ orderDetails }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
+        toast.error(
+          data.details ||
+            data.error ||
+            "Order placement failed. Please check your details and try again."
+        );
         return {
           shipment_id: "",
           status: "error",
-          message: `Failed to place the order.`,
+          message: data.details || data.error || "Order placement failed.",
         };
       }
 
-      const data = await response.json();
       console.log("res from shiprocket : ", data);
       setShipmentId(data.details.shipment_id);
       return {
@@ -291,8 +285,8 @@ const CheckoutPage = () => {
         message: "order created successfully",
       };
     } catch (error) {
+      toast.error("Order placement failed. Please try again later.");
       console.error("Checkout error:", error);
-    
       return {
         shipment_id: "",
         status: false,
@@ -303,54 +297,50 @@ const CheckoutPage = () => {
 
   // 6. update db
   useEffect(() => {
-    if ( success ) {
+    if (success) {
       updateAll();
     }
   }, [shipmentId]);
 
   const updateAll = async () => {
     try {
-      
-      const res= await fetch( '/api/update-db', {
+      const res = await fetch("/api/update-db", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cartItems, userData, shipmentId})
-      })
+        body: JSON.stringify({ cartItems, userData, shipmentId }),
+      });
 
-      const data= await res.json();
-      
-      if (res?.ok ) {
+      const data = await res.json();
+
+      if (res?.ok) {
         dispatch(clearCart());
         dispatch(clearCheckout());
         dispatch(setOrder(data?.orders));
-      
-      } 
+      }
     } catch (err) {
-      if (err instanceof Error) 
-       console.error("");
+      if (err instanceof Error) console.error("");
       throw new Error("order is not created. something went wrong");
     }
   };
 
   if (!cartItems) {
-    router.push('/cart')
+    router.push("/cart");
   }
 
+  // coupon Handler
+  const [couponErr, setCouponErr] = useState("");
+  const [couponOpen, setCouponOpen] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
 
-    // coupon Handler
-    const [couponErr, setCouponErr] = useState("");
-    const [couponOpen, setCouponOpen] = useState(false);
-    const [couponCode, setCouponCode] = useState("");
-  
-    const couponHandler = () => {
-      if (couponCode === "") {
-        setCouponErr("Please enter a valid coupon code");
-      } else setCouponErr("Invalid Coupon Code");
-  
-      return;
-    };
+  const couponHandler = () => {
+    if (couponCode === "") {
+      setCouponErr("Please enter a valid coupon code");
+    } else setCouponErr("Invalid Coupon Code");
+
+    return;
+  };
 
   return (
     <div className="relative bg-gradient-to-b from-black to-green-950">
@@ -394,7 +384,6 @@ const CheckoutPage = () => {
               <p className="my-2 text-[#7E7E7E]">
                 Enter the address where you want your order delivered.
               </p>
-
 
               <div className="flex my-3 justify-between">
                 <div className="bg-white w-[49%] rounded-md px-2 text-black">
@@ -665,14 +654,17 @@ const CheckoutPage = () => {
                 <span className="text-green-500 font-semibold"> ₹0</span>
               </p>
 
-              { payment === "cash" 
-                && <div className="flex justify-between items-center">
+              {payment === "cash" && (
+                <div className="flex justify-between items-center">
                   <div>
                     <p>Convenience Fee</p>
-                    <p className="text-sm text-gray-500">Pay by UPI/Cards to waive off</p>
+                    <p className="text-sm text-gray-500">
+                      Pay by UPI/Cards to waive off
+                    </p>
                   </div>
                   <span>₹{shippingFee}</span>
-                </div> }
+                </div>
+              )}
 
               <div className="flex my-3 justify-between">
                 <div>
@@ -684,7 +676,7 @@ const CheckoutPage = () => {
 
               <p className="w-full text-lg my-4 font-semibold flex justify-between">
                 <span>Total</span>
-                <span>₹{ payment === "cash" ? subtotal+79 : subtotal}</span>
+                <span>₹{payment === "cash" ? subtotal + 79 : subtotal}</span>
               </p>
             </div>
           </div>
@@ -696,8 +688,6 @@ const CheckoutPage = () => {
           <p className="text-lg font-bold my-4">Order Placed Successfully</p>
         </div>
       )}
-
-     
     </div>
   );
 };
