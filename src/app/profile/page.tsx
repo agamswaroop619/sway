@@ -99,7 +99,7 @@ const Page = () => {
         name: firstName,
         email: email,
         phone: phone,
-        lastName: lastName
+        lastName: lastName,
       };
 
       if (userData.exists()) {
@@ -253,10 +253,7 @@ const Page = () => {
 
                     {newOrders && newOrders.length > 0 ? (
                       newOrders.map((item: Order, index: number) => (
-                        <div
-                          key={index}
-                          className="flex mb-2 justify-between"
-                        >
+                        <div key={index} className="flex mb-2 justify-between">
                           <img
                             src={item.image}
                             alt="image"
@@ -266,10 +263,7 @@ const Page = () => {
 
                           <p className="text-lg ">{item.title}</p>
 
-                          <p>
-                            {item.shipmentId }
-
-                          </p>
+                          <p>{item.shipmentId}</p>
                         </div>
                       ))
                     ) : (
@@ -372,7 +366,12 @@ const Page = () => {
                         <input
                           type="text"
                           className="focus:outline-none p-2 rounded-md text-black"
-                          onChange={(e) => setZipCode(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d*$/.test(value)) {
+                              setZipCode(value);
+                            }
+                          }}
                           value={zipCode}
                         />
                       </div>
@@ -667,7 +666,12 @@ const Page = () => {
                         <input
                           type="text"
                           className="focus:outline-none p-2 rounded-md text-black"
-                          onChange={(e) => setZipCode(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d*$/.test(value)) {
+                              setZipCode(value);
+                            }
+                          }}
                           value={zipCode}
                         />
                       </div>
