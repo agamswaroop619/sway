@@ -15,6 +15,21 @@ const bgMain =
 const cardBg = "bg-gray-900";
 const textMain = "text-white";
 
+// Helper function for uploading an image via the server-side API
+async function uploadImageViaApi(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch("/api/upload-product", {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) {
+    throw new Error("Failed to upload image");
+  }
+  const data = await res.json();
+  return data.url;
+}
+
 export default function AddProductPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -66,31 +81,13 @@ export default function AddProductPage() {
     try {
       const imageObjs: { url: string; imgId: number }[] = [];
       let descImg = "";
-      // Sanitize product name for storage path
-      const safeName = name.replace(/[^a-zA-Z0-9_-]/g, "_");
       for (let i = 0; i < images.length; i++) {
         const file = images[i];
-        const storageRef = ref(
-          storage,
-          `tshirts/${safeName}/${file.name.replace(
-            /[^a-zA-Z0-9._-]/g,
-            "_"
-          )}_${Date.now()}`
-        );
         try {
-          console.log(
-            "Uploading file:",
-            file.name,
-            "to path:",
-            storageRef.fullPath
-          );
-          await uploadBytes(storageRef, file);
-          const url = await getDownloadURL(storageRef);
-          console.log("Upload success. Download URL:", url);
+          const url = await uploadImageViaApi(file);
           imageObjs.push({ url, imgId: i + 1 });
           if (i === 0) descImg = url;
         } catch (err) {
-          console.error("Failed to upload or get URL for", file.name, err);
           setError(`Failed to upload image: ${file.name}`);
           setLoading(false);
           return;
