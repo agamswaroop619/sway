@@ -34,8 +34,7 @@ export default function AddProductPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [images, setImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>([""]);
   const [collections, setCollections] = useState<
     Array<{ id: string; name: string }>
   >([]);
@@ -57,11 +56,15 @@ export default function AddProductPage() {
     fetchCollections();
   }, []);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setImages(files);
-    setImagePreviews(files.map((file) => URL.createObjectURL(file)));
+  const handleImageUrlChange = (idx: number, value: string) => {
+    const newUrls = [...imageUrls];
+    newUrls[idx] = value;
+    setImageUrls(newUrls);
   };
+
+  const addImageUrlField = () => setImageUrls([...imageUrls, ""]);
+  const removeImageUrlField = (idx: number) =>
+    setImageUrls(imageUrls.filter((_, i) => i !== idx));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,33 +75,22 @@ export default function AddProductPage() {
       !description ||
       !price ||
       !selectedCollection ||
-      images.length === 0
+      imageUrls.filter((url) => url.trim() !== "").length === 0
     ) {
-      setError("Please fill all fields and select at least one image.");
+      setError("Please fill all fields and enter at least one image URL.");
       setLoading(false);
       return;
     }
     try {
-      const imageObjs: { url: string; imgId: number }[] = [];
-      let descImg = "";
-      for (let i = 0; i < images.length; i++) {
-        const file = images[i];
-        try {
-          const url = await uploadImageViaApi(file);
-          imageObjs.push({ url, imgId: i + 1 });
-          if (i === 0) descImg = url;
-        } catch (err) {
-          setError(`Failed to upload image: ${file.name}`);
-          setLoading(false);
-          return;
-        }
-      }
+      const imageObjs = imageUrls
+        .filter((url) => url.trim() !== "")
+        .map((url, idx) => ({ url, imgId: idx + 1 }));
       await addDoc(firestoreCollection(firestore, "products"), {
         title: name,
         description,
         price: parseInt(price, 10),
         images: imageObjs,
-        descImg,
+        descImg: imageObjs[0]?.url || "",
         collection: selectedCollection,
         category: [selectedCollection],
         review: 0,
@@ -194,24 +186,36 @@ export default function AddProductPage() {
             )}
           </div>
           <div>
-            <label className={`block mb-2 ${textMain}`}>Product Images</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="w-full text-white"
-            />
-            <div className="flex flex-wrap gap-4 mt-4">
-              {imagePreviews.map((src, idx) => (
-                <img
-                  key={idx}
-                  src={src}
-                  alt={`Preview ${idx + 1}`}
-                  className="rounded shadow max-h-32 border border-gray-700"
+            <label className={`block mb-2 ${textMain}`}>
+              Product Image URLs
+            </label>
+            {imageUrls.map((url, idx) => (
+              <div key={idx} className="flex gap-2 items-center mb-2">
+                <input
+                  type="text"
+                  value={url}
+                  onChange={(e) => handleImageUrlChange(idx, e.target.value)}
+                  placeholder="https://your-cdn.com/image.jpg"
+                  className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
                 />
-              ))}
-            </div>
+                {imageUrls.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeImageUrlField(idx)}
+                    className="text-red-400"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addImageUrlField}
+              className="mt-2 text-green-400"
+            >
+              Add another image
+            </button>
           </div>
           {error && <div className="text-red-400 font-semibold">{error}</div>}
           <button
