@@ -34,6 +34,13 @@ export default function AddProductPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [color, setColor] = useState("Black");
+  const [review, setReview] = useState(0);
+  const [quantity, setQuantity] = useState([8, 8, 8, 4, 4]);
+  const [category, setCategory] = useState("");
+  const [id, setId] = useState("");
+  const [createdAt, setCreatedAt] = useState("");
+  const [userReview, setUserReview] = useState<any[]>([]); // Could be improved with a type
   const [imageUrls, setImageUrls] = useState<string[]>([""]);
   const [collections, setCollections] = useState<
     Array<{ id: string; name: string }>
@@ -41,6 +48,7 @@ export default function AddProductPage() {
   const [selectedCollection, setSelectedCollection] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [removeId, setRemoveId] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -65,6 +73,12 @@ export default function AddProductPage() {
   const addImageUrlField = () => setImageUrls([...imageUrls, ""]);
   const removeImageUrlField = (idx: number) =>
     setImageUrls(imageUrls.filter((_, i) => i !== idx));
+
+  const handleQuantityChange = (idx: number, value: string) => {
+    const newQ = [...quantity];
+    newQ[idx] = parseInt(value, 10) || 0;
+    setQuantity(newQ);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,18 +106,48 @@ export default function AddProductPage() {
         images: imageObjs,
         descImg: imageObjs[0]?.url || "",
         collection: selectedCollection,
-        category: [selectedCollection],
-        review: 0,
-        userReview: [],
-        quantity: [8, 8, 8, 4, 4], // default stock for sizes
-        color: "Black", // default color, can be updated to a field
-        createdAt: new Date().toISOString(),
+        category: [category || selectedCollection],
+        review: parseInt(String(review), 10) || 0,
+        userReview,
+        quantity,
+        color,
+        createdAt: createdAt || new Date().toISOString(),
+        id: id || undefined,
       });
       alert("Product added successfully!");
       setLoading(false);
       router.push("/admin");
     } catch (err) {
       setError("Failed to add Product. Check console for details.");
+      setLoading(false);
+      console.error(err);
+    }
+  };
+
+  // Remove product by ID
+  const handleRemoveProduct = async () => {
+    if (!removeId) {
+      setError("Enter a product ID to remove.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+    try {
+      const productsCol = firestoreCollection(firestore, "products");
+      const snapshot = await getDocs(productsCol);
+      const docToDelete = snapshot.docs.find(
+        (doc) => doc.id === removeId || doc.data().title === removeId
+      );
+      if (!docToDelete) {
+        setError("Product not found.");
+        setLoading(false);
+        return;
+      }
+      await docToDelete.ref.delete();
+      alert("Product removed successfully!");
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to remove product. Check console for details.");
       setLoading(false);
       console.error(err);
     }
@@ -153,7 +197,6 @@ export default function AddProductPage() {
               min="0"
               value={price}
               onChange={(e) => {
-                // Only allow numbers (no decimals, no negative)
                 const value = e.target.value;
                 if (/^\d*$/.test(value)) {
                   setPrice(value);
@@ -165,25 +208,74 @@ export default function AddProductPage() {
             />
           </div>
           <div>
-            <label className={`block mb-2 ${textMain}`}>Collection</label>
-            <select
-              value={selectedCollection}
-              onChange={(e) => setSelectedCollection(e.target.value)}
-              required
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
-            >
-              <option value="">Select a collection</option>
-              {collections.map((col) => (
-                <option key={col.id} value={col.name}>
-                  {col.name}
-                </option>
-              ))}
-            </select>
-            {selectedCollection && (
-              <div className="mt-2 text-green-400 font-semibold">
-                Current Collection: {selectedCollection}
-              </div>
-            )}
+            <label className={`block mb-2 ${textMain}`}>Color</label>
+            <input
+              type="text"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+              placeholder="e.g. Black"
+            />
+          </div>
+          <div>
+            <label className={`block mb-2 ${textMain}`}>Review (number)</label>
+            <input
+              type="number"
+              value={review}
+              onChange={(e) => setReview(Number(e.target.value))}
+              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+              placeholder="e.g. 0"
+            />
+          </div>
+          <div>
+            <label className={`block mb-2 ${textMain}`}>
+              Quantity (comma separated for sizes)
+            </label>
+            <input
+              type="text"
+              value={quantity.join(",")}
+              onChange={(e) =>
+                setQuantity(
+                  e.target.value.split(",").map((q) => parseInt(q, 10) || 0)
+                )
+              }
+              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+              placeholder="e.g. 8,8,8,4,4"
+            />
+          </div>
+          <div>
+            <label className={`block mb-2 ${textMain}`}>Category</label>
+            <input
+              type="text"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+              placeholder="e.g. streetwear"
+            />
+          </div>
+          <div>
+            <label className={`block mb-2 ${textMain}`}>
+              Product ID (optional)
+            </label>
+            <input
+              type="text"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+              placeholder="e.g. 14"
+            />
+          </div>
+          <div>
+            <label className={`block mb-2 ${textMain}`}>
+              Created At (optional, ISO string)
+            </label>
+            <input
+              type="text"
+              value={createdAt}
+              onChange={(e) => setCreatedAt(e.target.value)}
+              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+              placeholder="e.g. 2024-10-07T08:09:26.120Z"
+            />
           </div>
           <div>
             <label className={`block mb-2 ${textMain}`}>
@@ -226,6 +318,26 @@ export default function AddProductPage() {
             {loading ? "Adding..." : "Add Product"}
           </button>
         </form>
+      </div>
+      <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg mt-8`}>
+        <h3 className={`text-xl font-bold mb-4 ${textMain}`}>Remove Product</h3>
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            value={removeId}
+            onChange={(e) => setRemoveId(e.target.value)}
+            className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+            placeholder="Enter product ID or title"
+          />
+          <button
+            type="button"
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded shadow"
+            onClick={handleRemoveProduct}
+            disabled={loading}
+          >
+            Remove
+          </button>
+        </div>
       </div>
     </div>
   );
