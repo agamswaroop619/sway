@@ -284,7 +284,7 @@ export default function AdminAnalyticsPage() {
         <div className="flex gap-4">
           <button
             className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
-            onClick={() => router.push("/admin/add-tshirt")}
+            onClick={() => router.push("/admin/add-product")}
           >
             + Add Product
           </button>
