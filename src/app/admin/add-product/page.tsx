@@ -7,6 +7,10 @@ import {
   addDoc,
   collection as firestoreCollection,
   getDocs,
+  deleteDoc,
+  DocumentData,
+  QueryDocumentSnapshot,
+  doc as firestoreDoc,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -50,6 +54,9 @@ export default function AddProductPage() {
   const [loading, setLoading] = useState(false);
   const [removeId, setRemoveId] = useState("");
   const router = useRouter();
+  const [recentProducts, setRecentProducts] = useState<
+    QueryDocumentSnapshot<DocumentData>[]
+  >([]);
 
   useEffect(() => {
     // Fetch collections from Firestore
@@ -62,6 +69,22 @@ export default function AddProductPage() {
       );
     };
     fetchCollections();
+    // Fetch recent products
+    const fetchProducts = async () => {
+      const snapshot = await getDocs(
+        firestoreCollection(firestore, "products")
+      );
+      // Sort by createdAt descending, fallback to doc id if missing
+      const sorted = snapshot.docs
+        .sort((a, b) => {
+          const aTime = new Date(a.data().createdAt || 0).getTime();
+          const bTime = new Date(b.data().createdAt || 0).getTime();
+          return bTime - aTime;
+        })
+        .slice(0, 10); // last 10
+      setRecentProducts(sorted);
+    };
+    fetchProducts();
   }, []);
 
   const handleImageUrlChange = (idx: number, value: string) => {
@@ -124,26 +147,14 @@ export default function AddProductPage() {
     }
   };
 
-  // Remove product by ID
-  const handleRemoveProduct = async () => {
-    if (!removeId) {
-      setError("Enter a product ID to remove.");
-      return;
-    }
+  // Remove product by doc id
+  const handleRemoveProduct = async (docId: string) => {
     setError("");
     setLoading(true);
     try {
-      const productsCol = firestoreCollection(firestore, "products");
-      const snapshot = await getDocs(productsCol);
-      const docToDelete = snapshot.docs.find(
-        (doc) => doc.id === removeId || doc.data().title === removeId
-      );
-      if (!docToDelete) {
-        setError("Product not found.");
-        setLoading(false);
-        return;
-      }
-      await docToDelete.ref.delete();
+      const docRef = firestoreDoc(firestore, "products", docId);
+      await deleteDoc(docRef);
+      setRecentProducts((prev) => prev.filter((doc) => doc.id !== docId));
       alert("Product removed successfully!");
       setLoading(false);
     } catch (err) {
@@ -321,23 +332,41 @@ export default function AddProductPage() {
       </div>
       <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg mt-8`}>
         <h3 className={`text-xl font-bold mb-4 ${textMain}`}>Remove Product</h3>
-        <div className="flex gap-2 mb-4">
-          <input
-            type="text"
-            value={removeId}
-            onChange={(e) => setRemoveId(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
-            placeholder="Enter product ID or title"
-          />
-          <button
-            type="button"
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded shadow"
-            onClick={handleRemoveProduct}
-            disabled={loading}
-          >
-            Remove
-          </button>
-        </div>
+        <ul className="space-y-2">
+          {recentProducts.length === 0 && (
+            <li className="text-gray-400">No products found.</li>
+          )}
+          {recentProducts.map((doc) => {
+            const data = doc.data();
+            return (
+              <li
+                key={doc.id}
+                className="flex justify-between items-center bg-gray-800 rounded px-4 py-2"
+              >
+                <div>
+                  <div className="text-white font-semibold">
+                    {data.title || doc.id}
+                  </div>
+                  <div className="text-gray-400 text-xs">ID: {doc.id}</div>
+                  <div className="text-gray-400 text-xs">
+                    Created:{" "}
+                    {data.createdAt
+                      ? new Date(data.createdAt).toLocaleString()
+                      : ""}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1 rounded shadow ml-4"
+                  onClick={() => handleRemoveProduct(doc.id)}
+                  disabled={loading}
+                >
+                  Remove
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div>
   );
