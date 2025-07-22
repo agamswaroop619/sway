@@ -3,6 +3,11 @@ import { useEffect } from "react";
 
 export default function CursorEffect() {
   useEffect(() => {
+    // Detect mobile/touch device
+    const isTouchDevice =
+      typeof window !== "undefined" &&
+      ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    if (isTouchDevice) return;
     const cursor = document.createElement("div");
     cursor.className = "cursor-circle";
     document.body.appendChild(cursor);

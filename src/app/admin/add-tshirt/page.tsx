@@ -25,6 +25,8 @@ export default function AddTShirtPage() {
     Array<{ id: string; name: string }>
   >([]);
   const [selectedCollection, setSelectedCollection] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -48,6 +50,8 @@ export default function AddTShirtPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
     if (
       !name ||
       !description ||
@@ -55,35 +59,63 @@ export default function AddTShirtPage() {
       !selectedCollection ||
       images.length === 0
     ) {
-      alert("Please fill all fields and select at least one image.");
+      setError("Please fill all fields and select at least one image.");
+      setLoading(false);
       return;
     }
     try {
-      const imageUrls: string[] = [];
-      for (const file of images) {
+      const imageObjs: { url: string; imgId: number }[] = [];
+      let descImg = "";
+      // Sanitize product name for storage path
+      const safeName = name.replace(/[^a-zA-Z0-9_-]/g, "_");
+      for (let i = 0; i < images.length; i++) {
+        const file = images[i];
         const storageRef = ref(
           storage,
-          `tshirts/${name}/${file.name}_${Date.now()}`
+          `tshirts/${safeName}/${file.name.replace(
+            /[^a-zA-Z0-9._-]/g,
+            "_"
+          )}_${Date.now()}`
         );
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
-        imageUrls.push(url);
+        try {
+          console.log(
+            "Uploading file:",
+            file.name,
+            "to path:",
+            storageRef.fullPath
+          );
+          await uploadBytes(storageRef, file);
+          const url = await getDownloadURL(storageRef);
+          console.log("Upload success. Download URL:", url);
+          imageObjs.push({ url, imgId: i + 1 });
+          if (i === 0) descImg = url;
+        } catch (err) {
+          console.error("Failed to upload or get URL for", file.name, err);
+          setError(`Failed to upload image: ${file.name}`);
+          setLoading(false);
+          return;
+        }
       }
       await addDoc(firestoreCollection(firestore, "products"), {
-        name,
+        title: name,
         description,
-        price: parseFloat(price),
-        images: imageUrls,
-        collection:
-          collections.find((col) => col.name === selectedCollection)?.name ||
-          "",
-        collectionId: selectedCollection,
+        price: parseInt(price, 10),
+        images: imageObjs,
+        descImg,
+        collection: selectedCollection,
+        category: [selectedCollection],
+        review: 0,
+        userReview: [],
+        quantity: [8, 8, 8, 4, 4], // default stock for sizes
+        color: "Black", // default color, can be updated to a field
         createdAt: new Date().toISOString(),
       });
       alert("Product added successfully!");
+      setLoading(false);
       router.push("/admin");
     } catch (err) {
-      alert("Failed to add Product. Check console for details.");
+      setError("Failed to add Product. Check console for details.");
+      setLoading(false);
       console.error(err);
     }
   };
@@ -184,11 +216,13 @@ export default function AddTShirtPage() {
               ))}
             </div>
           </div>
+          {error && <div className="text-red-400 font-semibold">{error}</div>}
           <button
             type="submit"
             className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow mt-4"
+            disabled={loading}
           >
-            Add Product
+            {loading ? "Adding..." : "Add Product"}
           </button>
         </form>
       </div>
