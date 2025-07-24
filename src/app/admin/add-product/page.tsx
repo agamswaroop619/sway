@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { firestore, storage } from "../../firebase.config";
+import { firestore } from "../../firebase.config";
 import {
   addDoc,
   collection as firestoreCollection,
@@ -12,27 +12,11 @@ import {
   QueryDocumentSnapshot,
   doc as firestoreDoc,
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const bgMain =
   "bg-gradient-to-b from-green-900 via-black to-black min-h-screen";
 const cardBg = "bg-gray-900";
 const textMain = "text-white";
-
-// Helper function for uploading an image via the server-side API
-async function uploadImageViaApi(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
-  const res = await fetch("/api/upload-product", {
-    method: "POST",
-    body: formData,
-  });
-  if (!res.ok) {
-    throw new Error("Failed to upload image");
-  }
-  const data = await res.json();
-  return data.url;
-}
 
 export default function AddProductPage() {
   const [name, setName] = useState("");
@@ -44,29 +28,22 @@ export default function AddProductPage() {
   const [category, setCategory] = useState("");
   const [id, setId] = useState("");
   const [createdAt, setCreatedAt] = useState("");
-  const [userReview, setUserReview] = useState<any[]>([]); // Could be improved with a type
+  // Use unknown[] for userReview if type is not known
+  const [userReview] = useState<unknown[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([""]);
-  const [collections, setCollections] = useState<
-    Array<{ id: string; name: string }>
-  >([]);
-  const [selectedCollection, setSelectedCollection] = useState("");
+  // Removed unused: collections, setCollections, selectedCollection
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [removeId, setRemoveId] = useState("");
-  const router = useRouter();
   const [recentProducts, setRecentProducts] = useState<
     QueryDocumentSnapshot<DocumentData>[]
   >([]);
+  const router = useRouter();
 
   useEffect(() => {
     // Fetch collections from Firestore
     const fetchCollections = async () => {
-      const snapshot = await getDocs(
-        firestoreCollection(firestore, "collections")
-      );
-      setCollections(
-        snapshot.docs.map((doc) => ({ id: doc.id, name: doc.data().name }))
-      );
+      await getDocs(firestoreCollection(firestore, "collections"));
+      // Removed unused: collections, setCollections, selectedCollection
     };
     fetchCollections();
     // Fetch recent products
@@ -97,12 +74,6 @@ export default function AddProductPage() {
   const removeImageUrlField = (idx: number) =>
     setImageUrls(imageUrls.filter((_, i) => i !== idx));
 
-  const handleQuantityChange = (idx: number, value: string) => {
-    const newQ = [...quantity];
-    newQ[idx] = parseInt(value, 10) || 0;
-    setQuantity(newQ);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -111,7 +82,7 @@ export default function AddProductPage() {
       !name ||
       !description ||
       !price ||
-      !selectedCollection ||
+      // Removed unused: selectedCollection
       imageUrls.filter((url) => url.trim() !== "").length === 0
     ) {
       setError("Please fill all fields and enter at least one image URL.");
@@ -128,8 +99,8 @@ export default function AddProductPage() {
         price: parseInt(price, 10),
         images: imageObjs,
         descImg: imageObjs[0]?.url || "",
-        collection: selectedCollection,
-        category: [category || selectedCollection],
+        // Removed unused: collection
+        category: [category || ""], // Assuming category is a string or derived
         review: parseInt(String(review), 10) || 0,
         userReview,
         quantity,
