@@ -294,6 +294,12 @@ export default function AdminAnalyticsPage() {
           >
             + Add Collection
           </button>
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
+            onClick={() => router.push("/admin/update-collection")}
+          >
+            Update Collection
+          </button>
         </div>
       </div>
       {/* Removed addStatus display */}
