@@ -23,11 +23,9 @@ export default function AddProductPage() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [color, setColor] = useState("Black");
-  const [review, setReview] = useState(0);
   const [quantity, setQuantity] = useState([8, 8, 8, 4, 4]);
   const [category, setCategory] = useState("");
   const [id, setId] = useState("");
-  const [createdAt, setCreatedAt] = useState("");
   // Use unknown[] for userReview if type is not known
   const [userReview] = useState<unknown[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([""]);
@@ -101,11 +99,10 @@ export default function AddProductPage() {
         descImg: imageObjs[0]?.url || "",
         // Removed unused: collection
         category: [category || ""], // Assuming category is a string or derived
-        review: parseInt(String(review), 10) || 0,
         userReview,
         quantity,
         color,
-        createdAt: createdAt || new Date().toISOString(),
+        createdAt: new Date().toISOString(),
         id: id || undefined,
       });
       alert("Product added successfully!");
@@ -200,16 +197,6 @@ export default function AddProductPage() {
             />
           </div>
           <div>
-            <label className={`block mb-2 ${textMain}`}>Review (number)</label>
-            <input
-              type="number"
-              value={review}
-              onChange={(e) => setReview(Number(e.target.value))}
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
-              placeholder="e.g. 0"
-            />
-          </div>
-          <div>
             <label className={`block mb-2 ${textMain}`}>
               Quantity (comma separated for sizes)
             </label>
@@ -245,18 +232,6 @@ export default function AddProductPage() {
               onChange={(e) => setId(e.target.value)}
               className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
               placeholder="e.g. 14"
-            />
-          </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>
-              Created At (optional, ISO string)
-            </label>
-            <input
-              type="text"
-              value={createdAt}
-              onChange={(e) => setCreatedAt(e.target.value)}
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
-              placeholder="e.g. 2024-10-07T08:09:26.120Z"
             />
           </div>
           <div>
