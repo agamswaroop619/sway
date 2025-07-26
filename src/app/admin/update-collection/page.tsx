@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import * as XLSX from "xlsx";
 
 const bgMain =
   "bg-gradient-to-b from-green-900 via-black to-black min-h-screen";
@@ -11,6 +12,7 @@ export default function UpdateCollectionPage() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [jsonOutput, setJsonOutput] = useState<any>(null);
   const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,12 +28,80 @@ export default function UpdateCollectionPage() {
       setError("Please select an .xlsx file.");
       return;
     }
+
     setLoading(true);
-    // TODO: Implement upload and processing logic
-    setTimeout(() => {
-      setLoading(false);
-      alert("(Demo) File ready for processing: " + file.name);
-    }, 1000);
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+      const headers = rows[0].map((h: string) => h.trim().toUpperCase());
+      const dataRows = rows.slice(1);
+
+      const result: any = {
+        102349: [],
+      };
+
+      let index = 1;
+
+      for (const row of dataRows) {
+        const product: any = {};
+        headers.forEach((key: string, i: number) => {
+          product[key] = row[i];
+        });
+
+        const doc = {
+          documentChange: {
+            document: {
+              name: `projects/sway-4dcdc/databases/(default)/documents/products/${
+                product["SKU CODE"] || "sku_" + index
+              }`,
+              fields: {
+                id: {
+                  integerValue:
+                    product["SKU CODE"]?.toString() || index.toString(),
+                },
+                title: { stringValue: product["NAME"] || "" },
+                collection: { stringValue: product["COLLECTION"] || "" },
+                color: { stringValue: product["COLOURS"] || "" },
+                price: { integerValue: "699" },
+                quantity: {
+                  arrayValue: {
+                    values: ["SMALL", "MEDIUM", "LARGE", "XL", "XXL"].map(
+                      (size) => ({
+                        integerValue: product[size] || "0",
+                      })
+                    ),
+                  },
+                },
+                images: {
+                  arrayValue: {
+                    values: [],
+                  },
+                },
+                description: { stringValue: "" },
+                createdAt: {
+                  timestampValue: new Date().toISOString(),
+                },
+              },
+              createTime: new Date().toISOString(),
+              updateTime: new Date().toISOString(),
+            },
+            targetIds: [4],
+          },
+        };
+
+        result[102349].push([index, [doc]]);
+        index++;
+      }
+
+      setJsonOutput(result);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to process file.");
+    }
+    setLoading(false);
   };
 
   return (
@@ -86,6 +156,12 @@ export default function UpdateCollectionPage() {
           </button>
         </form>
       </div>
+
+      {jsonOutput && (
+        <div className="bg-black text-white mt-6 p-4 rounded max-w-4xl overflow-auto max-h-[400px] text-sm w-full">
+          <pre>{JSON.stringify(jsonOutput, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 }
