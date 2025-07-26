@@ -12,7 +12,7 @@ export default function UpdateCollectionPage() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [jsonOutput, setJsonOutput] = useState<any>(null);
+  const [jsonOutput, setJsonOutput] = useState<unknown>(null);
   const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,19 +34,19 @@ export default function UpdateCollectionPage() {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      const rows: unknown[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-      const headers = rows[0].map((h: string) => h.trim().toUpperCase());
+      const headers = (rows[0] as string[]).map((h) => h.trim().toUpperCase());
       const dataRows = rows.slice(1);
 
-      const result: any = {
+      const result: Record<string, unknown[]> = {
         102349: [],
       };
 
       let index = 1;
 
       for (const row of dataRows) {
-        const product: any = {};
+        const product: Record<string, unknown> = {};
         headers.forEach((key: string, i: number) => {
           product[key] = row[i];
         });
@@ -104,6 +104,15 @@ export default function UpdateCollectionPage() {
     setLoading(false);
   };
 
+  let jsonString = "";
+  if (jsonOutput) {
+    try {
+      jsonString = JSON.stringify(jsonOutput, null, 2);
+    } catch {
+      jsonString = String(jsonOutput);
+    }
+  }
+
   return (
     <div
       className={`${bgMain} p-8 flex flex-col items-center justify-center min-h-screen`}
@@ -157,9 +166,9 @@ export default function UpdateCollectionPage() {
         </form>
       </div>
 
-      {jsonOutput && (
+      {jsonString && (
         <div className="bg-black text-white mt-6 p-4 rounded max-w-4xl overflow-auto max-h-[400px] text-sm w-full">
-          <pre>{JSON.stringify(jsonOutput, null, 2)}</pre>
+          <pre>{jsonString}</pre>
         </div>
       )}
     </div>
