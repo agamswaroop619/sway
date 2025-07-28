@@ -75,6 +75,8 @@ export default function UpdateCollectionPage() {
         name: string;
         status: "updated" | "not_found" | "error";
         message: string;
+        matchedName?: string;
+        similarity?: number;
       }> = [];
 
       for (const row of dataRows) {
@@ -123,7 +125,9 @@ export default function UpdateCollectionPage() {
               skuCode: product["SKU CODE"]?.toString() || "N/A",
               name: productName,
               status: "updated",
-              message: "Successfully updated",
+              message: updateResult.message || "Successfully updated",
+              matchedName: updateResult.matchedName,
+              similarity: updateResult.similarity,
             });
           } else {
             updateResults.push({
@@ -329,6 +333,55 @@ export default function UpdateCollectionPage() {
             <div className="bg-black rounded p-4 overflow-auto max-h-[300px] text-sm">
               <pre className="text-white">{displayString}</pre>
             </div>
+
+            {/* Fuzzy Search Results Summary */}
+            {jsonOutput && hasSummary(jsonOutput) && (
+              <div className="mt-4 p-4 bg-gray-800 rounded">
+                <h4 className="text-lg font-bold mb-2 text-green-300">
+                  🔍 Fuzzy Search Results
+                </h4>
+                <div className="text-sm text-gray-300">
+                  <p>
+                    • Products found with exact matches:{" "}
+                    <span className="text-green-400">
+                      {jsonOutput.summary.updated -
+                        (jsonOutput as any).results?.filter(
+                          (r: any) => r.similarity && r.similarity < 1
+                        ).length || 0}
+                    </span>
+                  </p>
+                  <p>
+                    • Products found with fuzzy matches:{" "}
+                    <span className="text-yellow-400">
+                      {(jsonOutput as any).results?.filter(
+                        (r: any) =>
+                          r.similarity && r.similarity < 1 && r.similarity > 0.6
+                      ).length || 0}
+                    </span>
+                  </p>
+                  <p>
+                    • Average similarity score:{" "}
+                    <span className="text-blue-400">
+                      {(() => {
+                        const fuzzyMatches =
+                          (jsonOutput as any).results?.filter(
+                            (r: any) => r.similarity && r.similarity < 1
+                          ) || [];
+                        if (fuzzyMatches.length > 0) {
+                          const avg =
+                            fuzzyMatches.reduce(
+                              (sum: number, r: any) => sum + r.similarity,
+                              0
+                            ) / fuzzyMatches.length;
+                          return `${(avg * 100).toFixed(1)}%`;
+                        }
+                        return "N/A";
+                      })()}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
