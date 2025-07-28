@@ -43,7 +43,7 @@ export default function Home(): JSX.Element {
               {selectedGifs.slice(0, 2).map((gifUrl, index) => (
                 <img
                   key={index}
-                  className="h-[40vh] rounded-xl"
+                  className="h-[32vh] sm:h-[32vh] xs:h-[30vh] md:h-[40vh] lg:h-[40vh] xl:h-[40vh] rounded-xl"
                   src={gifUrl}
                   alt={`Sway GIF ${index + 1}`}
                 />
@@ -54,7 +54,7 @@ export default function Home(): JSX.Element {
               {selectedGifs.slice(2, 4).map((gifUrl, index) => (
                 <img
                   key={index}
-                  className="h-[40vh] rounded-xl"
+                  className="h-[32vh] sm:h-[32vh] xs:h-[30vh] md:h-[40vh] lg:h-[40vh] xl:h-[40vh] rounded-xl"
                   src={gifUrl}
                   alt={`Sway GIF ${index + 3}`}
                 />
