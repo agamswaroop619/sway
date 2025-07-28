@@ -74,9 +74,9 @@ function CardSlider() {
                   className="w-full h-full object-cover rounded-lg transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100 absolute top-0 left-0"
                 />
               </div>
-              <div className="w-full h-28 p-4 text-center">
-                <h3 className="mb-2">{item.title}</h3>
-                <p>₹{item.price}</p>
+              <div className="w-full h-48 p-4 text-center">
+                <h2 className="mb-2">{item.title}</h2>
+                <p className="mb-2">₹{item.price}</p>
               </div>
             </Link>
           );
