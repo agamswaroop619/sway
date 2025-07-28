@@ -70,11 +70,12 @@ export default function UpdateCollectionPage() {
       const headers = (rows[0] as string[]).map((h) => h.trim().toUpperCase());
       const dataRows = rows.slice(1);
 
-      const result: Record<string, unknown[]> = {
-        102349: [],
-      };
-
-      let index = 1;
+      const updateResults: Array<{
+        skuCode: string;
+        name: string;
+        status: "updated" | "not_found" | "error";
+        message: string;
+      }> = [];
 
       for (const row of dataRows) {
         const product: Record<string, unknown> = {};
@@ -82,52 +83,87 @@ export default function UpdateCollectionPage() {
           product[key] = row[i];
         });
 
-        const doc = {
-          documentChange: {
-            document: {
-              name: `projects/sway-4dcdc/databases/(default)/documents/products/${
-                product["SKU CODE"] || "sku_" + index
-              }`,
-              fields: {
-                id: {
-                  integerValue:
-                    product["SKU CODE"]?.toString() || index.toString(),
-                },
-                title: { stringValue: product["NAME"] || "" },
-                collection: { stringValue: product["COLLECTION"] || "" },
-                color: { stringValue: product["COLOURS"] || "" },
-                price: { integerValue: "699" },
-                quantity: {
-                  arrayValue: {
-                    values: ["SMALL", "MEDIUM", "LARGE", "XL", "XXL"].map(
-                      (size) => ({
-                        integerValue: product[size] || "0",
-                      })
-                    ),
-                  },
-                },
-                images: {
-                  arrayValue: {
-                    values: [],
-                  },
-                },
-                description: { stringValue: "" },
-                createdAt: {
-                  timestampValue: new Date().toISOString(),
-                },
-              },
-              createTime: new Date().toISOString(),
-              updateTime: new Date().toISOString(),
-            },
-            targetIds: [4],
-          },
-        };
+        const skuCode = product["SKU CODE"]?.toString();
+        const productName = product["NAME"]?.toString() || "";
 
-        result[102349].push([index, [doc]]);
-        index++;
+        if (!skuCode) {
+          updateResults.push({
+            skuCode: "N/A",
+            name: productName,
+            status: "error",
+            message: "SKU CODE is missing",
+          });
+          continue;
+        }
+
+        try {
+          // Call API to update the product
+          const response = await fetch("/api/update-product-stock", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              skuCode,
+              name: productName,
+              collection: product["COLLECTION"]?.toString() || "",
+              color: product["COLOURS"]?.toString() || "",
+              quantity: {
+                small: parseInt(product["SMALL"]?.toString() || "0"),
+                medium: parseInt(product["MEDIUM"]?.toString() || "0"),
+                large: parseInt(product["LARGE"]?.toString() || "0"),
+                xl: parseInt(product["XL"]?.toString() || "0"),
+                xxl: parseInt(product["XXL"]?.toString() || "0"),
+              },
+            }),
+          });
+
+          const updateResult = await response.json();
+
+          if (updateResult.success) {
+            updateResults.push({
+              skuCode,
+              name: productName,
+              status: "updated",
+              message: "Successfully updated",
+            });
+          } else {
+            updateResults.push({
+              skuCode,
+              name: productName,
+              status: updateResult.productFound ? "error" : "not_found",
+              message: updateResult.message || "Update failed",
+            });
+          }
+        } catch (error) {
+          updateResults.push({
+            skuCode,
+            name: productName,
+            status: "error",
+            message: "Network error",
+          });
+        }
       }
 
-      setJsonOutput(result);
+      setJsonOutput({
+        summary: {
+          total: updateResults.length,
+          updated: updateResults.filter((r) => r.status === "updated").length,
+          notFound: updateResults.filter((r) => r.status === "not_found")
+            .length,
+          errors: updateResults.filter((r) => r.status === "error").length,
+        },
+        results: updateResults,
+      });
+
+      // Refresh stock data after update
+      const stockResponse = await fetch("/api/stock");
+      if (stockResponse.ok) {
+        const stockResult = await stockResponse.json();
+        if (stockResult.success) {
+          setStockData(stockResult.summary);
+        }
+      }
     } catch (err) {
       console.error(err);
       setError("Failed to process file.");
@@ -144,10 +180,55 @@ export default function UpdateCollectionPage() {
     }
   }
 
+  const displayString = String(jsonString || "");
+
   return (
     <div
       className={`${bgMain} p-8 flex flex-col items-center justify-center min-h-screen`}
     >
+      {/* Stock Summary Box */}
+      {stockData && !stockLoading && (
+        <div className={`${cardBg} rounded shadow p-6 w-full max-w-4xl mb-6`}>
+          <div className="text-white">
+            <h3 className="text-xl font-bold mb-4">
+              📊 Current Stock Overview
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-300">
+                  {stockData.totalProducts}
+                </div>
+                <div className="text-gray-300">Total Products</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-300">
+                  {stockData.totalStock}
+                </div>
+                <div className="text-gray-300">Total Stock</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-300">
+                  {stockData.lowStockProducts}
+                </div>
+                <div className="text-gray-300">Low Stock</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-300">
+                  {stockData.outOfStockProducts}
+                </div>
+                <div className="text-gray-300">Out of Stock</div>
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <span className="text-gray-300">Average Stock per Product: </span>
+              <span className="font-bold text-blue-300">
+                {stockData.averageStock} units
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg`}>
         <div className="flex items-center justify-between mb-6">
           <h2 className={`text-2xl font-bold ${textMain}`}>
@@ -198,8 +279,47 @@ export default function UpdateCollectionPage() {
       </div>
 
       {jsonString && (
-        <div className="bg-black text-white mt-6 p-4 rounded max-w-4xl overflow-auto max-h-[400px] text-sm w-full">
-          <pre>{jsonString}</pre>
+        <div className={`${cardBg} rounded shadow p-6 w-full max-w-4xl mt-6`}>
+          <div className="text-white">
+            <h3 className="text-xl font-bold mb-4">
+              📋 Update Results Summary
+            </h3>
+
+            {jsonOutput &&
+              typeof jsonOutput === "object" &&
+              "summary" in jsonOutput && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-300">
+                      {String((jsonOutput as any).summary.total)}
+                    </div>
+                    <div className="text-gray-300">Total Processed</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-300">
+                      {String((jsonOutput as any).summary.updated)}
+                    </div>
+                    <div className="text-gray-300">Successfully Updated</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-300">
+                      {String((jsonOutput as any).summary.notFound)}
+                    </div>
+                    <div className="text-gray-300">Not Found</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-300">
+                      {String((jsonOutput as any).summary.errors)}
+                    </div>
+                    <div className="text-gray-300">Errors</div>
+                  </div>
+                </div>
+              )}
+
+            <div className="bg-black rounded p-4 overflow-auto max-h-[300px] text-sm">
+              <pre className="text-white">{displayString}</pre>
+            </div>
+          </div>
         </div>
       )}
     </div>
