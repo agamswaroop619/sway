@@ -83,15 +83,14 @@ export default function UpdateCollectionPage() {
           product[key] = row[i];
         });
 
-        const skuCode = product["SKU CODE"]?.toString();
         const productName = product["NAME"]?.toString() || "";
 
-        if (!skuCode) {
+        if (!productName) {
           updateResults.push({
-            skuCode: "N/A",
+            skuCode: product["SKU CODE"]?.toString() || "N/A",
             name: productName,
             status: "error",
-            message: "SKU CODE is missing",
+            message: "Product NAME is missing",
           });
           continue;
         }
@@ -104,7 +103,6 @@ export default function UpdateCollectionPage() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              skuCode,
               name: productName,
               collection: product["COLLECTION"]?.toString() || "",
               color: product["COLOURS"]?.toString() || "",
@@ -122,14 +120,14 @@ export default function UpdateCollectionPage() {
 
           if (updateResult.success) {
             updateResults.push({
-              skuCode,
+              skuCode: product["SKU CODE"]?.toString() || "N/A",
               name: productName,
               status: "updated",
               message: "Successfully updated",
             });
           } else {
             updateResults.push({
-              skuCode,
+              skuCode: product["SKU CODE"]?.toString() || "N/A",
               name: productName,
               status: updateResult.productFound ? "error" : "not_found",
               message: updateResult.message || "Update failed",
@@ -137,10 +135,10 @@ export default function UpdateCollectionPage() {
           }
         } catch (error) {
           updateResults.push({
-            skuCode,
+            skuCode: product["SKU CODE"]?.toString() || "N/A",
             name: productName,
             status: "error",
-            message: "Network error",
+            message: error instanceof Error ? error.message : "Network error",
           });
         }
       }
@@ -165,7 +163,7 @@ export default function UpdateCollectionPage() {
         }
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error processing file:", err);
       setError("Failed to process file.");
     }
     setLoading(false);
@@ -181,6 +179,20 @@ export default function UpdateCollectionPage() {
   }
 
   const displayString = String(jsonString || "");
+
+  // Type guard to check if jsonOutput has summary property
+  const hasSummary = (
+    obj: unknown
+  ): obj is {
+    summary: {
+      total: number;
+      updated: number;
+      notFound: number;
+      errors: number;
+    };
+  } => {
+    return typeof obj === "object" && obj !== null && "summary" in obj;
+  };
 
   return (
     <div
@@ -285,36 +297,34 @@ export default function UpdateCollectionPage() {
               📋 Update Results Summary
             </h3>
 
-            {jsonOutput &&
-              typeof jsonOutput === "object" &&
-              "summary" in jsonOutput && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-300">
-                      {String((jsonOutput as any).summary.total)}
-                    </div>
-                    <div className="text-gray-300">Total Processed</div>
+            {hasSummary(jsonOutput) && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-300">
+                    {jsonOutput.summary.total}
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-300">
-                      {String((jsonOutput as any).summary.updated)}
-                    </div>
-                    <div className="text-gray-300">Successfully Updated</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-300">
-                      {String((jsonOutput as any).summary.notFound)}
-                    </div>
-                    <div className="text-gray-300">Not Found</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-300">
-                      {String((jsonOutput as any).summary.errors)}
-                    </div>
-                    <div className="text-gray-300">Errors</div>
-                  </div>
+                  <div className="text-gray-300">Total Processed</div>
                 </div>
-              )}
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-300">
+                    {jsonOutput.summary.updated}
+                  </div>
+                  <div className="text-gray-300">Successfully Updated</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-yellow-300">
+                    {jsonOutput.summary.notFound}
+                  </div>
+                  <div className="text-gray-300">Not Found</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-300">
+                    {jsonOutput.summary.errors}
+                  </div>
+                  <div className="text-gray-300">Errors</div>
+                </div>
+              </div>
+            )}
 
             <div className="bg-black rounded p-4 overflow-auto max-h-[300px] text-sm">
               <pre className="text-white">{displayString}</pre>
