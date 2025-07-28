@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 
@@ -8,12 +8,43 @@ const bgMain =
 const cardBg = "bg-gray-900";
 const textMain = "text-white";
 
+interface StockSummary {
+  totalProducts: number;
+  totalStock: number;
+  lowStockProducts: number;
+  outOfStockProducts: number;
+  averageStock: number;
+}
+
 export default function UpdateCollectionPage() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [jsonOutput, setJsonOutput] = useState<unknown>(null);
+  const [stockData, setStockData] = useState<StockSummary | null>(null);
+  const [stockLoading, setStockLoading] = useState(true);
   const router = useRouter();
+
+  // Fetch stock data on first load
+  useEffect(() => {
+    const fetchStockData = async () => {
+      try {
+        const response = await fetch("/api/stock");
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            setStockData(result.summary);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching stock data:", error);
+      } finally {
+        setStockLoading(false);
+      }
+    };
+
+    fetchStockData();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
