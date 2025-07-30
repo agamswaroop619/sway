@@ -29,7 +29,7 @@ const LoginPage = () => {
 
   
   if (isLoggedIn) {
-    return null; // Ensure no unnecessary rendering
+    router.push('/profile') ; // Ensure no unnecessary rendering
   }
   
   

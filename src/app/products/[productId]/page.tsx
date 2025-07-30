@@ -34,6 +34,7 @@ const ProductDetails = () => {
   // You may want to log `data` if necessary for debugging:
 
   const userData = useAppSelector((state: RootState) => state.user.userProfile);
+  
 
   const [num, setNum] = useState(1);
   const [info, setInfo] = useState(0);
@@ -279,7 +280,10 @@ const ProductDetails = () => {
     e.preventDefault();
 
     if (userData) {
-      if (itemdata && itemdata.userReview) {
+    let itemPurchased = userData?.orders.some( (item) => item.itemId === itemdata?.id);
+
+    if( itemPurchased) {
+        if (itemdata && itemdata.userReview) {
         const totalReviewScore =
           itemdata.review * itemdata.userReview.length + rating;
         const updatedRating =
@@ -345,7 +349,10 @@ const ProductDetails = () => {
         setRating(0);
       }
     } else {
-      toast.error("user is not logged in");
+      toast.error("You must purchase the item to review it");
+    }
+    } else {
+      toast.error("Please login to review");
     }
   };
 

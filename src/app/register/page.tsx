@@ -8,6 +8,12 @@ import {
 import { auth } from "../firebase.config";
 import toast from "react-hot-toast";
 import GoogleLogin from "../components/GoogleLogin";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useRouter } from "next/navigation";
+
+import { RootState } from '@/lib/store';
+const userLoginInfo = (state: RootState) => state.user.isLoggedIn;
+
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -19,7 +25,6 @@ const RegisterPage = () => {
   const [phone, setPhone] = useState("");
 
   // Handle registration
-  // 1.
   const handleRegister = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
@@ -76,6 +81,17 @@ const RegisterPage = () => {
       }
     }
   };
+
+  const isLoggedIn = useAppSelector(userLoginInfo);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  const [ status, setStatus ] = useState("login");
+
+  
+  if (isLoggedIn) {
+    router.push('/profile') ; // Ensure no unnecessary rendering
+  }
 
   return (
     <>
