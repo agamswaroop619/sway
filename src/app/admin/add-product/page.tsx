@@ -11,6 +11,7 @@ import {
   DocumentData,
   QueryDocumentSnapshot,
   doc as firestoreDoc,
+  collection,
 } from "firebase/firestore";
 
 const bgMain =
@@ -98,7 +99,7 @@ export default function AddProductPage() {
         images: imageObjs,
         descImg: imageObjs[0]?.url || "",
         // Removed unused: collection
-        category: [category || ""], // Assuming category is a string or derived
+        collection: category.trim().toLowerCase() || "", // Assuming category is a string or derived
         userReview,
         quantity,
         color,

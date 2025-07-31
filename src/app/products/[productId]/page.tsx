@@ -737,7 +737,7 @@ const ProductDetails = () => {
             )}
 
             {info === 1 && (
-              <div id="additional"> Additional information content</div>
+              <div id="additional"> </div>
             )}
             {info === 2 && (
               <div id="reviews">
