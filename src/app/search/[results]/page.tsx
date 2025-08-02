@@ -63,9 +63,7 @@ const ProductsPage = () => {
       const searchResults = data.filter((item) => {
         const normalizedInput = input.toLowerCase();
         const normalizedTitle = item.title.toLowerCase();
-        const categoryMatch = item.category.some((cat) =>
-          cat.toLowerCase().includes(normalizedInput)
-        );
+        const categoryMatch = item.collection.includes(normalizedInput);
         return normalizedTitle.includes(normalizedInput) || categoryMatch;
       });
       return searchResults.length > 0 ? searchResults : [];
@@ -407,7 +405,7 @@ const ProductsPage = () => {
             </select>
           </div>
 
-          <div className="flex my-2 mx-4 flex-wrap justify-between w-full">
+          <div className="flex my-4 mx-4 flex-wrap justify-between w-full">
             {currentItems.length === 0 ? (
               <p>No products found</p>
             ) : (
@@ -448,7 +446,7 @@ const ProductsPage = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-center mt-4 w-full">
+          <div className="flex justify-center mb-8 w-full">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
