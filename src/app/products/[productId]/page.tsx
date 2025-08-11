@@ -280,7 +280,7 @@ const ProductDetails = () => {
     e.preventDefault();
 
     if (userData) {
-    let itemPurchased = userData?.orders.some( (item) => item.itemId === itemdata?.id);
+    const itemPurchased = userData?.orders.some( (item) => item.itemId === itemdata?.id);
 
     if( itemPurchased) {
         if (itemdata && itemdata.userReview) {

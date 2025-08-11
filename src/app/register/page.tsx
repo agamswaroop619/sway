@@ -8,7 +8,7 @@ import {
 import { auth } from "../firebase.config";
 import toast from "react-hot-toast";
 import GoogleLogin from "../components/GoogleLogin";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import {  useAppSelector } from "@/lib/hooks";
 import { useRouter } from "next/navigation";
 
 import { RootState } from '@/lib/store';
@@ -84,9 +84,7 @@ const RegisterPage = () => {
 
   const isLoggedIn = useAppSelector(userLoginInfo);
   const router = useRouter();
-  const dispatch = useAppDispatch();
-
-  const [ status, setStatus ] = useState("login");
+  
 
   
   if (isLoggedIn) {

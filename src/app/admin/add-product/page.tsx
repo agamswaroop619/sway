@@ -11,7 +11,6 @@ import {
   DocumentData,
   QueryDocumentSnapshot,
   doc as firestoreDoc,
-  collection,
 } from "firebase/firestore";
 
 const bgMain =

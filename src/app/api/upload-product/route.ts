@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminStorage } from '@/lib/firebase-admin';
-import { v4 as uuidv4 } from 'uuid';
+
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
+  const { adminStorage } = await import('@/lib/firebase-admin'); // lazy import
+  const { v4: uuidv4 } = await import('uuid');
+
   try {
     const formData = await req.formData();
     const file = formData.get('file');

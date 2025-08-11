@@ -16,6 +16,23 @@ interface StockSummary {
   averageStock: number;
 }
 
+interface jsonOutputType {
+  summary: {
+    total: number;
+    updated: number;
+    notFound: number;
+    errors: number;
+  };
+  results: Array<{
+    skuCode: string;
+    name: string;
+    status: "updated" | "not_found" | "error";
+    message: string;
+    matchedName?: string;
+    similarity?: number;
+  }>;
+}
+
 export default function UpdateCollectionPage() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
@@ -335,7 +352,7 @@ export default function UpdateCollectionPage() {
             </div>
 
             {/* Fuzzy Search Results Summary */}
-            {jsonOutput && hasSummary(jsonOutput) && (
+            {hasSummary(jsonOutput) && (
               <div className="mt-4 p-4 bg-gray-800 rounded">
                 <h4 className="text-lg font-bold mb-2 text-green-300">
                   🔍 Fuzzy Search Results
@@ -344,19 +361,19 @@ export default function UpdateCollectionPage() {
                   <p>
                     • Products found with exact matches:{" "}
                     <span className="text-green-400">
-                      {jsonOutput.summary.updated -
-                        (jsonOutput as any).results?.filter(
-                          (r: any) => r.similarity && r.similarity < 1
-                        ).length || 0}
+                      {((jsonOutput as jsonOutputType).summary.updated -
+                        ((jsonOutput as jsonOutputType).results?.filter(
+                          (r) => r.similarity && r.similarity < 1
+                        ).length || 0))}
                     </span>
                   </p>
                   <p>
                     • Products found with fuzzy matches:{" "}
                     <span className="text-yellow-400">
-                      {(jsonOutput as any).results?.filter(
-                        (r: any) =>
+                      {((jsonOutput as jsonOutputType).results?.filter(
+                        (r) =>
                           r.similarity && r.similarity < 1 && r.similarity > 0.6
-                      ).length || 0}
+                      ).length || 0)}
                     </span>
                   </p>
                   <p>
@@ -364,13 +381,13 @@ export default function UpdateCollectionPage() {
                     <span className="text-blue-400">
                       {(() => {
                         const fuzzyMatches =
-                          (jsonOutput as any).results?.filter(
-                            (r: any) => r.similarity && r.similarity < 1
+                          (jsonOutput as jsonOutputType).results?.filter(
+                            (r) => r.similarity && r.similarity < 1
                           ) || [];
                         if (fuzzyMatches.length > 0) {
                           const avg =
                             fuzzyMatches.reduce(
-                              (sum: number, r: any) => sum + r.similarity,
+                              (sum, r) => sum + (r.similarity ?? 0),
                               0
                             ) / fuzzyMatches.length;
                           return `${(avg * 100).toFixed(1)}%`;
