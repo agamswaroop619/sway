@@ -127,7 +127,7 @@ const CheckoutPage = () => {
     // Validate required fields
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value?.trim()) {
-        toast.error(`${key.replace(/([A-Z])/g, " $1")} can't be empty`);
+        toast.error(`${key.replace(/([A-Z])/g, " $1")} can&apos;t be empty`);
         return;
       }
     }
@@ -360,8 +360,8 @@ const CheckoutPage = () => {
                   Contact Information
                 </h3>
                 <p className="text-gray-400 text-sm xs:text-base sm:text-base mb-4">
-                  We'll use this email to send you details and updates about
-                  your order.
+                  We&apos;ll use this email to send you details and updates
+                  about your order.
                 </p>
 
                 <div className="bg-white rounded-lg p-4 text-black">

@@ -260,7 +260,7 @@ const LoginPage = () => {
 
             <div className="mt-8 text-center">
               <p className="text-gray-300 text-sm">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
                   className="text-green-400 hover:text-green-300 transition-colors duration-300 font-medium underline"
@@ -367,7 +367,7 @@ const LoginPage = () => {
 
             <div className="mt-8 text-center">
               <p className="text-gray-300 text-sm">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
                   className="text-green-400 hover:text-green-300 transition-colors duration-300 font-medium underline"
