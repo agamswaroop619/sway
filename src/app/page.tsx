@@ -22,65 +22,88 @@ export default function Home(): JSX.Element {
 
   return (
     <>
-      <div className="flex sm:flex-col xs:flex-col lg:flow-row md:flex-row xl:flex-row w-[100vw] px-10 justify-between bg-gradient-to-b from-black to-green-950">
-        <section className="w-[35vw] xs:mb-4 sm:mb-6 sm:w-full xs:w-full md:w-[35vw] lg:w-[35vw] xl:w-[35vw] flex flex-col justify-center">
-          <h3 className="text-7xl font-bold">SLAY WITH</h3>
-          <h3 className="text-[#3fe607] text-7xl font-bold">SWAY</h3>
-          <p>
+      <div className="responsive-flex-col w-full responsive-padding justify-between bg-gradient-to-b from-black to-green-950 py-10 xs:py-15 sm:py-20 md:py-20 lg:py-20 xl:py-20">
+        <section className="responsive-w-full xs:mb-4 sm:mb-6 md:mb-0 flex flex-col justify-center responsive-padding">
+          <h3 className="text-responsive-2xl font-bold text-center xs:text-left sm:text-left md:text-left lg:text-left xl:text-left">
+            SLAY WITH
+          </h3>
+          <h3 className="text-[#3fe607] text-responsive-2xl font-bold text-center xs:text-left sm:text-left md:text-left lg:text-left xl:text-left">
+            SWAY
+          </h3>
+          <p className="text-responsive-base text-center xs:text-left sm:text-left md:text-left lg:text-left xl:text-left responsive-margin">
             Sway is a cool and comfy clothing brand. Our styles mix modern
             trends with classic vibes for a vintage yet stylish look. We ensure
             the quality and comfortability of the fabric and product.
           </p>
-          <Link href="/products">
-            <button className="p-2 rounded-md bg-[#3fe607] mt-2 w-[130px] flex gap-2 items-center">
-              Get started <FaArrowRightLong />
-            </button>
-          </Link>
+          <div className="flex justify-center xs:justify-start sm:justify-start md:justify-start lg:justify-start xl:justify-start">
+            <Link href="/products">
+              <button className="btn-responsive rounded-md bg-[#3fe607] text-black font-semibold flex gap-2 items-center hover-scale transition-all duration-300">
+                Get started <FaArrowRightLong />
+              </button>
+            </Link>
+          </div>
         </section>
-        <section>
-          <div className="flex flex-col w-[50vw] sm:w-[100vw] xs:w-[100vw] md:w-[50vw] lg:w-[50vw] xl:w-[50vw]">
-            <div className="flex gap-5 mb-3">
+
+        <section className="responsive-w-full flex justify-center">
+          <div className="responsive-w-full max-w-6xl">
+            <div className="responsive-grid-2 gap-3 xs:gap-4 sm:gap-5 md:gap-5 lg:gap-5 xl:gap-5 mb-3">
               {selectedGifs.slice(0, 2).map((gifUrl, index) => (
-                <img
+                <div
                   key={index}
-                  className="h-[32vh] sm:h-[32vh] xs:h-[30vh] md:h-[40vh] lg:h-[40vh] xl:h-[40vh] rounded-xl"
-                  src={gifUrl}
-                  alt={`Sway GIF ${index + 1}`}
-                />
+                  className="relative group overflow-hidden rounded-xl"
+                >
+                  <img
+                    className="responsive-image-square hover-scale transition-all duration-500"
+                    src={gifUrl}
+                    alt={`Sway GIF ${index + 1}`}
+                    loading="lazy"
+                  />
+                </div>
               ))}
             </div>
 
-            <div className="flex gap-5 lg:ml-9 md:ml-9 xl:md-11">
+            <div className="responsive-grid-2 gap-3 xs:gap-4 sm:gap-5 md:gap-5 lg:gap-5 xl:gap-5 lg:ml-9 md:ml-9 xl:ml-11">
               {selectedGifs.slice(2, 4).map((gifUrl, index) => (
-                <img
+                <div
                   key={index}
-                  className="h-[32vh] sm:h-[32vh] xs:h-[30vh] md:h-[40vh] lg:h-[40vh] xl:h-[40vh] rounded-xl"
-                  src={gifUrl}
-                  alt={`Sway GIF ${index + 3}`}
-                />
+                  className="relative group overflow-hidden rounded-xl"
+                >
+                  <img
+                    className="responsive-image-square hover-scale transition-all duration-500"
+                    src={gifUrl}
+                    alt={`Sway GIF ${index + 3}`}
+                    loading="lazy"
+                  />
+                </div>
               ))}
             </div>
           </div>
         </section>
       </div>
+
       <CardSlider />
-      <section className=" bg-gradient-to-b from-black to-green-950">
-        <div className="my-20 w-full flex flex-col">
-          <h2 className="text-3xl font-semibold m-3">
+
+      <section className="bg-gradient-to-b from-black to-green-950">
+        <div className="container-responsive py-10 xs:py-15 sm:py-20 md:py-20 lg:py-20 xl:py-20">
+          <h2 className="text-responsive-lg font-semibold text-center responsive-margin">
             Follow Us On{" "}
             <a
               href="https://www.instagram.com/sway.society/"
               target="_blank"
               rel="noopener noreferrer"
+              className="text-green-600 hover:text-green-400 transition-colors duration-300"
             >
-              <span className="text-green-600">@Sway.society</span>
+              <span>@Sway.society</span>
             </a>
           </h2>
-          <img
-            className="w-full max-w-4xl mx-auto"
-            src="https://res.cloudinary.com/dfyfsmu84/image/upload/v1738652759/zaxxajsx7tuvzciaxjuw.jpg"
-            alt="Sway Society"
-          />
+          <div className="flex justify-center">
+            <img
+              className="responsive-image max-w-4xl rounded-lg shadow-2xl"
+              src="https://res.cloudinary.com/dfyfsmu84/image/upload/v1738652759/zaxxajsx7tuvzciaxjuw.jpg"
+              alt="Sway Society"
+              loading="lazy"
+            />
+          </div>
         </div>
       </section>
     </>
