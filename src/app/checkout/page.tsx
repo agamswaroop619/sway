@@ -216,6 +216,22 @@ const CheckoutPage = () => {
 
   // 5. shiprocket call
   const handleCheckout = async () => {
+    // Calculate total weight from cart items
+    const calculateTotalWeight = () => {
+      if (!cartItems) return 0.35; // Default weight if no items (350 grams)
+
+      let totalWeight = 0;
+      cartItems.forEach((item) => {
+        // Use fixed weight of 350 grams per clothing item
+        const itemWeight = 350; // Fixed 350 grams per product
+        totalWeight += itemWeight * item.qnt;
+      });
+
+      // Convert grams to kg and ensure minimum weight
+      const weightInKg = Math.max(totalWeight / 1000, 0.1);
+      return weightInKg;
+    };
+
     const orderDetails = {
       order_id: `${orderId}`, // Unique order ID
       order_date: `${getDate()}`,
@@ -250,7 +266,7 @@ const CheckoutPage = () => {
       length: 10,
       breadth: 15,
       height: 20,
-      weight: 2.5,
+      weight: calculateTotalWeight(), // Use calculated weight instead of hardcoded 2.5
     };
 
     try {
