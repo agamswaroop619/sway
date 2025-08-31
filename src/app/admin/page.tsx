@@ -5,12 +5,10 @@ import { firestore } from "../firebase.config";
 import { collection as firestoreCollection, getDocs } from "firebase/firestore";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import AdminGuard from "../components/AdminGuard";
 
 // Dynamically import ApexCharts to avoid SSR issues
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
-
-// Placeholder for admin check
-const isAdmin = true; // TODO: Replace with real admin authentication
 
 interface Product {
   id: string;
@@ -113,10 +111,6 @@ export default function AdminAnalyticsPage() {
     };
     fetchCollections();
   }, []);
-
-  if (!isAdmin) {
-    return <div>Access denied. Admins only.</div>;
-  }
 
   if (loading) {
     return <div>Loading analytics...</div>;
@@ -276,85 +270,87 @@ export default function AdminAnalyticsPage() {
   };
 
   return (
-    <div className={`${bgMain} p-8`}>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className={`text-2xl font-bold ${textMain}`}>
-          Product Sales Analytics
-        </h1>
-        <div className="flex gap-4">
-          <button
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
-            onClick={() => router.push("/admin/add-product")}
-          >
-            + Add Product
-          </button>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
-            onClick={() => router.push("/admin/add-collection")}
-          >
-            + Add Collection
-          </button>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
-            onClick={() => router.push("/admin/update-collection")}
-          >
-            Update Collection
-          </button>
+    <AdminGuard>
+      <div className={`${bgMain} p-8`}>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className={`text-2xl font-bold ${textMain}`}>
+            Product Sales Analytics
+          </h1>
+          <div className="flex gap-4">
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
+              onClick={() => router.push("/admin/add-product")}
+            >
+              + Add Product
+            </button>
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
+              onClick={() => router.push("/admin/add-collection")}
+            >
+              + Add Collection
+            </button>
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition-colors duration-200"
+              onClick={() => router.push("/admin/update-collection")}
+            >
+              Update Collection
+            </button>
+          </div>
         </div>
-      </div>
-      {/* Removed addStatus display */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div className={`${cardBg} p-4 rounded shadow`}>
-          <ApexChart
-            type="bar"
-            options={barOptions}
-            series={barSeries}
-            height={350}
-          />
+        {/* Removed addStatus display */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className={`${cardBg} p-4 rounded shadow`}>
+            <ApexChart
+              type="bar"
+              options={barOptions}
+              series={barSeries}
+              height={350}
+            />
+          </div>
+          <div className={`${cardBg} p-4 rounded shadow`}>
+            <ApexChart
+              type="pie"
+              options={pieOptions}
+              series={pieSeries}
+              height={350}
+            />
+          </div>
         </div>
-        <div className={`${cardBg} p-4 rounded shadow`}>
-          <ApexChart
-            type="pie"
-            options={pieOptions}
-            series={pieSeries}
-            height={350}
-          />
-        </div>
-      </div>
-      {selectedCollection && (
-        <div className={`${cardBg} p-4 rounded shadow mb-8`}>
-          <ApexChart
-            type="bar"
-            options={shirtBarOptions}
-            series={shirtBarSeries}
-            height={350}
-          />
-        </div>
-      )}
-      <table className="min-w-full border border-gray-700">
-        <thead>
-          <tr className={`${cardBg} ${textMain}`}>
-            <th className="border border-gray-700 px-4 py-2">Product</th>
-            <th className="border border-gray-700 px-4 py-2">Total Sold</th>
-            <th className="border border-gray-700 px-4 py-2">Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id} className={textMain}>
-              <td className="border border-gray-700 px-4 py-2">
-                {product.title}
-              </td>
-              <td className="border border-gray-700 px-4 py-2">
-                {product.totalSold ?? 0}
-              </td>
-              <td className="border border-gray-700 px-4 py-2">
-                ₹{product.revenue ?? 0}
-              </td>
+        {selectedCollection && (
+          <div className={`${cardBg} p-4 rounded shadow mb-8`}>
+            <ApexChart
+              type="bar"
+              options={shirtBarOptions}
+              series={shirtBarSeries}
+              height={350}
+            />
+          </div>
+        )}
+        <table className="min-w-full border border-gray-700">
+          <thead>
+            <tr className={`${cardBg} ${textMain}`}>
+              <th className="border border-gray-700 px-4 py-2">Product</th>
+              <th className="border border-gray-700 px-4 py-2">Total Sold</th>
+              <th className="border border-gray-700 px-4 py-2">Revenue</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.id} className={textMain}>
+                <td className="border border-gray-700 px-4 py-2">
+                  {product.title}
+                </td>
+                <td className="border border-gray-700 px-4 py-2">
+                  {product.totalSold ?? 0}
+                </td>
+                <td className="border border-gray-700 px-4 py-2">
+                  ₹{product.revenue ?? 0}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </AdminGuard>
   );
 }

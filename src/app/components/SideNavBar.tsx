@@ -5,6 +5,7 @@ import { RiCloseLargeFill } from "react-icons/ri";
 import { GoChevronDown } from "react-icons/go";
 import { getDocs, collection as firestoreCollection } from "firebase/firestore";
 import { firestore } from "@/app/firebase.config";
+import { useAdminAuth } from "@/lib/hooks";
 
 type NavItem = {
   label: string;
@@ -26,6 +27,7 @@ const navLinks: NavItem[] = [
 const SideNavBar: React.FC<SideNavBarProps> = ({ setSideNav }) => {
   const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
   const [collections, setCollections] = useState<CollectionItem[]>([]);
+  const { isAdmin } = useAdminAuth(); // Check if user is admin
 
   useEffect(() => {
     const fetchCollections = async () => {
@@ -110,6 +112,16 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ setSideNav }) => {
                 {item.label}
               </Link>
             ))}
+
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="block text-lg font-medium text-red-400 hover:text-red-300 transition-transform duration-300 animate-slideIn"
+                style={{ animationDelay: `${(navLinks.length + 1) * 50}ms` }}
+              >
+                Admin Panel
+              </Link>
+            )}
           </nav>
         </div>
       </div>

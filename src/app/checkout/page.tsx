@@ -218,17 +218,17 @@ const CheckoutPage = () => {
   const handleCheckout = async () => {
     // Calculate total weight from cart items
     const calculateTotalWeight = () => {
-      if (!cartItems) return 0.35; // Default weight if no items (350 grams)
+      if (!cartItems) return 0.22; // Default weight if no items (220 grams)
 
       let totalWeight = 0;
       cartItems.forEach((item) => {
-        // Use fixed weight of 350 grams per clothing item
-        const itemWeight = 350; // Fixed 350 grams per product
+        // Use fixed weight of 220 grams per clothing item
+        const itemWeight = 220; // Fixed 220 grams per product
         totalWeight += itemWeight * item.qnt;
       });
 
       // Convert grams to kg and ensure minimum weight
-      const weightInKg = Math.max(totalWeight / 1000, 0.1);
+      const weightInKg = Math.max(totalWeight / 1000, 0.22);
       return weightInKg;
     };
 
@@ -258,15 +258,15 @@ const CheckoutPage = () => {
       shipping_phone: "",
       order_items: orders,
       payment_method: payment === "cash" ? "COD" : "Prepaid",
-      shipping_charges: shippingFee,
+      shipping_charges: payment === "cash" ? shippingFee : 0, // Add shipping charges for COD only
       giftwrap_charges: 0,
       transaction_charges: 0,
       total_discount: 0,
-      sub_total: payment === "cash" ? subtotal + shippingFee : subtotal,
-      length: 10,
-      breadth: 15,
-      height: 20,
-      weight: calculateTotalWeight(), // Use calculated weight instead of hardcoded 2.5
+      sub_total: subtotal, // Base subtotal without shipping
+      length: 35, // Updated dimensions: 35cm
+      breadth: 28, // Updated dimensions: 28cm
+      height: 1, // Updated dimensions: 1cm
+      weight: calculateTotalWeight(), // Use calculated weight (220g per item)
     };
 
     try {
@@ -737,9 +737,9 @@ const CheckoutPage = () => {
                 {payment === "cash" && (
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-gray-300">Convenience Fee</p>
+                      <p className="text-gray-300">Shipping Charges</p>
                       <p className="text-xs text-gray-500">
-                        Pay by UPI/Cards to waive off
+                        COD delivery charges
                       </p>
                     </div>
                     <span className="text-white font-semibold">
@@ -759,8 +759,15 @@ const CheckoutPage = () => {
 
               <div className="flex justify-between text-xl xs:text-2xl sm:text-2xl font-bold text-white border-t border-gray-700 pt-4">
                 <span>Total</span>
-                <span>₹{payment === "cash" ? subtotal + 79 : subtotal}</span>
+                <span>
+                  ₹{payment === "cash" ? subtotal + shippingFee : subtotal}
+                </span>
               </div>
+              {payment === "cash" && (
+                <p className="text-xs text-gray-400 text-center mt-2">
+                  *Total includes ₹{shippingFee} shipping charges
+                </p>
+              )}
             </div>
           </div>
         </div>

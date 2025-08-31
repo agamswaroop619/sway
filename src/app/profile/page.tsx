@@ -1,7 +1,7 @@
 "use client"; // Ensure this file is used as a client component
 
 import Link from "next/link";
-import { useAppSelector, useAppDispatch } from "@/lib/hooks";
+import { useAppSelector, useAppDispatch, useAdminAuth } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -24,6 +24,7 @@ import { updateProfile } from "@/lib/features/user/user";
 const Page = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { isAdmin } = useAdminAuth(); // Check if user is admin
 
   const [mounting, setMounting] = useState(false);
 
@@ -238,6 +239,21 @@ const Page = () => {
                     <p>Name: {userData.name}</p>
                     <p>Email: {userData.email}</p>
                     <p>Phone: {userData.phone}</p>
+
+                    {isAdmin && (
+                      <div className="mt-4 p-3 bg-red-600 text-white rounded-lg">
+                        <p className="font-semibold">🔐 Admin Access</p>
+                        <p className="text-sm">
+                          You have administrator privileges
+                        </p>
+                        <Link
+                          href="/admin"
+                          className="inline-block mt-2 px-4 py-2 bg-white text-red-600 rounded hover:bg-gray-100 transition-colors"
+                        >
+                          Go to Admin Panel
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -521,6 +537,21 @@ const Page = () => {
                       <p>Name: {userData.name}</p>
                       <p>Email: {userData.email}</p>
                       <p>Phone: {userData.phone}</p>
+
+                      {isAdmin && (
+                        <div className="mt-4 p-3 bg-red-600 text-white rounded-lg">
+                          <p className="font-semibold">🔐 Admin Access</p>
+                          <p className="text-sm">
+                            You have administrator privileges
+                          </p>
+                          <Link
+                            href="/admin"
+                            className="inline-block mt-2 px-4 py-2 bg-white text-red-600 rounded hover:bg-gray-100 transition-colors"
+                          >
+                            Go to Admin Panel
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
+import AdminGuard from "../../components/AdminGuard";
 
 const bgMain =
   "bg-gradient-to-b from-green-900 via-black to-black min-h-screen";
@@ -216,192 +217,198 @@ export default function UpdateCollectionPage() {
   };
 
   return (
-    <div
-      className={`${bgMain} p-8 flex flex-col items-center justify-center min-h-screen`}
-    >
-      {/* Stock Summary Box */}
-      {stockData && !stockLoading && (
-        <div className={`${cardBg} rounded shadow p-6 w-full max-w-4xl mb-6`}>
-          <div className="text-white">
-            <h3 className="text-xl font-bold mb-4">
-              📊 Current Stock Overview
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-300">
-                  {stockData.totalProducts}
-                </div>
-                <div className="text-gray-300">Total Products</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-300">
-                  {stockData.totalStock}
-                </div>
-                <div className="text-gray-300">Total Stock</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-300">
-                  {stockData.lowStockProducts}
-                </div>
-                <div className="text-gray-300">Low Stock</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-300">
-                  {stockData.outOfStockProducts}
-                </div>
-                <div className="text-gray-300">Out of Stock</div>
-              </div>
-            </div>
-            <div className="mt-4 text-center">
-              <span className="text-gray-300">Average Stock per Product: </span>
-              <span className="font-bold text-blue-300">
-                {stockData.averageStock} units
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg`}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className={`text-2xl font-bold ${textMain}`}>
-            Update Product Collection
-          </h2>
-          <button
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow ml-4"
-            onClick={() => router.push("/admin/add-product")}
-          >
-            ← Back
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div>
-            <label className={`block mb-2 ${textMain}`}>
-              Upload .xlsx File
-            </label>
-            <input
-              type="file"
-              accept=".xlsx"
-              onChange={handleFileChange}
-              className="w-full text-white"
-            />
-          </div>
-          <div className="text-gray-300 text-sm mb-2">
-            <p>Required columns (case-insensitive):</p>
-            <ul className="list-disc ml-6">
-              <li>NAME</li>
-              <li>SKU CODE</li>
-              <li>BARCODE</li>
-              <li>COLOURS</li>
-              <li>SMALL</li>
-              <li>MEDIUM</li>
-              <li>LARGE</li>
-              <li>XL</li>
-              <li>XXL</li>
-            </ul>
-          </div>
-          {error && <div className="text-red-400 font-semibold">{error}</div>}
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow mt-4"
-            disabled={loading}
-          >
-            {loading ? "Processing..." : "Upload & Update Collection"}
-          </button>
-        </form>
-      </div>
-
-      {jsonString && (
-        <div className={`${cardBg} rounded shadow p-6 w-full max-w-4xl mt-6`}>
-          <div className="text-white">
-            <h3 className="text-xl font-bold mb-4">
-              📋 Update Results Summary
-            </h3>
-
-            {hasSummary(jsonOutput) && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <AdminGuard>
+      <div
+        className={`${bgMain} p-8 flex flex-col items-center justify-center min-h-screen`}
+      >
+        {/* Stock Summary Box */}
+        {stockData && !stockLoading && (
+          <div className={`${cardBg} rounded shadow p-6 w-full max-w-4xl mb-6`}>
+            <div className="text-white">
+              <h3 className="text-xl font-bold mb-4">
+                📊 Current Stock Overview
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-300">
-                    {jsonOutput.summary.total}
+                    {stockData.totalProducts}
                   </div>
-                  <div className="text-gray-300">Total Processed</div>
+                  <div className="text-gray-300">Total Products</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-300">
-                    {jsonOutput.summary.updated}
+                    {stockData.totalStock}
                   </div>
-                  <div className="text-gray-300">Successfully Updated</div>
+                  <div className="text-gray-300">Total Stock</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-yellow-300">
-                    {jsonOutput.summary.notFound}
+                    {stockData.lowStockProducts}
                   </div>
-                  <div className="text-gray-300">Not Found</div>
+                  <div className="text-gray-300">Low Stock</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-red-300">
-                    {jsonOutput.summary.errors}
+                    {stockData.outOfStockProducts}
                   </div>
-                  <div className="text-gray-300">Errors</div>
+                  <div className="text-gray-300">Out of Stock</div>
                 </div>
               </div>
-            )}
-
-            <div className="bg-black rounded p-4 overflow-auto max-h-[300px] text-sm">
-              <pre className="text-white">{displayString}</pre>
+              <div className="mt-4 text-center">
+                <span className="text-gray-300">
+                  Average Stock per Product:{" "}
+                </span>
+                <span className="font-bold text-blue-300">
+                  {stockData.averageStock} units
+                </span>
+              </div>
             </div>
-
-            {/* Fuzzy Search Results Summary */}
-            {hasSummary(jsonOutput) && (
-              <div className="mt-4 p-4 bg-gray-800 rounded">
-                <h4 className="text-lg font-bold mb-2 text-green-300">
-                  🔍 Fuzzy Search Results
-                </h4>
-                <div className="text-sm text-gray-300">
-                  <p>
-                    • Products found with exact matches:{" "}
-                    <span className="text-green-400">
-                      {((jsonOutput as jsonOutputType).summary.updated -
-                        ((jsonOutput as jsonOutputType).results?.filter(
-                          (r) => r.similarity && r.similarity < 1
-                        ).length || 0))}
-                    </span>
-                  </p>
-                  <p>
-                    • Products found with fuzzy matches:{" "}
-                    <span className="text-yellow-400">
-                      {((jsonOutput as jsonOutputType).results?.filter(
-                        (r) =>
-                          r.similarity && r.similarity < 1 && r.similarity > 0.6
-                      ).length || 0)}
-                    </span>
-                  </p>
-                  <p>
-                    • Average similarity score:{" "}
-                    <span className="text-blue-400">
-                      {(() => {
-                        const fuzzyMatches =
-                          (jsonOutput as jsonOutputType).results?.filter(
-                            (r) => r.similarity && r.similarity < 1
-                          ) || [];
-                        if (fuzzyMatches.length > 0) {
-                          const avg =
-                            fuzzyMatches.reduce(
-                              (sum, r) => sum + (r.similarity ?? 0),
-                              0
-                            ) / fuzzyMatches.length;
-                          return `${(avg * 100).toFixed(1)}%`;
-                        }
-                        return "N/A";
-                      })()}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
+        )}
+
+        <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg`}>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className={`text-2xl font-bold ${textMain}`}>
+              Update Product Collection
+            </h2>
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow ml-4"
+              onClick={() => router.push("/admin/add-product")}
+            >
+              ← Back
+            </button>
+          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <div>
+              <label className={`block mb-2 ${textMain}`}>
+                Upload .xlsx File
+              </label>
+              <input
+                type="file"
+                accept=".xlsx"
+                onChange={handleFileChange}
+                className="w-full text-white"
+              />
+            </div>
+            <div className="text-gray-300 text-sm mb-2">
+              <p>Required columns (case-insensitive):</p>
+              <ul className="list-disc ml-6">
+                <li>NAME</li>
+                <li>SKU CODE</li>
+                <li>BARCODE</li>
+                <li>COLOURS</li>
+                <li>SMALL</li>
+                <li>MEDIUM</li>
+                <li>LARGE</li>
+                <li>XL</li>
+                <li>XXL</li>
+              </ul>
+            </div>
+            {error && <div className="text-red-400 font-semibold">{error}</div>}
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow mt-4"
+              disabled={loading}
+            >
+              {loading ? "Processing..." : "Upload & Update Collection"}
+            </button>
+          </form>
         </div>
-      )}
-    </div>
+
+        {jsonString && (
+          <div className={`${cardBg} rounded shadow p-6 w-full max-w-4xl mt-6`}>
+            <div className="text-white">
+              <h3 className="text-xl font-bold mb-4">
+                📋 Update Results Summary
+              </h3>
+
+              {hasSummary(jsonOutput) && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-300">
+                      {jsonOutput.summary.total}
+                    </div>
+                    <div className="text-gray-300">Total Processed</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-300">
+                      {jsonOutput.summary.updated}
+                    </div>
+                    <div className="text-gray-300">Successfully Updated</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-300">
+                      {jsonOutput.summary.notFound}
+                    </div>
+                    <div className="text-gray-300">Not Found</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-300">
+                      {jsonOutput.summary.errors}
+                    </div>
+                    <div className="text-gray-300">Errors</div>
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-black rounded p-4 overflow-auto max-h-[300px] text-sm">
+                <pre className="text-white">{displayString}</pre>
+              </div>
+
+              {/* Fuzzy Search Results Summary */}
+              {hasSummary(jsonOutput) && (
+                <div className="mt-4 p-4 bg-gray-800 rounded">
+                  <h4 className="text-lg font-bold mb-2 text-green-300">
+                    🔍 Fuzzy Search Results
+                  </h4>
+                  <div className="text-sm text-gray-300">
+                    <p>
+                      • Products found with exact matches:{" "}
+                      <span className="text-green-400">
+                        {(jsonOutput as jsonOutputType).summary.updated -
+                          ((jsonOutput as jsonOutputType).results?.filter(
+                            (r) => r.similarity && r.similarity < 1
+                          ).length || 0)}
+                      </span>
+                    </p>
+                    <p>
+                      • Products found with fuzzy matches:{" "}
+                      <span className="text-yellow-400">
+                        {(jsonOutput as jsonOutputType).results?.filter(
+                          (r) =>
+                            r.similarity &&
+                            r.similarity < 1 &&
+                            r.similarity > 0.6
+                        ).length || 0}
+                      </span>
+                    </p>
+                    <p>
+                      • Average similarity score:{" "}
+                      <span className="text-blue-400">
+                        {(() => {
+                          const fuzzyMatches =
+                            (jsonOutput as jsonOutputType).results?.filter(
+                              (r) => r.similarity && r.similarity < 1
+                            ) || [];
+                          if (fuzzyMatches.length > 0) {
+                            const avg =
+                              fuzzyMatches.reduce(
+                                (sum, r) => sum + (r.similarity ?? 0),
+                                0
+                              ) / fuzzyMatches.length;
+                            return `${(avg * 100).toFixed(1)}%`;
+                          }
+                          return "N/A";
+                        })()}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </AdminGuard>
   );
 }

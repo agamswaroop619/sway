@@ -12,6 +12,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import AdminGuard from "../../components/AdminGuard";
 
 const bgMain =
   "bg-gradient-to-b from-green-900 via-black to-black min-h-screen";
@@ -138,92 +139,98 @@ export default function AddCollectionPage() {
   };
 
   return (
-    <div
-      className={`${bgMain} p-8 flex flex-col items-center justify-center min-h-screen`}
-    >
-      <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg`}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className={`text-2xl font-bold ${textMain}`}>
-            Add New Collection
-          </h2>
-          <button
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow ml-4"
-            onClick={() => router.push("/admin")}
-          >
-            ← Back
-          </button>
+    <AdminGuard>
+      <div
+        className={`${bgMain} p-8 flex flex-col items-center justify-center min-h-screen`}
+      >
+        <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg`}>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className={`text-2xl font-bold ${textMain}`}>
+              Add New Collection
+            </h2>
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow ml-4"
+              onClick={() => router.push("/admin")}
+            >
+              ← Back
+            </button>
+          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <div>
+              <label className={`block mb-2 ${textMain}`}>
+                Collection Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
+                placeholder="e.g. Streetwear"
+              />
+            </div>
+            <div>
+              <label className={`block mb-2 ${textMain}`}>Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
+                placeholder="Describe this collection..."
+                rows={3}
+              />
+            </div>
+            {error && <div className="text-red-400 font-semibold">{error}</div>}
+            <button
+              type="submit"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow mt-4"
+              disabled={isDuplicateName}
+            >
+              Add Collection
+            </button>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div>
-            <label className={`block mb-2 ${textMain}`}>Collection Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
-              placeholder="e.g. Streetwear"
-            />
-          </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
-              placeholder="Describe this collection..."
-              rows={3}
-            />
-          </div>
-          {error && <div className="text-red-400 font-semibold">{error}</div>}
-          <button
-            type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow mt-4"
-            disabled={isDuplicateName}
-          >
-            Add Collection
-          </button>
-        </form>
-      </div>
-      <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg mt-8`}>
-        <h3 className={`text-xl font-bold mb-4 ${textMain}`}>
-          All Collections
-        </h3>
-        {loading ? (
-          <div className="text-white">Loading...</div>
-        ) : collections.length === 0 ? (
-          <div className="text-gray-400">No collections found.</div>
-        ) : (
-          <ul className="space-y-4">
-            {collections.map((col) => (
-              <li
-                key={col.id}
-                className="flex justify-between items-center bg-gray-800 rounded px-4 py-2 cursor-pointer hover:bg-green-900 transition"
-                onClick={() =>
-                  router.push(
-                    `/products?collection=${encodeURIComponent(col.name)}`
-                  )
-                }
-              >
-                <div>
-                  <div className="text-white font-semibold">{col.name}</div>
-                  <div className="text-gray-400 text-sm">{col.description}</div>
-                </div>
-                <button
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1 rounded shadow ml-4"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(col.name);
-                  }}
+        <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg mt-8`}>
+          <h3 className={`text-xl font-bold mb-4 ${textMain}`}>
+            All Collections
+          </h3>
+          {loading ? (
+            <div className="text-white">Loading...</div>
+          ) : collections.length === 0 ? (
+            <div className="text-gray-400">No collections found.</div>
+          ) : (
+            <ul className="space-y-4">
+              {collections.map((col) => (
+                <li
+                  key={col.id}
+                  className="flex justify-between items-center bg-gray-800 rounded px-4 py-2 cursor-pointer hover:bg-green-900 transition"
+                  onClick={() =>
+                    router.push(
+                      `/products?collection=${encodeURIComponent(col.name)}`
+                    )
+                  }
                 >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                  <div>
+                    <div className="text-white font-semibold">{col.name}</div>
+                    <div className="text-gray-400 text-sm">
+                      {col.description}
+                    </div>
+                  </div>
+                  <button
+                    className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1 rounded shadow ml-4"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(col.name);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
-    </div>
+    </AdminGuard>
   );
 }

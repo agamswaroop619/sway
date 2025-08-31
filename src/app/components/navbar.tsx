@@ -6,7 +6,7 @@ import { CiUser } from "react-icons/ci";
 import { IoIosSearch } from "react-icons/io";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/lib/hooks";
+import { useAppSelector, useAdminAuth } from "@/lib/hooks";
 import { RootState } from "@/lib/store"; // Import the RootState type
 import { RiMenu2Fill } from "react-icons/ri";
 import { getDocs, collection as firestoreCollection } from "firebase/firestore";
@@ -33,6 +33,7 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
   const itemsFromStore = useAppSelector(selectCartItems);
   const itemsFromWish = useAppSelector(userInfo)?.wishlist || [];
   const [showSearch, setShowSearch] = useState(false); // Track visibility of the search bar
+  const { isAdmin } = useAdminAuth(); // Check if user is admin
 
   const toggleSearchBar = () => {
     setShowSearch(!showSearch); // Toggle the search bar visibility
@@ -214,6 +215,14 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
               <Link href="/profile">
                 <CiUser className="text-xl xs:text-2xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-2xl hover:text-green-400 transition-colors duration-300" />
               </Link>
+
+              {isAdmin && (
+                <Link href="/admin" className="relative group">
+                  <span className="text-sm font-semibold bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 transition-colors duration-300">
+                    Admin
+                  </span>
+                </Link>
+              )}
             </div>
           )}
         </div>

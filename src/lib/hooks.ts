@@ -9,3 +9,17 @@ export const useAppDispatch = () => useDispatch<AppDispatch>();
 
 // Use throughout your app instead of plain `useStore`
 export const useAppStore = () => useStore<AppStore>();
+
+// Admin authentication hook
+export const useAdminAuth = () => {
+  const userProfile = useAppSelector((state: RootState) => state.user.userProfile);
+  const isLoggedIn = useAppSelector((state: RootState) => state.user.isLoggedIn);
+  
+  const isAdmin = isLoggedIn && userProfile?.email === 'sunnyks927@gmail.com';
+  
+  return {
+    isAdmin,
+    isLoggedIn,
+    userProfile
+  };
+};

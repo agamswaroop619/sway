@@ -12,6 +12,7 @@ import {
   QueryDocumentSnapshot,
   doc as firestoreDoc,
 } from "firebase/firestore";
+import AdminGuard from "../../components/AdminGuard";
 
 const bgMain =
   "bg-gradient-to-b from-green-900 via-black to-black min-h-screen";
@@ -133,187 +134,193 @@ export default function AddProductPage() {
   };
 
   return (
-    <div
-      className={`${bgMain} p-8 flex flex-col items-center justify-center min-h-screen`}
-    >
-      <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg`}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className={`text-2xl font-bold ${textMain}`}>Add New Product</h2>
-          <button
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow ml-4"
-            onClick={() => router.push("/admin")}
-          >
-            ← Back
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div>
-            <label className={`block mb-2 ${textMain}`}>Product Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
-              placeholder="e.g. Brainfood"
-            />
+    <AdminGuard>
+      <div
+        className={`${bgMain} p-8 flex flex-col items-center justify-center min-h-screen`}
+      >
+        <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg`}>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className={`text-2xl font-bold ${textMain}`}>
+              Add New Product
+            </h2>
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow ml-4"
+              onClick={() => router.push("/admin")}
+            >
+              ← Back
+            </button>
           </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
-              placeholder="Describe this product..."
-              rows={3}
-            />
-          </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>Price (INR)</label>
-            <input
-              type="number"
-              min="0"
-              value={price}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d*$/.test(value)) {
-                  setPrice(value);
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <div>
+              <label className={`block mb-2 ${textMain}`}>Product Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
+                placeholder="e.g. Brainfood"
+              />
+            </div>
+            <div>
+              <label className={`block mb-2 ${textMain}`}>Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
+                placeholder="Describe this product..."
+                rows={3}
+              />
+            </div>
+            <div>
+              <label className={`block mb-2 ${textMain}`}>Price (INR)</label>
+              <input
+                type="number"
+                min="0"
+                value={price}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d*$/.test(value)) {
+                    setPrice(value);
+                  }
+                }}
+                required
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
+                placeholder="e.g. 499"
+              />
+            </div>
+            <div>
+              <label className={`block mb-2 ${textMain}`}>Color</label>
+              <input
+                type="text"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+                placeholder="e.g. Black"
+              />
+            </div>
+            <div>
+              <label className={`block mb-2 ${textMain}`}>
+                Quantity (comma separated for sizes)
+              </label>
+              <input
+                type="text"
+                value={quantity.join(",")}
+                onChange={(e) =>
+                  setQuantity(
+                    e.target.value.split(",").map((q) => parseInt(q, 10) || 0)
+                  )
                 }
-              }}
-              required
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-600"
-              placeholder="e.g. 499"
-            />
-          </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>Color</label>
-            <input
-              type="text"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
-              placeholder="e.g. Black"
-            />
-          </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>
-              Quantity (comma separated for sizes)
-            </label>
-            <input
-              type="text"
-              value={quantity.join(",")}
-              onChange={(e) =>
-                setQuantity(
-                  e.target.value.split(",").map((q) => parseInt(q, 10) || 0)
-                )
-              }
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
-              placeholder="e.g. 8,8,8,4,4"
-            />
-          </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>Category</label>
-            <input
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
-              placeholder="e.g. streetwear"
-            />
-          </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>
-              Product ID (optional)
-            </label>
-            <input
-              type="text"
-              value={id}
-              onChange={(e) => setId(e.target.value)}
-              className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
-              placeholder="e.g. 14"
-            />
-          </div>
-          <div>
-            <label className={`block mb-2 ${textMain}`}>
-              Product Image URLs
-            </label>
-            {imageUrls.map((url, idx) => (
-              <div key={idx} className="flex gap-2 items-center mb-2">
-                <input
-                  type="text"
-                  value={url}
-                  onChange={(e) => handleImageUrlChange(idx, e.target.value)}
-                  placeholder="https://your-cdn.com/image.jpg"
-                  className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
-                />
-                {imageUrls.length > 1 && (
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+                placeholder="e.g. 8,8,8,4,4"
+              />
+            </div>
+            <div>
+              <label className={`block mb-2 ${textMain}`}>Category</label>
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+                placeholder="e.g. streetwear"
+              />
+            </div>
+            <div>
+              <label className={`block mb-2 ${textMain}`}>
+                Product ID (optional)
+              </label>
+              <input
+                type="text"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+                placeholder="e.g. 14"
+              />
+            </div>
+            <div>
+              <label className={`block mb-2 ${textMain}`}>
+                Product Image URLs
+              </label>
+              {imageUrls.map((url, idx) => (
+                <div key={idx} className="flex gap-2 items-center mb-2">
+                  <input
+                    type="text"
+                    value={url}
+                    onChange={(e) => handleImageUrlChange(idx, e.target.value)}
+                    placeholder="https://your-cdn.com/image.jpg"
+                    className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+                  />
+                  {imageUrls.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeImageUrlField(idx)}
+                      className="text-red-400"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addImageUrlField}
+                className="mt-2 text-green-400"
+              >
+                Add another image
+              </button>
+            </div>
+            {error && <div className="text-red-400 font-semibold">{error}</div>}
+            <button
+              type="submit"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow mt-4"
+              disabled={loading}
+            >
+              {loading ? "Adding..." : "Add Product"}
+            </button>
+          </form>
+        </div>
+        <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg mt-8`}>
+          <h3 className={`text-xl font-bold mb-4 ${textMain}`}>
+            Remove Product
+          </h3>
+          <ul className="space-y-2">
+            {recentProducts.length === 0 && (
+              <li className="text-gray-400">No products found.</li>
+            )}
+            {recentProducts.map((doc) => {
+              const data = doc.data();
+              return (
+                <li
+                  key={doc.id}
+                  className="flex justify-between items-center bg-gray-800 rounded px-4 py-2"
+                >
+                  <div>
+                    <div className="text-white font-semibold">
+                      {data.title || doc.id}
+                    </div>
+                    <div className="text-gray-400 text-xs">ID: {doc.id}</div>
+                    <div className="text-gray-400 text-xs">
+                      Created:{" "}
+                      {data.createdAt
+                        ? new Date(data.createdAt).toLocaleString()
+                        : ""}
+                    </div>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => removeImageUrlField(idx)}
-                    className="text-red-400"
+                    className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1 rounded shadow ml-4"
+                    onClick={() => handleRemoveProduct(doc.id)}
+                    disabled={loading}
                   >
                     Remove
                   </button>
-                )}
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={addImageUrlField}
-              className="mt-2 text-green-400"
-            >
-              Add another image
-            </button>
-          </div>
-          {error && <div className="text-red-400 font-semibold">{error}</div>}
-          <button
-            type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow mt-4"
-            disabled={loading}
-          >
-            {loading ? "Adding..." : "Add Product"}
-          </button>
-        </form>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
-      <div className={`${cardBg} rounded shadow p-8 w-full max-w-lg mt-8`}>
-        <h3 className={`text-xl font-bold mb-4 ${textMain}`}>Remove Product</h3>
-        <ul className="space-y-2">
-          {recentProducts.length === 0 && (
-            <li className="text-gray-400">No products found.</li>
-          )}
-          {recentProducts.map((doc) => {
-            const data = doc.data();
-            return (
-              <li
-                key={doc.id}
-                className="flex justify-between items-center bg-gray-800 rounded px-4 py-2"
-              >
-                <div>
-                  <div className="text-white font-semibold">
-                    {data.title || doc.id}
-                  </div>
-                  <div className="text-gray-400 text-xs">ID: {doc.id}</div>
-                  <div className="text-gray-400 text-xs">
-                    Created:{" "}
-                    {data.createdAt
-                      ? new Date(data.createdAt).toLocaleString()
-                      : ""}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1 rounded shadow ml-4"
-                  onClick={() => handleRemoveProduct(doc.id)}
-                  disabled={loading}
-                >
-                  Remove
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </div>
+    </AdminGuard>
   );
 }
