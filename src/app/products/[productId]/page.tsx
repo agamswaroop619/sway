@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
-import { RootState } from "@/lib/store"; // Import the RootState type
+import { RootState } from "@/lib/store";
 import { addToCart } from "@/lib/features/carts/cartSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -14,7 +14,7 @@ import {
   setItemsData,
   Review,
 } from "@/lib/features/items/items";
-import { getData } from "@/app/utils/getData";
+import { useProducts } from "@/lib/hooks/useProducts";
 import { StarRating } from "@/app/components/Rating";
 import Link from "next/link";
 import { StarRating2 } from "@/app/components/Rating";
@@ -30,15 +30,16 @@ const selectCartItems = (state: RootState) => state.cart.items;
 
 const ProductDetails = () => {
   const [data, setData] = useState<Item[] | null>(null);
-  const dataFromCart = useAppSelector(itemsDataInCart); // Ensure `data` is used or handled properly
-  // You may want to log `data` if necessary for debugging:
+  const dataFromCart = useAppSelector(itemsDataInCart);
 
   const userData = useAppSelector((state: RootState) => state.user.userProfile);
   
+  // Fetch products using React Query (with automatic caching)
+  const { data: productsData = [] } = useProducts();
 
   const [num, setNum] = useState(1);
   const [info, setInfo] = useState(0);
-  const [itemdata, setItemdata] = useState<Item | null>(null); // Start as null
+  const [itemdata, setItemdata] = useState<Item | null>(null);
   const [itemInCart, setItemInCart] = useState(false);
   const [itemInWishlist, setItemInWishlist] = useState(false);
   const [imgSrc, setImgSrc] = useState<string | undefined>("");
@@ -74,32 +75,14 @@ const ProductDetails = () => {
   useEffect(() => {
     if (dataFromCart && dataFromCart.length > 0) {
       setData(dataFromCart);
+    } else if (productsData.length > 0) {
+      // Use React Query data if Redux data not available
+      dispatch(setItemsData(productsData));
+      setData(productsData);
     } else {
-      setData(null); // Ensure data is set to null if there's no cart data
+      setData(null);
     }
-  }, [dataFromCart]);
-
-  // Handle data fetching if not available
-  useEffect(() => {
-    if (!data) {
-      getData()
-        .then((fetchedData) => {
-          if (fetchedData && fetchedData.length > 0) {
-            dispatch(setItemsData(fetchedData)); // Dispatch to Redux state
-            setData(fetchedData); // Update local state
-          } else {
-            dispatch(setItemsData([])); // Dispatch empty data in case of no results
-          }
-        })
-        .catch((error) => {
-          //  console.error("Error fetching data:", error);
-          if (error instanceof Error) {
-            console.error("");
-          }
-          dispatch(setItemsData([])); // Handle error by dispatching empty array
-        });
-    }
-  }, [data, dispatch]);
+  }, [dataFromCart, productsData, dispatch]);
 
   // Fetch cart items from Redux store
   const itemsFromStore = useAppSelector(selectCartItems);
@@ -356,12 +339,28 @@ const ProductDetails = () => {
     }
   };
 
+  const [zoomPos, setZoomPos] = useState<{ x: number; y: number }>({
+    x: 50,
+    y: 50,
+  });
+  const [isZooming, setIsZooming] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPos({ x, y });
+  };
+
+// Then in your JSX, replace the image div:
+
+
   // Ensure `itemdata` exists before rendering
   if (!itemdata) return <div>Loading...</div>;
 
   if (itemdata)
     return (
-      <div className="my-2 scroll-smooth">
+      <div className="py-4 scroll-smooth bg-black text-white ">
         <div className="flex sm:flex-col xs:flex-col md:flex-row xl:flex-row lg:flex-row 2xl:flex-row justify-between">
           <div className="flex  sm:w-[100vw] xs:w-[100vw] sm:px-4 xs:px-4 md:flex-row lg:flex-row xl:flex-row sm:justify-center xs:justify-center w-[45vw] sm:flex-col-reverse xs:flex-col-reverse">
             {/* for small screens */}
@@ -404,12 +403,23 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            <div className="md:w-[95%]  overflow-hidden lg:w-[95%] xl:w-[80%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4 ">
+            <div
+              className="md:w-[95%]  overflow-hidden lg:w-[95%] xl:w-[80%] 2xl:w-[50%] sm:w-[100%] xs:w-[100%] p-4"
+              onMouseEnter={() => setIsZooming(true)}
+              onMouseLeave={() => setIsZooming(false)}
+              onMouseMove={handleMouseMove}
+              style={{ overflow: "hidden", position: "relative" }}
+            >
               <img
-                className="w-[100%]"
+                className="w-[100%] transition-transform duration-200 ease-out"
                 loading="lazy"
                 src={imgSrc}
                 alt="product"
+                style={{
+                  transform: isZooming ? "scale(2)" : "scale(1)",
+                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                  cursor: isZooming ? "zoom-in" : "default",
+                }}
               />
             </div>
           </div>

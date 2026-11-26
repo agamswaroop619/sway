@@ -1,6 +1,37 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from 'next/server';
 
+// Simple in-memory token cache with expiry (24 hours)
+let cachedToken: { token: string; expiresAt: number } | null = null;
+
+async function getShiprocketToken(): Promise<string> {
+  const now = Date.now();
+  
+  // Return cached token if still valid
+  if (cachedToken && cachedToken.expiresAt > now) {
+    return cachedToken.token;
+  }
+
+  try {
+    const authResponse = await axios.post('https://apiv2.shiprocket.in/v1/external/auth/login', {
+      email: process.env.SHIP_ROCKET_EMAIL,
+      password: process.env.SHIP_ROCKET_PASS_KEY,
+    });
+
+    const token = authResponse.data.token;
+    // Cache token for 23 hours (Shiprocket tokens typically expire in 24 hours)
+    cachedToken = {
+      token,
+      expiresAt: now + (23 * 60 * 60 * 1000),
+    };
+
+    return token;
+  } catch (error) {
+    cachedToken = null;
+    throw error;
+  }
+}
+
 export default async function handler(req: NextRequest) {
   if (req.method === "GET") {
     const { shipmentId } = await req.json();
@@ -10,13 +41,7 @@ export default async function handler(req: NextRequest) {
     }
 
     try {
-
-        const authResponse = await axios.post('https://apiv2.shiprocket.in/v1/external/auth/login', {
-            email: process.env.SHIP_ROCKET_EMAIL,
-            password: process.env.SHIP_ROCKET_PASS_KEY,
-          });
-      
-         const token = authResponse.data().token;
+      const token = await getShiprocketToken();
 
       const response = await axios.get(
         `https://apiv2.shiprocket.in/v1/external/courier/track/shipment/${shipmentId}`,

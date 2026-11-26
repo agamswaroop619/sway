@@ -129,12 +129,11 @@ const CartPage = () => {
     }
   }, [itemsFromStore, allItems]); // Dependencies
 
-  const incHandler = (itemId: number, quantity: number) => {
+  const incHandler = (itemId: number) => {
     const item = cartItems?.find((card) => card.itemId === itemId);
-    if (item && Math.abs(item.stock - quantity) > 0) {
+    if (item && item.stock > 0) {
       const updatedItem = { ...item, qnt: item.qnt + 1, stock: item.stock - 1 };
       const qnt: number = updatedItem.qnt;
-      // dispatch(incQnt(updatedItem));
       dispatch(updateQnt({ itemId: itemId, quantity: qnt }));
     }
   };
@@ -189,7 +188,7 @@ const CartPage = () => {
                             />
                           </div>
 
-                          <div className="flex-1 xs:ml-4 sm:ml-4">
+                          <div className="flex-1 text-white xs:ml-4 sm:ml-4">
                             <div className="flex flex-col xs:flex-row sm:flex-row xs:justify-between sm:justify-between mb-2">
                               <h3 className="text-white font-semibold text-lg xs:text-xl sm:text-xl mb-2 xs:mb-0 sm:mb-0">
                                 {item.title} | Sway Clothing
@@ -235,10 +234,8 @@ const CartPage = () => {
                                 </span>
                                 <button
                                   className="border-l border-gray-600 text-center w-12 py-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-800 transition-colors duration-300"
-                                  onClick={() =>
-                                    incHandler(item.itemId, item.qnt)
-                                  }
-                                  disabled={item.stock === 0}
+                                  onClick={() => incHandler(item.itemId)}
+                                  disabled={item.stock <= 0}
                                 >
                                   +
                                 </button>
@@ -329,9 +326,7 @@ const CartPage = () => {
                                 </span>
                                 <button
                                   className="border-l border-gray-600 text-center w-12 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                  onClick={() =>
-                                    incHandler(item.itemId, item.qnt)
-                                  }
+                                  onClick={() => incHandler(item.itemId)}
                                   disabled={true}
                                 >
                                   +

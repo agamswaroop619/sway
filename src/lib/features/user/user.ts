@@ -5,11 +5,17 @@ import { Products } from '../carts/cartSlice';
 
 
 export interface Order {
-  itemId: string,
-  shipmentId: string,
-  image: string,
-  title: string,
-  price: number,
+  itemId: string;
+  shipmentId: string;
+  image: string;
+  title: string;
+  price: number;
+  docId?: string;
+  size?: string;
+  quantity?: number;
+  orderDate?: string;
+  paymentMethod?: string;
+  totalAmount?: number;
 }
 
 export interface User {

@@ -59,9 +59,15 @@ const RangeSlider: FC<MultiRangeSliderProps> = ({
     }
   }, [max, getPercent]);
 
-  // Get min and max values when their state changes
+  // Debounce range changes to reduce filter updates on every drag event
   useEffect(() => {
-    onChange({ min, max });
+    const timeout = setTimeout(() => {
+      onChange({ min, max });
+    }, 500);
+
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [min, max, onChange]);
 
   return (

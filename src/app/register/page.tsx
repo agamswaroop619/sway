@@ -92,86 +92,101 @@ const RegisterPage = () => {
   }
 
   return (
-    <>
+    < >
       {!confirmation && (
-        <div className="w-full pb-10 h-full p-2 bg-gray-300 flex justify-center ">
-          <form className="p-2 pb-8 bg-white text-black flex flex-col mt-5   w-80">
-            <h2 className="text-xl text-center ">Sign up</h2>
+        <div className="min-h-screen bg-gradient-to-b from-black to-green-950 flex justify-center items-center responsive-padding ">
+          <div className="w-full max-w-md">
+             <form className="bg-white/10 backdrop-blur-sm text-white rounded-2xl p-6 xs:p-8 sm:p-8 md:p-8 lg:p-8 xl:p-8 border border-white/20 shadow-2xl">
+            <h2 className="text-2xl xs:text-3xl sm:text-3xl font-bold text-white mb-2 text-center ">Sign up</h2>
 
-            <label className="" htmlFor="name">
+           <div className="">
+             <div className="mb-4">
+              <label className=" block text-sm font-medium text-gray-300 mb-2" 
+              htmlFor="name">
          
-              Name<sup className="text-red-600 text-md">*</sup>{" "}
+              Name <span className="text-red-500">*</span>
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               id="name"
               type="text"
-              className="border-2 focus:outline-none  px-2 py-1   my-1"
+              className="w-full px-4 py-3 bg-white/10 border border-gray-600 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-400 transition-colors duration-300"
               placeholder="Your name"
               required
             />
+             </div>
 
-            <label className="" htmlFor="email">
+            <div className="mb-4">
+              <label className=" block text-sm font-medium text-gray-300 mb-2" htmlFor="email">
           
-              Email<sup className="text-red-600 text-md">*</sup>
+              Email <span className="text-red-500">*</span>
             </label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               id="email"
               type="text"
-              className="border-2  px-2 py-1  focus:outline-none my-1"
+              className="w-full px-4 py-3 bg-white/10 border border-gray-600 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-400 transition-colors duration-300"
               placeholder="abc@xyz.com"
               required
             />
+            </div>
 
-            <label htmlFor="Phone">
-              Mobile<sup className="text-red-600 text-md">*</sup>
+            <div className="mb-4">
+              <label className=" block text-sm font-medium text-gray-300 mb-2" htmlFor="phone">
+              Mobile <span className="text-red-500">*</span>
             </label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="border-2 px-2 py-1   focus:outline-none my-1"
+              className="w-full px-4 py-3 bg-white/10 border border-gray-600 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-400 transition-colors duration-300"
               type="tel"
               id="phone"
               placeholder="01234 56789"
               required
             />
+            </div>
 
-            <label htmlFor="password">
-              Password<sup className="text-red-600 text-md">*</sup>
+            <div className="mb-6"> <label className=" block text-sm font-medium text-gray-300 mb-2" htmlFor="password">
+              Password <span className="text-red-500">*</span>
             </label>
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="border-2 px-2 py-1  focus:outline-none my-1"
+              className="w-full px-4 py-3 bg-white/10 border border-gray-600 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-400 transition-colors duration-300"
               type="password"
               id="password"
               placeholder="password"
               required
             />
+            </div>
 
-            <p className="text-red-500 h-6">{error}</p>
+          {error && (
+            <div className="my-3 text-red-500 text-md text-center">
+              {error}
+            </div>
+          )}
 
             <button
               onClick={handleRegister}
-              className="w-full my-1 text-white bg-black text-center p-2 rounded-md"
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors duration-300 text-lg"
             >
          
               Create Account
             </button>
+           </div>
 
-            <div className="bg-gray-400 h-[2px] mt-1 w-full border "></div>
+            <div className="bg-gray-400 mt-4 mb-4 h-[2px] mt-1 w-full border "></div>
 
             <div className=" w-full">
               <p className="text-center">
                 Already have an account?
                 <Link
-                  className="group ml-1 text-blue-400 transition-all duration-100 ease-in-out"
+                  className="group ml-1 text-green-400 transition-all duration-100 ease-in-out"
                   href="/login"
                 >
-                  <span className="bg-left-bottom bg-gradient-to-r text-sm from-blue-400 to-blue-400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out">
+                  <span className="bg-left-bottom bg-gradient-to-r text-sm from-green-400 to-green-400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out">
                     Login
                   </span>
                 </Link>
@@ -190,22 +205,22 @@ const RegisterPage = () => {
             <p className="cursor-default">
               By signing in, you agree to our
               <Link
-                className="group text-blue-400 transition-all duration-100 ease-in-out"
+                className="group text-green-400 transition-all duration-100 ease-in-out"
                 href="#"
               >
                 <span
-                  className="cursor-pointer mx-1 bg-left-bottom bg-gradient-to-r from-blue-400 to-blue-400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out"
+                  className="cursor-pointer mx-1 bg-left-bottom bg-gradient-to-r from-green-400 to-green  -400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out"
                 >
                   Terms & Conditions
                 </span>
               </Link>
               and
               <Link
-                className="group mx-1 text-blue-400 transition-all duration-100 ease-in-out"
+                className="group mx-1 text-green-400 transition-all duration-100 ease-in-out"
                 href="#"
               >
                 <span
-                  className="cursor-pointer bg-left-bottom bg-gradient-to-r from-blue-400 to-blue-400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out"
+                  className="cursor-pointer bg-left-bottom bg-gradient-to-r from-green-400 to-green-400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out"
                 >
                   Privacy Policy
                 </span>
@@ -213,6 +228,7 @@ const RegisterPage = () => {
             </p>
           </div>
           </form>
+           </div>
         </div>
       )}
 
@@ -221,7 +237,11 @@ const RegisterPage = () => {
           <p> {success} </p>
         </div>
       )}
+
+      
+ 
     </>
+    
   );
 };
 

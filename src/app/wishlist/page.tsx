@@ -136,7 +136,7 @@ const WishlistPage = () => {
               <p  className="md:text-lg  xs:text-md font-semibold flex justify-between items-center"> 
                 <span onClick={() => router.push(`/products/${item.id}`)}>{item.title} </span>
                 
-                <RxCross1 onClick={ () => removeHandler(item.id)} /> 
+                <RxCross1 onClick={ () => removeHandler(item.id)} className="sm:text-2xl" /> 
                 </p>
               <p  onClick={() => router.push(`/products/${item.id}`)} className="text-gray-500">
                

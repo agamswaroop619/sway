@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { firestore } from "@/app/firebase.config";
-import { doc, updateDoc, getDoc, writeBatch } from "firebase/firestore";
+import { doc, runTransaction } from "firebase/firestore";
 
 
 type CartItem = {
@@ -15,10 +15,16 @@ type CartItem = {
 
 type Order = {
     itemId: string;
+    docId?: string;
     shipmentId: string;
     image: string;
     title: string;
     price: number;
+    size?: string;
+    quantity?: number;
+    orderDate?: string;
+    paymentMethod?: string;
+    totalAmount?: number;
 };
 
 type UserData = {
@@ -28,11 +34,7 @@ type UserData = {
 
 export async function POST(req: NextRequest) {
     try {
-        const { cartItems, userData, shipmentId }: { cartItems: CartItem[]; userData?: UserData; shipmentId: string } = await req.json();
-
-        console.log(" userData : ", userData);
-        console.log(" cartItems : ", cartItems);
-        console.log("shipment id: ", shipmentId);
+        const { cartItems, userData, shipmentId, paymentMethod }: { cartItems: CartItem[]; userData?: UserData; shipmentId: string; paymentMethod?: string } = await req.json();
 
         if (!cartItems || !userData?.userId || !shipmentId) {
             return NextResponse.json(
@@ -41,50 +43,64 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const batch = writeBatch(firestore);
         const newOrders: Order[] = [];
+        const orderDate = new Date().toISOString();
 
-        await Promise.all(
-            cartItems.map(async (item: CartItem) => {
+        let updatedOrders: Order[] = [];
+
+        await runTransaction(firestore, async (transaction) => {
+            for (const item of cartItems) {
                 const docRef = doc(firestore, "products", item.docId);
-                const docData = await getDoc(docRef);
-                
+                const docData = await transaction.get(docRef);
+
                 if (!docData.exists()) {
                     throw new Error(`Product ${item.docId} not found`);
                 }
 
                 const itemData = docData.data();
                 const sizeIndex = ["Small", "Medium", "Large", "XL", "XXL"].indexOf(item.size);
-                
+
                 if (sizeIndex === -1) {
                     throw new Error(`Invalid size ${item.size} for ${item.title}`);
                 }
 
-                if (item.qnt > itemData.quantity[sizeIndex]) {
+                const currentQuantity = Array.isArray(itemData.quantity)
+                    ? itemData.quantity[sizeIndex] ?? 0
+                    : 0;
+
+                if (item.qnt > currentQuantity) {
                     throw new Error(`Insufficient stock for ${item.title}`);
                 }
 
                 const updatedQuantity = [...itemData.quantity];
-                updatedQuantity[sizeIndex] -= item.qnt;
-                batch.update(docRef, { quantity: updatedQuantity });
+                updatedQuantity[sizeIndex] = currentQuantity - item.qnt;
+                transaction.update(docRef, { quantity: updatedQuantity });
 
                 newOrders.push({
                     itemId: item.itemId.toString(),
-                    shipmentId: shipmentId, // You might want to generate a real shipment ID here
+                    docId: item.docId,
+                    shipmentId,
                     image: item.image,
                     title: item.title,
                     price: item.price,
+                    size: item.size,
+                    quantity: item.qnt,
+                    orderDate,
+                    paymentMethod: paymentMethod || "Unknown",
+                    totalAmount: item.price * item.qnt,
                 });
-            })
-        );
+            }
 
-        await batch.commit();
+            const userRef = doc(firestore, "users", userData.userId);
+            const userDoc = await transaction.get(userRef);
+            if (!userDoc.exists()) {
+                throw new Error(`User ${userData.userId} not found`);
+            }
 
-        // Update user orders in Firestore
-        const userRef = doc(firestore, "users", userData.userId);
-        const updatedOrders = [...newOrders, ...(userData.orders || [])];
-        
-        await updateDoc(userRef, { orders: updatedOrders });
+            const existingOrders = userDoc.data().orders || [];
+            updatedOrders = [...newOrders, ...existingOrders];
+            transaction.update(userRef, { orders: updatedOrders });
+        });
 
         return NextResponse.json(
             { message: "DB updated", isOk: true, orders: updatedOrders },
@@ -92,10 +108,10 @@ export async function POST(req: NextRequest) {
         );
 
     } catch (error) {
-    console.error("Error processing order:", error);
+        console.error("Error processing order:", error);
         return NextResponse.json(
-            { message: "Failed to update database", isOk: false },
+            { message: "Failed to update database", isOk: false, details: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
-  }
+    }
 }

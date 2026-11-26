@@ -24,13 +24,13 @@ export default function Home(): JSX.Element {
     <>
       <div className="responsive-flex-col w-full responsive-padding justify-between bg-gradient-to-b from-black to-green-950 py-10 xs:py-15 sm:py-20 md:py-20 lg:py-20 xl:py-20">
         <section className="responsive-w-full xs:mb-4 sm:mb-6 md:mb-0 flex flex-col justify-center responsive-padding">
-          <h3 className="text-responsive-2xl font-bold text-center xs:text-left sm:text-left md:text-left lg:text-left xl:text-left">
+          <h3 className="text-responsive-2xl font-bold text-center text-teal-50 xs:text-left sm:text-left md:text-left lg:text-left xl:text-left">
             SLAY WITH
           </h3>
           <h3 className="text-[#3fe607] text-responsive-2xl font-bold text-center xs:text-left sm:text-left md:text-left lg:text-left xl:text-left">
             SWAY
           </h3>
-          <p className="text-responsive-base text-center xs:text-left sm:text-left md:text-left lg:text-left xl:text-left responsive-margin">
+          <p className="text-responsive-base text-teal-50 text-center xs:text-left sm:text-left md:text-left lg:text-left xl:text-left responsive-margin">
             Sway is a cool and comfy clothing brand. Our styles mix modern
             trends with classic vibes for a vintage yet stylish look. We ensure
             the quality and comfortability of the fabric and product.

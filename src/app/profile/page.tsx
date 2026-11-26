@@ -153,11 +153,11 @@ const Page = () => {
   }
 
   return (
-    <div className="mb-20">
+    <div className="bg-black text-white min-h-screen responsive-padding">
       {isLoggedIn ? (
         <div>
           {/* For large screen (Laptop, Tablet) */}
-          <div className="hidden px-10 md:block xl:block lg:block">
+          <div className="hidden   px-10 md:block xl:block lg:block">
             <div className="flex">
               <div className="flex flex-col h-[75vh] w-[20vw] justify-between border-r-[1px]">
                 <div
@@ -455,7 +455,7 @@ const Page = () => {
           </div>
 
           {/* For small screen ( Mobile ) */}
-          <div className="md:hidden lg:hidden xl:hidden mb-2 sm:block xs:block">
+          <div className="md:hidden  lg:hidden xl:hidden my-4 sm:block xs:block">
             {sidebar && (
               <div className="flex flex-col h-[40vh] w-[60vw] justify-between z-10">
                 <div

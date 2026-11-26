@@ -1,16 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { CiHeart } from "react-icons/ci";
 import { CiShoppingCart } from "react-icons/ci";
 import { CiUser } from "react-icons/ci";
 import { IoIosSearch } from "react-icons/io";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAppSelector, useAdminAuth } from "@/lib/hooks";
-import { RootState } from "@/lib/store"; // Import the RootState type
+import { RootState } from "@/lib/store";
 import { RiMenu2Fill } from "react-icons/ri";
-import { getDocs, collection as firestoreCollection } from "firebase/firestore";
-import { firestore } from "@/app/firebase.config";
+import { useCollections } from "@/lib/hooks/useProducts";
+import { userLoginInfo } from "@/lib/features/user/user";
 
 const selectCartItems = (state: RootState) => state.cart.items;
 const userInfo = (state: RootState) => state.user.userProfile;
@@ -22,21 +23,30 @@ type NavbarProps = {
 
 const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
   const [search, setSearch] = useState("");
-  const [not, setNot] = useState(0); // 'not' to store the count of cart items
-  const [wish, setWish] = useState(0); // 'wish' to store
+  const [not, setNot] = useState(0);
+  const [wish, setWish] = useState(0);
 
   const [dropDown, setDropDown] = useState(false);
-  const [collections, setCollections] = useState<
-    { label: string; href: string }[]
-  >([]);
-
   const itemsFromStore = useAppSelector(selectCartItems);
   const itemsFromWish = useAppSelector(userInfo)?.wishlist || [];
-  const [showSearch, setShowSearch] = useState(false); // Track visibility of the search bar
-  const { isAdmin } = useAdminAuth(); // Check if user is admin
+  const isLoggedIn = useAppSelector(userLoginInfo);
+  const [showSearch, setShowSearch] = useState(false);
+  const { isAdmin } = useAdminAuth();
+  
+  // Fetch collections using React Query (automatic caching & deduplication)
+  const { data: collectionsData = [] } = useCollections();
+
+  const collections = useMemo(
+    () =>
+      collectionsData.map((collection) => ({
+        label: collection,
+        href: `/shop/${collection.toLowerCase().replace(/\s+/g, "")}`,
+      })),
+    [collectionsData]
+  );
 
   const toggleSearchBar = () => {
-    setShowSearch(!showSearch); // Toggle the search bar visibility
+    setShowSearch(!showSearch);
   };
 
   useEffect(() => {
@@ -44,23 +54,8 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
   }, [itemsFromWish]);
 
   useEffect(() => {
-    setNot(itemsFromStore.length); // Set the count based on the cart items length
-  }, [itemsFromStore]); // This ensures it updates when `itemsFromStore` changes
-
-  useEffect(() => {
-    const fetchCollections = async () => {
-      const snapshot = await getDocs(
-        firestoreCollection(firestore, "collections")
-      );
-      setCollections(
-        snapshot.docs.map((doc) => ({
-          label: doc.data().name,
-          href: `/shop/${doc.data().name.toLowerCase().replace(/\s+/g, "")}`,
-        }))
-      );
-    };
-    fetchCollections();
-  }, []);
+    setNot(itemsFromStore.length);
+  }, [itemsFromStore]);
 
   const router = useRouter();
 
@@ -74,7 +69,7 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
 
   return (
     <div className="w-full">
-      <header className="flex responsive-padding text-white w-full py-2 xs:py-3 sm:py-4 md:py-4 lg:py-4 xl:py-4 mb-2 justify-between items-center bg-black/90 backdrop-blur-sm sticky top-0 z-40">
+      <header className="flex responsive-padding text-white w-full py-2 xs:py-3 sm:py-4 md:py-4 lg:py-4 xl:py-4 justify-between items-center bg-black/90 backdrop-blur-sm sticky top-0 z-40">
         {/* Mobile Menu Button */}
         <div className="block md:hidden lg:hidden xl:hidden">
           <RiMenu2Fill
@@ -86,11 +81,15 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
         {/* Logo */}
         <Link href="/" className="flex-shrink-0">
           <h2 className="text-xl xs:text-2xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-2xl items-center flex">
-            <img
-              className="h-8 xs:h-10 sm:h-10 md:h-10 lg:h-10 xl:h-10 mix-blend-lighten"
-              src="https://res.cloudinary.com/dfyfsmu84/image/upload/e_improve:outdoor/xw7ycjxay8kos34rnolf"
-              alt="Sway Logo"
-            />
+            <div className="relative h-10 w-10 mix-blend-lighten">
+              <Image
+                src="https://res.cloudinary.com/dfyfsmu84/image/upload/e_improve:outdoor/xw7ycjxay8kos34rnolf"
+                alt="Sway Logo"
+                fill
+                className="object-contain"
+                priority={false}
+              />
+            </div>
             <span className="ml-2">Sway</span>
           </h2>
         </Link>
@@ -194,14 +193,14 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
           {/* Icons */}
           {!showSearch && (
             <div className="flex items-center space-x-2 xs:space-x-3 sm:space-x-4 md:space-x-4 lg:space-x-4 xl:space-x-4">
-              <Link href="/wishlist" className="relative group">
+              <button type="button" aria-label="wish list"  onClick={() => router.push(isLoggedIn ? "/profile" : "/login")}  className="relative group">
                 <CiHeart className="text-xl xs:text-2xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-2xl hover:text-green-400 transition-colors duration-300" />
                 {wish > 0 && (
                   <sup className="absolute -top-2 -right-2 text-xs bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
                     {wish}
                   </sup>
                 )}
-              </Link>
+              </button>
 
               <Link href="/cart" className="relative group">
                 <CiShoppingCart className="text-xl xs:text-2xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-2xl hover:text-green-400 transition-colors duration-300" />
@@ -212,9 +211,13 @@ const Navbar = ({ sideNav, setSideNav }: NavbarProps) => {
                 )}
               </Link>
 
-              <Link href="/profile">
+              <button
+                type="button"
+                aria-label="User profile"
+                onClick={() => router.push(isLoggedIn ? "/profile" : "/login")}
+              >
                 <CiUser className="text-xl xs:text-2xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-2xl hover:text-green-400 transition-colors duration-300" />
-              </Link>
+              </button>
 
               {isAdmin && (
                 <Link href="/admin" className="relative group">

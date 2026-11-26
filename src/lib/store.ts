@@ -3,6 +3,7 @@ import cartReducer from './features/carts/cartSlice';
 import userReducer from "../lib/features/user/user";
 import itemReducer from '../lib/features/items/items';
 import checkoutreducer from '../lib/features/checkout/checkout'
+import productsReducer from '../lib/features/products/productsSlice';
 
 export const makeStore = () => {
   return configureStore({
@@ -11,6 +12,7 @@ export const makeStore = () => {
         user: userReducer,
         items: itemReducer,
         checkout: checkoutreducer,
+        products: productsReducer,
     }
   })
 }

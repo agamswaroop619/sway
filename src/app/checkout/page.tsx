@@ -73,9 +73,13 @@ const CheckoutPage = () => {
   // 2. data of user
   const userData = useAppSelector(userInfo);
 
-  if (!userData) {
-    router.push("/login");
-  }
+  useEffect(() => {
+    if (!userData) {
+      router.replace("/login");
+    } else if (!cartItems?.length) {
+      router.replace("/cart");
+    }
+  }, [userData, cartItems, router]);
 
   // Address field
   const [firstName, setFirstName] = useState(userData?.name || "");
@@ -206,8 +210,15 @@ const CheckoutPage = () => {
         },
       };
 
-      const paymentInstance = new window.Razorpay(paymentData);
-      paymentInstance.open();
+      type RazorpayConstructor = new (opts: unknown) => { open: () => void };
+      const win = typeof window !== "undefined" ? (window as unknown as { Razorpay?: RazorpayConstructor }) : undefined;
+      if (win?.Razorpay) {
+        const PaymentClass = win.Razorpay;
+        const paymentInstance = new PaymentClass(paymentData);
+        paymentInstance.open();
+      } else {
+        throw new Error("Razorpay is not available in this environment.");
+      }
     } catch (err) {
       if (err instanceof Error) console.error("");
       throw new Error("Order is not created");
@@ -325,7 +336,7 @@ const CheckoutPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cartItems, userData, shipmentId }),
+        body: JSON.stringify({ cartItems, userData, shipmentId, paymentMethod: payment === "cash" ? "COD" : "Prepaid" }),
       });
 
       const data = await res.json();
@@ -340,10 +351,6 @@ const CheckoutPage = () => {
       throw new Error("order is not created. something went wrong");
     }
   };
-
-  if (!cartItems) {
-    router.push("/cart");
-  }
 
   // coupon Handler
   const [couponErr, setCouponErr] = useState("");

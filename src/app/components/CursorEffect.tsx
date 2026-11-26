@@ -16,6 +16,7 @@ export default function CursorEffect() {
     let circleX = mouseX;
     let circleY = mouseY;
     const speed = 0.16; // Lower = more delay
+    let animationFrameId: number | null = null;
 
     const move = (e: MouseEvent) => {
       mouseX = e.clientX;
@@ -27,12 +28,15 @@ export default function CursorEffect() {
       circleY += (mouseY - circleY) * speed;
       cursor.style.left = `${circleX}px`;
       cursor.style.top = `${circleY}px`;
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     }
     window.addEventListener("mousemove", move);
     animate();
     return () => {
       window.removeEventListener("mousemove", move);
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
       cursor.remove();
     };
   }, []);

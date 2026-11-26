@@ -7,14 +7,14 @@ import { setUser } from "@/lib/features/user/user";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import Link from "next/link";
+// Link removed; this component uses an interactive button now
 
 const GoogleLogin = () => {
 
     const dispatch= useAppDispatch();
     const router = useRouter();
 
-   const login = async () => {
+    const login = async () => {
         try {
 
             const googleAuth = new GoogleAuthProvider();
@@ -99,24 +99,24 @@ const GoogleLogin = () => {
             router.push("/profile");
 
         } catch (error) {
-            throw new Error(`Google authentication failed : ${error}`)
-            //if( error instanceof Error)
-           //console.log("error has occured ")
+            console.error("Google authentication failed:", error);
+            toast.error("Google authentication failed. Please try again.");
+            return;
         }
    }
 
     return(
         <div className="w-[300px] flex  justify-center items-center">
 
-             <Link href="#" onClick={ login}
-              className=" flex p-2  rounded-md hover:scale-105 transition duration-300 ease-in-out border shadow"> 
-              <img
-                className="max-w-[25px] mr-1"
-                src="https://ucarecdn.com/8f25a2ba-bdcf-4ff1-b596-088f330416ef/"
-                alt="Google"
-              />
-              Continue With Google
-          </Link>
+                         <button onClick={login}
+                            className=" flex items-center p-2 rounded-md hover:scale-105 transition duration-300 ease-in-out border shadow bg-transparent"> 
+                            <img
+                                className="max-w-[25px] mr-1"
+                                src="https://ucarecdn.com/8f25a2ba-bdcf-4ff1-b596-088f330416ef/"
+                                alt="Google"
+                            />
+                            <span>Continue With Google</span>
+                    </button>
 
         </div>
     )

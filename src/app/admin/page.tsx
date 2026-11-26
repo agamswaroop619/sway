@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { firestore } from "../firebase.config";
@@ -25,7 +25,6 @@ const bgMain =
   "bg-gradient-to-b from-green-900 via-black to-black min-h-screen";
 const cardBg = "bg-gray-900";
 const textMain = "text-white";
-// const textSecondary = "text-gray-300"; // Removed unused variable
 
 export default function AdminAnalyticsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,9 +32,7 @@ export default function AdminAnalyticsPage() {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(
     null
   );
-  // const [collections, setCollections] = useState<any[]>([]); // Removed unused variable
   const router = useRouter();
-  // Removed unused addStatus state
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -54,7 +51,6 @@ export default function AdminAnalyticsPage() {
           collection: data.collection,
         });
       });
-      // If no products, use sample data
       if (productList.length === 0) {
         setProducts([
           {
@@ -103,11 +99,8 @@ export default function AdminAnalyticsPage() {
   }, []);
 
   useEffect(() => {
-    // Fetch collections from Firestore
     const fetchCollections = async () => {
-      // setCollections( // Removed unused variable
-      //   snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      // );
+      // Collections fetch logic
     };
     fetchCollections();
   }, []);
@@ -116,7 +109,6 @@ export default function AdminAnalyticsPage() {
     return <div>Loading analytics...</div>;
   }
 
-  // Group by collection
   const collectionMap: Record<string, { totalSold: number; revenue: number }> =
     {};
   products.forEach((p) => {
@@ -127,15 +119,7 @@ export default function AdminAnalyticsPage() {
     collectionMap[col].totalSold += p.totalSold ?? 0;
     collectionMap[col].revenue += p.revenue ?? 0;
   });
-  // Removed unused collectionNames
-  // const collectionSold = collectionNames.map( // Removed unused variable
-  //   (col) => collectionMap[col].totalSold
-  // );
-  // const collectionRevenue = collectionNames.map( // Removed unused variable
-  //   (col) => collectionMap[col].revenue
-  // );
 
-  // Dummy data for charts
   const dummyCollectionNames = [
     "Streetwear",
     "Oversized T-Shirts",
@@ -146,7 +130,6 @@ export default function AdminAnalyticsPage() {
   const dummySold = [150, 200, 80, 60, 120];
   const dummyRevenue = [75000, 120000, 40000, 30000, 60000];
 
-  // Dummy shirts per collection
   const dummyShirts: Record<
     string,
     { title: string; totalSold: number; revenue: number }[]
@@ -175,7 +158,6 @@ export default function AdminAnalyticsPage() {
     ],
   };
 
-  // Prepare data for charts (by collection)
   const barSeries = [
     {
       name: "Total Sold",
@@ -187,8 +169,8 @@ export default function AdminAnalyticsPage() {
       type: "bar" as const,
       events: {
         dataPointSelection: (
-          event: React.MouseEvent<HTMLElement>,
-          chartContext: unknown,
+          _event: React.MouseEvent<HTMLElement>,
+          _chartContext: unknown,
           config: { dataPointIndex: number }
         ) => {
           setSelectedCollection(dummyCollectionNames[config.dataPointIndex]);
@@ -226,8 +208,8 @@ export default function AdminAnalyticsPage() {
     chart: {
       events: {
         dataPointSelection: (
-          event: React.MouseEvent<HTMLElement>,
-          chartContext: unknown,
+          _event: React.MouseEvent<HTMLElement>,
+          _chartContext: unknown,
           config: { dataPointIndex: number }
         ) => {
           setSelectedCollection(dummyCollectionNames[config.dataPointIndex]);
@@ -237,7 +219,6 @@ export default function AdminAnalyticsPage() {
     },
   };
 
-  // Data for the selected collection's shirts
   const selectedShirts = selectedCollection
     ? dummyShirts[selectedCollection] || []
     : [];
@@ -297,7 +278,6 @@ export default function AdminAnalyticsPage() {
             </button>
           </div>
         </div>
-        {/* Removed addStatus display */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div className={`${cardBg} p-4 rounded shadow`}>
             <ApexChart
